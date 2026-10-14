@@ -50,7 +50,7 @@ def retry_after_seconds(response: httpx.Response, attempt: int, base: float) -> 
     header = response.headers.get("Retry-After") or response.headers.get("X-RequestCounter-Reset")
     if header is not None:
         try:
-            return min(float(header), MAX_BACKOFF_SECONDS)
+            return min(max(float(header), 0.0), MAX_BACKOFF_SECONDS)
         except ValueError:
             pass  # HTTP-date form: fall back to exponential backoff
     return min(base * (2 ** (attempt - 1)), MAX_BACKOFF_SECONDS)

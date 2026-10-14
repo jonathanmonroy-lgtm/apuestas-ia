@@ -13,7 +13,13 @@ from typing import Any
 import httpx
 
 from app.models.enums import Provider
-from app.services.errors import AuthError, FormatError, ProviderError, QuotaExhaustedError
+from app.services.errors import (
+    AuthError,
+    FormatError,
+    ProviderError,
+    QuotaExhaustedError,
+    ThrottledError,
+)
 from app.services.fixtures_provider.base import FixturesBatch
 from app.services.http import ProviderHttpClient, RawResponse
 
@@ -31,8 +37,10 @@ def classify_body(response: httpx.Response, payload: Any) -> ProviderError | Non
     if isinstance(errors, list):
         errors = {str(i): e for i, e in enumerate(errors)}
     message = "; ".join(f"{k}: {v}" for k, v in errors.items())
-    if "requests" in errors or "rateLimit" in errors:
+    if "requests" in errors:  # daily quota
         return QuotaExhaustedError(message, http_status=response.status_code)
+    if "rateLimit" in errors:  # per-minute limit: transient, retry later
+        return ThrottledError(message, http_status=response.status_code)
     if "token" in errors or "plan" in errors or "access" in errors:
         return AuthError(message, http_status=response.status_code)
     return ProviderError(message, http_status=response.status_code)

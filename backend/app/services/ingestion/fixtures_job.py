@@ -51,24 +51,33 @@ def run_fixtures_ingestion(
         raw = provider.fetch_fixtures(
             competition_code, season=season, date_from=date_from, date_to=date_to
         )
-    except ProviderError as exc:
+    except Exception as exc:  # ProviderError, or anything unexpected: never leave RUNNING
+        attempts = exc.attempts if isinstance(exc, ProviderError) else 1
         with session_factory() as s:
             budget = QuotaBudget(s, provider.source, policy)
-            budget.record_call()
+            # Every retry was a real request: count them all, not just one.
+            budget.record_call(cost=max(1, attempts))
             if isinstance(exc, QuotaExhaustedError):
                 budget.mark_exhausted(exc.retry_after)
             s.commit()
-        return recorder.finish(exc.status, error=exc)
+        if not isinstance(exc, ProviderError):
+            log.exception("fixtures_fetch_unexpected_error", run_id=recorder.run_id)
+        status = exc.status if isinstance(exc, ProviderError) else IngestionStatus.FAILED
+        return recorder.finish(status, error=exc)
 
     remaining = provider.quota_remaining(raw)
     with session_factory() as s:
-        QuotaBudget(s, provider.source, policy).record_call(remaining=remaining)
+        QuotaBudget(s, provider.source, policy).record_call(
+            cost=max(1, raw.attempts), remaining=remaining
+        )
         s.commit()
     recorder.save_raw(raw, remaining)
 
     try:
         batch = provider.normalize(raw)
-    except ProviderError as exc:
+    except Exception as exc:  # FormatError, or a normalizer bug: raw is already saved
+        if not isinstance(exc, ProviderError):
+            log.exception("fixtures_normalize_unexpected_error", run_id=recorder.run_id)
         return recorder.finish(IngestionStatus.FAILED, error=exc)
 
     try:
@@ -121,7 +130,9 @@ def upsert_batch(s: Session, batch: FixturesBatch) -> int:
                 name=dto.short_name or dto.name,
                 short_name=dto.short_name,
                 sport=comp_dto.sport,
-                country_code=comp_dto.country_code,  # assumption: domestic league
+                # Unknown: a club's country is not the league's (e.g. Monaco in Ligue 1),
+                # and we don't invent it.
+                country_code=None,
             )
             s.add(p)
             s.flush()
@@ -151,8 +162,14 @@ def upsert_batch(s: Session, batch: FixturesBatch) -> int:
         if event_id is None:
             add_ref(s, src, EntityType.EVENT, f.external_id, event.id)
 
+        existing_result = s.query(EventResult).filter_by(event_id=event.id).one_or_none()
+        if f.full_time is None and existing_result is not None:
+            # Provider withdrew the result (premature FINISHED corrected, awarded, etc.):
+            # a stale "final" score must not survive on an event that isn't finished.
+            log.warning("event_result_removed", event_id=event.id, status=f.status.value)
+            s.delete(existing_result)
         if f.status is EventStatus.FINISHED and f.full_time is not None:
-            result = s.query(EventResult).filter_by(event_id=event.id).one_or_none()
+            result = existing_result
             if result is None:
                 result = EventResult(event_id=event.id, source=src, recorded_at=now)
                 s.add(result)

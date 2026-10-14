@@ -54,3 +54,10 @@ def test_network_error_exhausts_attempts():
     with pytest.raises(ProviderUnavailableError):
         make_client(boom, sleeps, max_attempts=2).get_json("/x")
     assert sleeps == [2.0]
+
+
+def test_negative_retry_after_does_not_crash():
+    calls = iter([httpx.Response(429, headers={"Retry-After": "-5"}), httpx.Response(200, json={})])
+    sleeps: list[float] = []
+    make_client(lambda req: next(calls), sleeps).get_json("/x")
+    assert sleeps == [0.0]

@@ -36,11 +36,18 @@ STATUS_MAP: dict[str, EventStatus] = {
     "PAUSED": EventStatus.LIVE,
     "LIVE": EventStatus.LIVE,
     "FINISHED": EventStatus.FINISHED,
+    # AWARDED (administrative result: walkover, ineligible player...) is "finished" for
+    # the calendar, but its score is NOT a played result: see _fixture().
     "AWARDED": EventStatus.FINISHED,
     "POSTPONED": EventStatus.POSTPONED,
     "SUSPENDED": EventStatus.POSTPONED,
     "CANCELLED": EventStatus.CANCELLED,
 }
+
+# Statuses whose utcDate is a real, still-valid kick-off. Everything else is NOT confirmed:
+# SCHEDULED (00:00Z date-only placeholder), POSTPONED/SUSPENDED (original slot that won't
+# happen), CANCELLED, AWARDED (no match played) and any status we don't know.
+KICKOFF_CONFIRMED_STATUSES = {"TIMED", "IN_PLAY", "PAUSED", "LIVE", "FINISHED"}
 
 # football-data uses its own 3-letter area codes; we store ISO alpha-2.
 AREA_TO_ISO2 = {"ESP": "ES", "ITA": "IT", "DEU": "DE", "FRA": "FR", "PRT": "PT", "NLD": "NL"}
@@ -59,8 +66,11 @@ class _Half(BaseModel):
 
 
 class _Score(BaseModel):
+    duration: str = "REGULAR"  # REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT
     fullTime: _Half
     halfTime: _Half | None = None
+    # Present when duration != REGULAR: the 90-minute score (what 1X2 settles on).
+    regularTime: _Half | None = None
 
 
 class _Season(BaseModel):
@@ -157,28 +167,36 @@ class FootballDataProvider:
         if not parsed.matches:
             raise FormatError("football-data returned no matches (season not available?)")
 
+        season_ids = {m.season.id for m in parsed.matches}
+        if len(season_ids) > 1:
+            # A date-range call across seasons: refuse rather than file matches under the
+            # wrong season. Callers must request one season at a time.
+            raise FormatError(f"matches from several seasons in one response: {season_ids}")
         first_season = parsed.matches[0].season
         area = parsed.area or parsed.matches[0].area
         area_code = area.code if area else None
-        competition = CompetitionDTO(
-            external_id=str(parsed.competition.id),
-            name=parsed.competition.name,
-            sport=Sport.FOOTBALL,
-            country_code=AREA_TO_ISO2.get(area_code or ""),
-        )
-        season = SeasonDTO(
-            external_id=str(first_season.id),
-            name=season_name(first_season.startDate, first_season.endDate),
-            start_date=first_season.startDate,
-            end_date=first_season.endDate,
-        )
+        try:
+            competition = CompetitionDTO(
+                external_id=str(parsed.competition.id),
+                name=parsed.competition.name,
+                sport=Sport.FOOTBALL,
+                country_code=AREA_TO_ISO2.get(area_code or ""),
+            )
+            season = SeasonDTO(
+                external_id=str(first_season.id),
+                name=season_name(first_season.startDate, first_season.endDate),
+                start_date=first_season.startDate,
+                end_date=first_season.endDate,
+            )
+        except ValidationError as exc:
+            raise FormatError(f"unexpected competition/season data: {exc}") from exc
         try:
             fixtures = [self._fixture(m) for m in parsed.matches]
+            return FixturesBatch(
+                source=self.source, competition=competition, season=season, fixtures=fixtures
+            )
         except (ValidationError, ValueError) as exc:
             raise FormatError(f"unexpected match data: {exc}") from exc
-        return FixturesBatch(
-            source=self.source, competition=competition, season=season, fixtures=fixtures
-        )
 
     @staticmethod
     def _fixture(m: _Match) -> FixtureDTO:
@@ -192,13 +210,27 @@ class FootballDataProvider:
                 return None
             return ScoreDTO(home=half.home, away=half.away)
 
+        # Only a match actually played to the end produces a result. For extra time /
+        # penalties, fullTime includes them, so we take the 90-minute regularTime (and
+        # record nothing if the provider doesn't give it).
+        full_time = half_time = None
+        if m.status == "FINISHED":
+            if m.score.duration == "REGULAR":
+                full_time = score(m.score.fullTime)
+            else:
+                full_time = score(m.score.regularTime)
+                if full_time is None:
+                    log.warning("football_data_no_regular_time", match_id=m.id,
+                                duration=m.score.duration)  # fmt: skip
+            half_time = score(m.score.halfTime) if full_time else None
+        elif m.status == "AWARDED":
+            log.warning("football_data_awarded_result_skipped", match_id=m.id)
+
         return FixtureDTO(
             external_id=str(m.id),
             starts_at=m.utcDate,  # ISO 8601 with "Z": pydantic parses to aware UTC
-            # SCHEDULED = date only (utcDate is a 00:00Z placeholder); TIMED and later
-            # statuses carry the real kick-off. Decided by status, not by the 00:00 time,
-            # because a real match could start at midnight UTC.
-            kickoff_confirmed=m.status != "SCHEDULED",
+            # Decided by status, not by the 00:00 time: a real match could start at midnight.
+            kickoff_confirmed=m.status in KICKOFF_CONFIRMED_STATUSES,
             status=status,
             round=f"Jornada {m.matchday}" if m.matchday else None,
             venue=m.venue,
@@ -206,6 +238,6 @@ class FootballDataProvider:
                          short_name=m.homeTeam.shortName),
             away=TeamDTO(external_id=str(m.awayTeam.id), name=m.awayTeam.name,
                          short_name=m.awayTeam.shortName),
-            full_time=score(m.score.fullTime) if status is EventStatus.FINISHED else None,
-            half_time=score(m.score.halfTime) if status is EventStatus.FINISHED else None,
+            full_time=full_time,
+            half_time=half_time,
         )  # fmt: skip

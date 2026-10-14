@@ -7,7 +7,7 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.orm import sessionmaker
 
-from app.models import Event, EventResult, IngestionRun, Participant
+from app.models import Event, EventResult, IngestionRun, Participant, ProviderQuota
 from app.models.enums import EntityType, EventStatus, IngestionStatus, Provider, QuotaPeriod
 from app.services.errors import AuthError, ProviderError
 from app.services.fixtures_provider.football_data import FootballDataProvider
@@ -140,3 +140,69 @@ def test_kickoff_gets_confirmed_when_provider_sets_the_time(sf):
 
 def event_id(s, external_id: str) -> int:
     return find_ref(s, Provider.FOOTBALL_DATA, EntityType.EVENT, external_id)
+
+
+class ExplodingProvider(FakeProvider):
+    def __init__(self, where: str):
+        super().__init__()
+        self.where = where
+
+    def fetch_fixtures(self, competition, **kw):
+        if self.where == "fetch":
+            raise RuntimeError("httpx.DecodingError or similar")
+        return super().fetch_fixtures(competition, **kw)
+
+    def normalize(self, raw):
+        if self.where == "normalize":
+            raise RuntimeError("normalizer bug")
+        return super().normalize(raw)
+
+
+@pytest.mark.parametrize("where", ["fetch", "normalize"])
+def test_unexpected_exception_never_leaves_run_running(sf, where):
+    """QA F2 #6: non-ProviderError exceptions must still close the run."""
+    outcome = run_fixtures_ingestion(sf, ExplodingProvider(where), "PD", policy=POLICY)
+    assert outcome.status is IngestionStatus.FAILED
+    with sf() as s:
+        run = s.get_one(IngestionRun, outcome.run_id)
+        assert run.status is IngestionStatus.FAILED
+        assert run.finished_at is not None
+        assert "RuntimeError" in run.error_message
+
+
+def test_retries_count_against_the_budget(sf):
+    """QA F2 #5: 3 attempts = 3 real requests."""
+
+    class RetryingProvider(FakeProvider):
+        def fetch_fixtures(self, competition, **kw):
+            raw = super().fetch_fixtures(competition, **kw)
+            return RawResponse(payload=raw.payload, url=raw.url, http_status=200, headers={},
+                               attempts=3)  # fmt: skip
+
+    run_fixtures_ingestion(sf, RetryingProvider(), "PD", policy=POLICY)
+    run_fixtures_ingestion(sf, FakeProvider(error=AuthError("x", attempts=2)), "PD", policy=POLICY)
+    with sf() as s:
+        assert s.get_one(ProviderQuota, Provider.FOOTBALL_DATA).used == 5
+
+
+def test_result_removed_when_provider_unfinishes_a_match(sf):
+    """QA F2 #8: a premature FINISHED corrected to IN_PLAY must not keep a final score."""
+    run_fixtures_ingestion(sf, FakeProvider(), "PD", policy=POLICY)
+    assert count(sf, EventResult) == 2
+
+    corrected = copy.deepcopy(PAYLOAD)
+    corrected["matches"][0]["status"] = "IN_PLAY"
+    run_fixtures_ingestion(sf, FakeProvider(corrected), "PD", policy=POLICY)
+
+    assert count(sf, EventResult) == 1
+    with sf() as s:
+        event = s.get_one(Event, event_id(s, "564634"))
+        assert event.status is EventStatus.LIVE
+        assert event.result is None
+
+
+def test_team_country_is_not_inferred_from_the_league(sf):
+    """QA F2 #4: a club's country isn't the league's country."""
+    run_fixtures_ingestion(sf, FakeProvider(), "PD", policy=POLICY)
+    with sf() as s:
+        assert s.scalars(select(Participant.country_code).distinct()).all() == [None]

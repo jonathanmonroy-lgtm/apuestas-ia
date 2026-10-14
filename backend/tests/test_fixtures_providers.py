@@ -7,7 +7,7 @@ import pytest
 
 from app.core.config import Settings
 from app.models.enums import EventStatus, Provider
-from app.services.errors import AuthError, FormatError, QuotaExhaustedError
+from app.services.errors import AuthError, FormatError, QuotaExhaustedError, ThrottledError
 from app.services.fixtures_provider import ProviderNotConfiguredError, get_fixtures_provider
 from app.services.fixtures_provider.api_football import classify_body
 from app.services.fixtures_provider.football_data import BASE_URL as FD_BASE_URL
@@ -180,7 +180,7 @@ def test_football_data_kickoff_confirmed_real_vs_placeholder():
     assert timed.starts_at == datetime(2026, 10, 16, 19, 0, tzinfo=UTC)
 
     assert by_id["564634"].kickoff_confirmed is True  # FINISHED
-    assert by_id["564698"].kickoff_confirmed is True  # CANCELLED: original time was set
+    assert by_id["564698"].kickoff_confirmed is False  # CANCELLED: that slot won't happen
 
 
 def test_football_data_midnight_timed_match_is_confirmed():
@@ -189,3 +189,61 @@ def test_football_data_midnight_timed_match_is_confirmed():
     payload["matches"][2]["utcDate"] = "2026-10-17T00:00:00Z"  # TIMED at midnight UTC
     fixture = FootballDataProvider("k").normalize(raw(payload)).fixtures[2]
     assert fixture.kickoff_confirmed is True
+
+
+@pytest.mark.parametrize(
+    "status", ["POSTPONED", "SUSPENDED", "CANCELLED", "AWARDED", "SCHEDULED", "SOMETHING_NEW"]
+)
+def test_kickoff_not_confirmed_unless_status_guarantees_it(status):
+    """QA F2 #1: only TIMED/live/FINISHED keep a valid kick-off time."""
+    payload = load(REAL)
+    payload["matches"][2]["status"] = status  # the TIMED Deportivo - Levante
+    fixture = FootballDataProvider("k").normalize(raw(payload)).fixtures[2]
+    assert fixture.kickoff_confirmed is False
+
+
+def test_awarded_score_is_not_stored_as_played_result():
+    """QA F2 #2: a 3-0 by walkover is administrative, not a football result."""
+    payload = load(REAL)
+    payload["matches"][0]["status"] = "AWARDED"  # Alavés 3-0 Getafe
+    fixture = FootballDataProvider("k").normalize(raw(payload)).fixtures[0]
+    assert fixture.status is EventStatus.FINISHED
+    assert fixture.full_time is None
+    assert fixture.half_time is None
+
+
+def test_penalty_shootout_uses_regular_time_score():
+    """QA F2 #3: 1X2 settles on 90 minutes; fullTime would include ET/penalties."""
+    payload = load(REAL)
+    payload["matches"][0]["score"] = {
+        "winner": "HOME_TEAM", "duration": "PENALTY_SHOOTOUT",
+        "fullTime": {"home": 5, "away": 4}, "halfTime": {"home": 0, "away": 1},
+        "regularTime": {"home": 1, "away": 1}, "extraTime": {"home": 0, "away": 0},
+        "penalties": {"home": 4, "away": 3},
+    }  # fmt: skip
+    fixture = FootballDataProvider("k").normalize(raw(payload)).fixtures[0]
+    assert (fixture.full_time.home, fixture.full_time.away) == (1, 1)
+
+
+def test_extra_time_without_regular_time_records_nothing():
+    payload = load(REAL)
+    payload["matches"][0]["score"]["duration"] = "EXTRA_TIME"  # and no regularTime
+    fixture = FootballDataProvider("k").normalize(raw(payload)).fixtures[0]
+    assert fixture.full_time is None
+
+
+def test_matches_from_two_seasons_are_refused():
+    """QA F2 #7: never file matches under the wrong season."""
+    payload = load(REAL)
+    payload["matches"][0]["season"] = {"id": 2400, "startDate": "2025-08-15",
+                                       "endDate": "2026-05-24"}  # fmt: skip
+    with pytest.raises(FormatError, match="several seasons"):
+        FootballDataProvider("k").normalize(raw(payload))
+
+
+def test_api_football_per_minute_rate_limit_is_throttled_not_exhausted():
+    """QA F2 #9: rateLimit is per-minute; pausing the provider for a day would be wrong."""
+    payload = {
+        "errors": {"rateLimit": "Too many requests. Your rate limit is 10 requests per minute."}
+    }
+    assert isinstance(classify_body(httpx.Response(200), payload), ThrottledError)
