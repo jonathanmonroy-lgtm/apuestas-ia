@@ -5,7 +5,9 @@ Policy (see docs/arquitectura.md):
   at most `max_attempts` attempts in total.
 - 401/403 -> AuthError, never retried.
 - Providers can inspect 200 bodies via `classify_body` (API-Sports puts errors there).
-- The API key travels in a header and is never part of the stored URL.
+- The API key travels in a header when the provider allows it. Providers that only accept
+  it as a query param (The Odds API) pass `auth_params`: they are sent but stripped from
+  the URL we store/log.
 """
 
 import time
@@ -62,7 +64,8 @@ class ProviderHttpClient:
         *,
         source: str,
         base_url: str,
-        auth_headers: Mapping[str, str],
+        auth_headers: Mapping[str, str] | None = None,
+        auth_params: Mapping[str, str] | None = None,
         timeout: float = 20.0,
         max_attempts: int = 3,
         backoff_base: float = 2.0,
@@ -75,8 +78,12 @@ class ProviderHttpClient:
         self.backoff_base = backoff_base
         self._sleep = sleep
         self._classify_body = classify_body
+        self._auth_params = dict(auth_params or {})
         self._client = httpx.Client(
-            base_url=base_url, headers=dict(auth_headers), timeout=timeout, transport=transport
+            base_url=base_url,
+            headers=dict(auth_headers or {}),
+            timeout=timeout,
+            transport=transport,
         )
 
     def close(self) -> None:
@@ -86,7 +93,7 @@ class ProviderHttpClient:
         last_error: ProviderError | None = None
         for attempt in range(1, self.max_attempts + 1):
             try:
-                response = self._client.get(path, params=params)
+                response = self._client.get(path, params={**(params or {}), **self._auth_params})
             except httpx.TransportError as exc:
                 last_error = ProviderUnavailableError(
                     f"network error: {exc.__class__.__name__}", attempts=attempt
@@ -94,7 +101,7 @@ class ProviderHttpClient:
                 self._backoff(attempt, None, reason="network")
                 continue
 
-            url = str(response.request.url)
+            url = self._sanitized_url(response.request.url)
             if response.status_code == 429:
                 last_error = ThrottledError("rate limited (429)", http_status=429, attempts=attempt)
                 # A provider may say a 429 is really "quota exhausted": don't retry that.
@@ -145,6 +152,11 @@ class ProviderHttpClient:
 
         # Only reachable after retrying, so last_error is set (max_attempts >= 1).
         raise last_error or ProviderUnavailableError("no attempts made")
+
+    def _sanitized_url(self, url: httpx.URL) -> str:
+        for key in self._auth_params:
+            url = url.copy_remove_param(key)
+        return str(url)
 
     def _classify(self, response: httpx.Response, payload: Any = None) -> ProviderError | None:
         if self._classify_body is None:

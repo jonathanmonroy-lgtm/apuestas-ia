@@ -44,7 +44,8 @@ Backend (desde `backend/`, requiere `uv`):
 - `uv run alembic revision --autogenerate -m "..."` — nueva migración (revisarla siempre a mano)
 - `uv run ruff check . && uv run ruff format .` — lint y formato
 - `uv run python -m app.jobs.sync_fixtures [--competition PD] [--season 2026]` — sincronizar partidos/resultados (requiere `FOOTBALL_DATA_KEY`; exit != 0 si algo falla)
-- `uv run python -m app.worker` — worker (proceso aparte de la API): sync diario de fixtures a las 06:15 UTC y recuperación al arrancar si los datos tienen >30 h. Reiniciarlo tras cambiar `.env` (la config se lee al arrancar)
+- `uv run python -m app.jobs.sync_odds` — sincronizar cuotas 1X2 de The Odds API (1 crédito por llamada de 500/mes; requiere `ODDS_API_KEY` y fixtures ya sincronizados)
+- `uv run python -m app.worker` — worker (proceso aparte de la API): fixtures diario 06:15 UTC, odds cada 3 h; recupera al arrancar si hay datos viejos. Reiniciarlo tras cambiar `.env` (la config se lee al arrancar)
 
 Infra: `docker compose up -d db` — Postgres 16 local. Usar `127.0.0.1`, no `localhost` (en Windows `localhost` resuelve a IPv6 y la conexión se cuelga).
 

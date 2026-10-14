@@ -21,6 +21,10 @@ def configure_logging(level: str = "INFO", json: bool = True) -> None:
         logger_factory=structlog.PrintLoggerFactory(file=sys.stdout),
         cache_logger_on_first_use=True,
     )
+    # httpx/httpcore log every request URL at INFO/DEBUG; The Odds API carries its key in
+    # the query string, so those loggers must never go below WARNING.
+    for noisy in ("httpx", "httpcore"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
 
 
 def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:

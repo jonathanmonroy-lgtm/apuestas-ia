@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, String
+from sqlalchemy import CheckConstraint, ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, utcnow
@@ -36,6 +36,17 @@ class OddSnapshot(Base):
     __table_args__ = (
         CheckConstraint("CAST(price AS REAL) > 1", name="price_gt_one"),
         Index("ix_odd_snapshot_lookup", "event_id", "market", "selection", "captured_at"),
+        # Same bookmaker price at the same provider timestamp = same observation:
+        # re-running an ingestion must not duplicate it.
+        UniqueConstraint(
+            "event_id",
+            "source",
+            "bookmaker",
+            "market",
+            "selection",
+            "captured_at",
+            name="uq_odd_snapshot_observation",
+        ),
     )
 
 

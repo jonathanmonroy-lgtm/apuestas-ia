@@ -1,8 +1,8 @@
 """Fixtures/results ingestion: provider -> IngestionRun (raw) -> Event/EventResult.
 
 Flow:
-1. QuotaBudget decides whether we can afford the call (if not: run SKIPPED, no request).
-2. Call provider; the raw JSON is stored on the run *before* normalizing.
+1-2. fetch_with_budget: budget check, call, charge the budget, store the raw JSON on the
+     run *before* normalizing.
 3. Normalize (pure). On FormatError the run is FAILED and no data is written.
 4. Upsert everything in ONE transaction: all or nothing.
 The API never calls providers; if this job fails, the API keeps serving the last data.
@@ -15,11 +15,12 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.logging import get_logger
 from app.models import Competition, Event, EventResult, Participant, Season
 from app.models.enums import EntityType, EventStatus, IngestionStatus
-from app.services.errors import BudgetRefusedError, ProviderError, QuotaExhaustedError
+from app.services.errors import ProviderError
 from app.services.fixtures_provider.base import FixturesBatch, FixturesProvider, TeamDTO
+from app.services.ingestion.fetch import fetch_with_budget
 from app.services.ingestion.refs import add_ref, find_ref
 from app.services.ingestion.runs import RunOutcome, RunRecorder
-from app.services.quota import QuotaBudget, QuotaPolicy
+from app.services.quota import QuotaPolicy
 
 log = get_logger(__name__)
 
@@ -39,39 +40,18 @@ def run_fixtures_ingestion(
     date_to: date | None = None,
 ) -> RunOutcome:
     recorder = RunRecorder(session_factory, provider.source, job)
-
-    with session_factory() as s:
-        budget = QuotaBudget(s, provider.source, policy)
-        allowed, reason = budget.can_spend()
-        s.commit()
-    if not allowed:
-        return recorder.finish(IngestionStatus.SKIPPED_NO_BUDGET, error=BudgetRefusedError(reason))
-
-    try:
-        raw = provider.fetch_fixtures(
+    raw = fetch_with_budget(
+        session_factory,
+        recorder,
+        provider.source,
+        policy,
+        lambda: provider.fetch_fixtures(
             competition_code, season=season, date_from=date_from, date_to=date_to
-        )
-    except Exception as exc:  # ProviderError, or anything unexpected: never leave RUNNING
-        attempts = exc.attempts if isinstance(exc, ProviderError) else 1
-        with session_factory() as s:
-            budget = QuotaBudget(s, provider.source, policy)
-            # Every retry was a real request: count them all, not just one.
-            budget.record_call(cost=max(1, attempts))
-            if isinstance(exc, QuotaExhaustedError):
-                budget.mark_exhausted(exc.retry_after)
-            s.commit()
-        if not isinstance(exc, ProviderError):
-            log.exception("fixtures_fetch_unexpected_error", run_id=recorder.run_id)
-        status = exc.status if isinstance(exc, ProviderError) else IngestionStatus.FAILED
-        return recorder.finish(status, error=exc)
-
-    remaining = provider.quota_remaining(raw)
-    with session_factory() as s:
-        QuotaBudget(s, provider.source, policy).record_call(
-            cost=max(1, raw.attempts), remaining=remaining
-        )
-        s.commit()
-    recorder.save_raw(raw, remaining)
+        ),
+        remaining_of=provider.quota_remaining,
+    )
+    if isinstance(raw, RunOutcome):
+        return raw
 
     try:
         batch = provider.normalize(raw)

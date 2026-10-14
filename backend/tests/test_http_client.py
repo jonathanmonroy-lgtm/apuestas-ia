@@ -61,3 +61,25 @@ def test_negative_retry_after_does_not_crash():
     sleeps: list[float] = []
     make_client(lambda req: next(calls), sleeps).get_json("/x")
     assert sleeps == [0.0]
+
+
+def test_query_param_key_is_sent_but_stripped_from_stored_url():
+    seen: list[httpx.Request] = []
+
+    def handler(req):
+        seen.append(req)
+        return httpx.Response(200, json=[])
+
+    client = ProviderHttpClient(
+        source="test",
+        base_url="https://provider.test",
+        auth_params={"apiKey": "secret-key"},
+        sleep=lambda s: None,
+        transport=httpx.MockTransport(handler),
+    )
+    raw = client.get_json("/odds", {"regions": "eu"})
+
+    assert seen[0].url.params["apiKey"] == "secret-key"
+    assert "secret-key" not in raw.url
+    assert "apiKey" not in raw.url
+    assert "regions=eu" in raw.url

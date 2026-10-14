@@ -1,0 +1,343 @@
+[
+ {
+  "id": "19ee731602634e5c9e3106630e087464",
+  "sport_key": "soccer_spain_la_liga",
+  "sport_title": "La Liga - Spain",
+  "commence_time": "2026-10-16T19:00:00Z",
+  "home_team": "Deportivo La Coruña",
+  "away_team": "Levante",
+  "bookmakers": [
+   {
+    "key": "pinnacle",
+    "title": "Pinnacle",
+    "last_update": "2026-10-14T23:05:01Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:05:01Z",
+      "outcomes": [
+       {
+        "name": "Deportivo La Coruña",
+        "price": 2.12
+       },
+       {
+        "name": "Levante",
+        "price": 3.61
+       },
+       {
+        "name": "Draw",
+        "price": 3.52
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "key": "williamhill",
+    "title": "William Hill",
+    "last_update": "2026-10-14T23:04:44Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:04:44Z",
+      "outcomes": [
+       {
+        "name": "Deportivo La Coruña",
+        "price": 2.05
+       },
+       {
+        "name": "Levante",
+        "price": 3.3
+       },
+       {
+        "name": "Draw",
+        "price": 3.3
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "key": "unibet_fr",
+    "title": "Unibet (FR)",
+    "last_update": "2026-10-14T23:04:46Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:04:46Z",
+      "outcomes": [
+       {
+        "name": "Deportivo La Coruña",
+        "price": 2.0
+       },
+       {
+        "name": "Levante",
+        "price": 3.2
+       },
+       {
+        "name": "Draw",
+        "price": 3.3
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "key": "betfair_ex_eu",
+    "title": "Betfair",
+    "last_update": "2026-10-14T23:05:05Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:05:05Z",
+      "outcomes": [
+       {
+        "name": "Deportivo La Coruña",
+        "price": 2.18
+       },
+       {
+        "name": "Levante",
+        "price": 3.7
+       },
+       {
+        "name": "Draw",
+        "price": 3.6
+       }
+      ]
+     },
+     {
+      "key": "h2h_lay",
+      "last_update": "2026-10-14T23:05:05Z",
+      "outcomes": [
+       {
+        "name": "Deportivo La Coruña",
+        "price": 2.2
+       },
+       {
+        "name": "Levante",
+        "price": 3.8
+       },
+       {
+        "name": "Draw",
+        "price": 3.65
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "846e496fc232b2fc20214754836727d0",
+  "sport_key": "soccer_spain_la_liga",
+  "sport_title": "La Liga - Spain",
+  "commence_time": "2026-10-17T16:30:00Z",
+  "home_team": "Real Betis",
+  "away_team": "Barcelona",
+  "bookmakers": [
+   {
+    "key": "pinnacle",
+    "title": "Pinnacle",
+    "last_update": "2026-10-14T23:05:01Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:05:01Z",
+      "outcomes": [
+       {
+        "name": "Barcelona",
+        "price": 1.42
+       },
+       {
+        "name": "Real Betis",
+        "price": 6.28
+       },
+       {
+        "name": "Draw",
+        "price": 5.71
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "key": "williamhill",
+    "title": "William Hill",
+    "last_update": "2026-10-14T23:04:44Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:04:44Z",
+      "outcomes": [
+       {
+        "name": "Barcelona",
+        "price": 1.4
+       },
+       {
+        "name": "Real Betis",
+        "price": 5.0
+       },
+       {
+        "name": "Draw",
+        "price": 4.75
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "key": "unibet_fr",
+    "title": "Unibet (FR)",
+    "last_update": "2026-10-14T23:04:46Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:04:46Z",
+      "outcomes": [
+       {
+        "name": "Barcelona",
+        "price": 1.37
+       },
+       {
+        "name": "Real Betis",
+        "price": 4.9
+       },
+       {
+        "name": "Draw",
+        "price": 5.3
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "key": "betfair_ex_eu",
+    "title": "Betfair",
+    "last_update": "2026-10-14T23:05:05Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:05:05Z",
+      "outcomes": [
+       {
+        "name": "Barcelona",
+        "price": 1.42
+       },
+       {
+        "name": "Real Betis",
+        "price": 6.8
+       },
+       {
+        "name": "Draw",
+        "price": 6.0
+       }
+      ]
+     },
+     {
+      "key": "h2h_lay",
+      "last_update": "2026-10-14T23:05:05Z",
+      "outcomes": [
+       {
+        "name": "Barcelona",
+        "price": 1.44
+       },
+       {
+        "name": "Real Betis",
+        "price": 7.4
+       },
+       {
+        "name": "Draw",
+        "price": 6.2
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "72089d103a5fe6a922c35e17efba6ffc",
+  "sport_key": "soccer_spain_la_liga",
+  "sport_title": "La Liga - Spain",
+  "commence_time": "2026-10-25T20:00:00Z",
+  "home_team": "Barcelona",
+  "away_team": "Real Madrid",
+  "bookmakers": [
+   {
+    "key": "unibet_fr",
+    "title": "Unibet (FR)",
+    "last_update": "2026-10-14T23:04:46Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:04:46Z",
+      "outcomes": [
+       {
+        "name": "Barcelona",
+        "price": 1.4
+       },
+       {
+        "name": "Real Madrid",
+        "price": 4.8
+       },
+       {
+        "name": "Draw",
+        "price": 4.8
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "key": "williamhill",
+    "title": "William Hill",
+    "last_update": "2026-10-14T23:04:44Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:04:44Z",
+      "outcomes": [
+       {
+        "name": "Barcelona",
+        "price": 1.5
+       },
+       {
+        "name": "Real Madrid",
+        "price": 4.8
+       },
+       {
+        "name": "Draw",
+        "price": 4.8
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "key": "pinnacle",
+    "title": "Pinnacle",
+    "last_update": "2026-10-14T23:05:01Z",
+    "markets": [
+     {
+      "key": "h2h",
+      "last_update": "2026-10-14T23:05:01Z",
+      "outcomes": [
+       {
+        "name": "Barcelona",
+        "price": 1.5
+       },
+       {
+        "name": "Real Madrid",
+        "price": 5.1
+       },
+       {
+        "name": "Draw",
+        "price": 5.22
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+]
