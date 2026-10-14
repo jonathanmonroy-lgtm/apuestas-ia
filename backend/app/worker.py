@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging, get_logger
 from app.jobs.sync_fixtures import sync_fixtures
+from app.jobs.sync_news import sync_news
 from app.jobs.sync_odds import sync_odds
 from app.models.enums import Provider
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
@@ -29,6 +30,7 @@ log = get_logger(__name__)
 
 FIXTURES_JOB_ID = "sync_fixtures"
 ODDS_JOB_ID = "sync_odds"
+NEWS_JOB_ID = "sync_news"
 # On a cold start, give the fixtures catch-up time to finish before odds look for events.
 ODDS_STARTUP_DELAY = timedelta(minutes=10)
 
@@ -100,6 +102,19 @@ def build_scheduler(
         misfire_grace_time=1800,
         # Stale odds: first run soon (after the fixtures catch-up), else wait an interval.
         **({"next_run_time": datetime.now(UTC) + ODDS_STARTUP_DELAY} if odds_stale else {}),
+    )
+
+    def run_news() -> None:
+        code = sync_news(settings, session_factory)
+        log.info("scheduled_job_done", job=NEWS_JOB_ID, exit_code=code)
+
+    scheduler.add_job(
+        run_news,
+        IntervalTrigger(hours=settings.news_sync_interval_hours, timezone=UTC),
+        id=NEWS_JOB_ID,
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=1800,
     )
     return scheduler
 

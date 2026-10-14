@@ -11,6 +11,7 @@ from app.models.enums import IngestionStatus, Provider
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
 from app.worker import (
     FIXTURES_JOB_ID,
+    NEWS_JOB_ID,
     ODDS_JOB_ID,
     ODDS_STARTUP_DELAY,
     build_scheduler,
@@ -40,7 +41,8 @@ def test_daily_cron_at_configured_utc_time(sf):
     add_run(sf, datetime.now(UTC))  # fresh data: no catch-up job
     scheduler = build_scheduler(SETTINGS, sf)
 
-    assert {j.id for j in scheduler.get_jobs()} == {FIXTURES_JOB_ID, ODDS_JOB_ID}
+    assert {j.id for j in scheduler.get_jobs()} == {FIXTURES_JOB_ID, ODDS_JOB_ID, NEWS_JOB_ID}
+    assert scheduler.get_job(NEWS_JOB_ID).trigger.interval == timedelta(hours=1)
     job = scheduler.get_job(FIXTURES_JOB_ID)
     fields = {f.name: str(f) for f in job.trigger.fields}
     assert (fields["hour"], fields["minute"]) == ("6", "15")
@@ -51,7 +53,7 @@ def test_daily_cron_at_configured_utc_time(sf):
 def test_stale_data_schedules_catch_up_run(sf):
     add_run(sf, datetime.now(UTC) - timedelta(hours=31))
     jobs = {j.id for j in build_scheduler(SETTINGS, sf).get_jobs()}
-    assert jobs == {FIXTURES_JOB_ID, f"{FIXTURES_JOB_ID}_catchup", ODDS_JOB_ID}
+    assert jobs == {FIXTURES_JOB_ID, f"{FIXTURES_JOB_ID}_catchup", ODDS_JOB_ID, NEWS_JOB_ID}
 
 
 def test_staleness_only_counts_successful_runs(sf):

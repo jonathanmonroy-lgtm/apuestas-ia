@@ -62,6 +62,13 @@ class Settings(BaseSettings):
     odds_credit_reserve: int = 50
     odds_sync_interval_hours: float = Field(default=3.0, gt=0)
 
+    # NewsAPI free (Developer) plan: 100 requests/day, max 100 results per query and
+    # ~24 h delay. Hourly = 24 calls/day; 100 results cover ~2.5 h of LaLiga news, so a
+    # longer interval would lose articles. Budget 50 leaves room for manual runs.
+    newsapi_daily_budget: int = 50
+    news_sync_interval_hours: float = Field(default=1.0, gt=0)
+    news_provider_delay_hours: int = 24  # shown to the user next to the news
+
 
 @lru_cache
 def get_settings() -> Settings:

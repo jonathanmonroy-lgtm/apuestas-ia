@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api import events, health
+from app.api import events, health, news
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 
@@ -10,3 +10,4 @@ configure_logging(settings.log_level, settings.log_json)
 app = FastAPI(title="Apuestas IA API", version="0.1.0")
 app.include_router(health.router)
 app.include_router(events.router)
+app.include_router(news.router)
