@@ -1,0 +1,36 @@
+# Apuestas IA — Plataforma de información para la comunidad de apostadores
+
+## 🎯 Qué es esto
+Plataforma que centraliza **noticias, reportes estadísticos, probabilidades (odds)** de distintas casas/fuentes, y un módulo de **IA** que aprende de todo ese histórico para generar **informes y pronósticos razonados** (no garantizados) para la comunidad.
+
+> ⚠️ Esto NO es un sistema de "apuestas seguras" ni promete ganancias. Es una herramienta de información y análisis. Debe incluir siempre mensajes de **juego responsable** y cumplir la normativa local (edad mínima, licencias, disclaimers).
+
+## 🧱 Arquitectura (visión MVP)
+
+```
+apuestas-ia/
+├── backend/            # API (FastAPI/Python o Node/Nest, a definir)
+│   └── app/
+│       ├── api/        # endpoints REST
+│       ├── models/     # modelos de datos (apuestas, eventos, usuarios)
+│       ├── services/   # scraping, ingestión de noticias, odds
+│       └── ia/         # entrenamiento, inferencia, pipelines ML
+├── frontend/           # App web (Next.js/React)
+├── docs/               # documentación de producto y arquitectura
+├── scripts/            # utilidades (seed, migraciones, cron jobs)
+└── .claude/
+    └── CLAUDE.md        # memoria/instrucciones persistentes para Claude Code
+```
+
+## 🚀 Primeros pasos
+
+```bash
+cd apuestas-ia
+claude          # abre Claude Code en esta carpeta
+```
+
+Dentro de Claude Code, pide por ejemplo:
+> "Lee docs/roadmap.md y docs/arquitectura.md, y ayúdame a montar el backend inicial según el plan del Sprint 0."
+
+## 📍 Estado actual
+Fase 0 — Definición y scaffolding. Ver `docs/roadmap.md`.
