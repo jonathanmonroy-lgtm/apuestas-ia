@@ -1,6 +1,6 @@
 """Common contract for news providers."""
 
-from typing import Protocol
+from typing import Any, Protocol
 
 from pydantic import AwareDatetime, BaseModel
 
@@ -23,6 +23,8 @@ class NewsBatch(BaseModel):
     source: Provider
     language: str
     total_results: int | None = None
+    page_count: int = 0  # articles in the provider page, before any filtering
+    oldest_in_page: AwareDatetime | None = None
     articles: list[ArticleDTO]
 
 
@@ -33,5 +35,9 @@ class NewsProvider(Protocol):
     def fetch_news(self) -> RawResponse: ...
 
     def normalize(self, raw: RawResponse) -> NewsBatch: ...
+
+    def redact_raw(self, payload: Any) -> Any:
+        """The part of the raw response we may keep for audit."""
+        ...
 
     def close(self) -> None: ...

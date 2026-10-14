@@ -5,13 +5,16 @@
 - De-duplicated by sha256 of the canonical URL (unique column): re-runs and syndicated
   copies with tracking params don't create duplicates.
 - Only a short summary is kept (NEWS_SUMMARY_MAX_CHARS); the provider's `content`
-  snippet is used for classification and discarded.
+  snippet is used for classification and discarded: it is also stripped from the raw
+  payload kept on the IngestionRun (provider.redact_raw), and raw payloads are purged
+  after RAW_PAYLOAD_RETENTION_DAYS (retention.py).
 """
 
 import re
 from collections import Counter
+from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.logging import get_logger
@@ -39,7 +42,16 @@ def run_news_ingestion(
     session_factory: sessionmaker[Session], provider: NewsProvider, *, policy: QuotaPolicy
 ) -> RunOutcome:
     recorder = RunRecorder(session_factory, provider.source, JOB_NEWS)
-    raw = fetch_with_budget(session_factory, recorder, provider.source, policy, provider.fetch_news)
+    with session_factory() as s:
+        newest_stored = s.scalar(select(func.max(NewsItem.published_at)))
+    raw = fetch_with_budget(
+        session_factory,
+        recorder,
+        provider.source,
+        policy,
+        provider.fetch_news,
+        redact=provider.redact_raw,
+    )
     if isinstance(raw, RunOutcome):
         return raw
 
@@ -50,11 +62,12 @@ def run_news_ingestion(
             log.exception("news_normalize_unexpected_error", run_id=recorder.run_id)
         return recorder.finish(IngestionStatus.FAILED, error=exc)
 
-    if len(batch.articles) >= provider.page_size:
-        # Free plan: 100 newest results per query. If a full page came back, older
-        # articles since the previous run may have been missed.
-        log.warning("news_page_full_possible_gap", run_id=recorder.run_id,
-                    total_results=batch.total_results)  # fmt: skip
+    gap = coverage_gap(batch, newest_stored, provider.page_size)
+    if gap is not None:
+        # Free plan: only the 100 newest results, no page 2. The page doesn't reach back
+        # to what we already had, so articles in between were missed.
+        log.warning("news_coverage_gap", run_id=recorder.run_id,
+                    gap_from=gap[0].isoformat(), gap_to=gap[1].isoformat())  # fmt: skip
 
     try:
         with session_factory() as s, s.begin():
@@ -65,6 +78,19 @@ def run_news_ingestion(
 
     log.info("news_batch_stored", run_id=recorder.run_id, **stats)
     return recorder.finish(IngestionStatus.SUCCESS, records=stats["inserted"])
+
+
+def coverage_gap(
+    batch: NewsBatch, newest_stored: datetime | None, page_size: int
+) -> tuple[datetime, datetime] | None:
+    """(from, to) of a window we certainly missed, or None. Only a FULL page can hide
+    older articles; if the page's oldest article is newer than everything we already
+    stored, the articles in between are lost (free plan: no page 2)."""
+    if newest_stored is None or batch.oldest_in_page is None:
+        return None
+    if batch.page_count < page_size or batch.oldest_in_page <= newest_stored:
+        return None
+    return newest_stored, batch.oldest_in_page
 
 
 def clean_text(text: str | None, limit: int) -> str | None:

@@ -14,6 +14,7 @@ from app.worker import (
     NEWS_JOB_ID,
     ODDS_JOB_ID,
     ODDS_STARTUP_DELAY,
+    RETENTION_JOB_ID,
     build_scheduler,
     fixtures_are_stale,
 )
@@ -41,7 +42,9 @@ def test_daily_cron_at_configured_utc_time(sf):
     add_run(sf, datetime.now(UTC))  # fresh data: no catch-up job
     scheduler = build_scheduler(SETTINGS, sf)
 
-    assert {j.id for j in scheduler.get_jobs()} == {FIXTURES_JOB_ID, ODDS_JOB_ID, NEWS_JOB_ID}
+    assert {j.id for j in scheduler.get_jobs()} == {
+        FIXTURES_JOB_ID, ODDS_JOB_ID, NEWS_JOB_ID, RETENTION_JOB_ID,
+    }  # fmt: skip
     assert scheduler.get_job(NEWS_JOB_ID).trigger.interval == timedelta(hours=1)
     job = scheduler.get_job(FIXTURES_JOB_ID)
     fields = {f.name: str(f) for f in job.trigger.fields}
@@ -53,7 +56,9 @@ def test_daily_cron_at_configured_utc_time(sf):
 def test_stale_data_schedules_catch_up_run(sf):
     add_run(sf, datetime.now(UTC) - timedelta(hours=31))
     jobs = {j.id for j in build_scheduler(SETTINGS, sf).get_jobs()}
-    assert jobs == {FIXTURES_JOB_ID, f"{FIXTURES_JOB_ID}_catchup", ODDS_JOB_ID, NEWS_JOB_ID}
+    assert jobs == {
+        FIXTURES_JOB_ID, f"{FIXTURES_JOB_ID}_catchup", ODDS_JOB_ID, NEWS_JOB_ID, RETENTION_JOB_ID,
+    }  # fmt: skip
 
 
 def test_staleness_only_counts_successful_runs(sf):
@@ -85,3 +90,10 @@ def test_odds_every_3h_and_delayed_after_a_cold_start(sf):
     assert job.max_instances == 1
     # pending (not started) scheduler keeps the requested first run time
     assert job.next_run_time >= before + ODDS_STARTUP_DELAY - timedelta(seconds=5)
+
+
+def test_stale_news_are_fetched_soon_after_start(sf):
+    """QA F4 #5: no catch-up meant losing the whole downtime (no page 2 on free plan)."""
+    before = datetime.now(UTC)
+    job = build_scheduler(SETTINGS, sf).get_job(NEWS_JOB_ID)  # never synced: stale
+    assert job.next_run_time <= before + ODDS_STARTUP_DELAY + timedelta(seconds=5)

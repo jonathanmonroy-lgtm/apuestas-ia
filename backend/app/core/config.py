@@ -63,11 +63,18 @@ class Settings(BaseSettings):
     odds_sync_interval_hours: float = Field(default=3.0, gt=0)
 
     # NewsAPI free (Developer) plan: 100 requests/day, max 100 results per query and
-    # ~24 h delay. Hourly = 24 calls/day; 100 results cover ~2.5 h of LaLiga news, so a
-    # longer interval would lose articles. Budget 50 leaves room for manual runs.
+    # ~24 h delay. Hourly = 24 calls/day. Measured 2026-10-14: the 100 results of one
+    # real call spanned 20:54-23:21 UTC (~2.5 h of an evening with Champions matches;
+    # a quieter window, 2026-10-12, spanned ~5 h), so a longer interval would lose
+    # articles on busy days. Budget 50 leaves room for manual runs.
     newsapi_daily_budget: int = 50
     news_sync_interval_hours: float = Field(default=1.0, gt=0)
     news_provider_delay_hours: int = 24  # shown to the user next to the news
+    # Our last news sync older than this at worker start -> sync right away.
+    news_stale_after_hours: float = 2.0
+
+    # Raw provider JSON kept on ingestion_run for audit/re-processing, then dropped.
+    raw_payload_retention_days: int = Field(default=30, ge=1)
 
 
 @lru_cache

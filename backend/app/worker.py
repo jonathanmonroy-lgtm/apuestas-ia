@@ -23,7 +23,9 @@ from app.jobs.sync_news import sync_news
 from app.jobs.sync_odds import sync_odds
 from app.models.enums import Provider
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
+from app.services.ingestion.news_job import JOB_NEWS
 from app.services.ingestion.odds_job import JOB_ODDS
+from app.services.ingestion.retention import purge_raw_payloads
 from app.services.ingestion.runs import last_success_at
 
 log = get_logger(__name__)
@@ -31,6 +33,7 @@ log = get_logger(__name__)
 FIXTURES_JOB_ID = "sync_fixtures"
 ODDS_JOB_ID = "sync_odds"
 NEWS_JOB_ID = "sync_news"
+RETENTION_JOB_ID = "purge_raw_payloads"
 # On a cold start, give the fixtures catch-up time to finish before odds look for events.
 ODDS_STARTUP_DELAY = timedelta(minutes=10)
 
@@ -108,6 +111,9 @@ def build_scheduler(
         code = sync_news(settings, session_factory)
         log.info("scheduled_job_done", job=NEWS_JOB_ID, exit_code=code)
 
+    news_stale = is_stale(
+        session_factory, Provider.NEWSAPI, JOB_NEWS, settings.news_stale_after_hours
+    )
     scheduler.add_job(
         run_news,
         IntervalTrigger(hours=settings.news_sync_interval_hours, timezone=UTC),
@@ -115,6 +121,21 @@ def build_scheduler(
         max_instances=1,
         coalesce=True,
         misfire_grace_time=1800,
+        # After downtime, fetch soon (after the fixtures catch-up: news are linked to
+        # teams that must exist). The free plan can't page back, so waiting loses more.
+        **({"next_run_time": datetime.now(UTC) + ODDS_STARTUP_DELAY} if news_stale else {}),
+    )
+
+    def run_retention() -> None:
+        purge_raw_payloads(session_factory, settings.raw_payload_retention_days)
+
+    scheduler.add_job(
+        run_retention,
+        CronTrigger(hour=3, minute=30, timezone=UTC),
+        id=RETENTION_JOB_ID,
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=6 * 3600,
     )
     return scheduler
 

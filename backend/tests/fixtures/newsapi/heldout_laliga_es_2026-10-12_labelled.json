@@ -1,0 +1,911 @@
+{
+ "_source": "Real NewsAPI /v2/everything response (production query, language=es, from=2026-10-12T00:00 to=2026-10-12T21:00), recorded 2026-10-14. HELD-OUT: not used to design the rules. Every article labelled by hand (label_team_ids = football-data team ids the article is really about).",
+ "measured_before_any_change": {
+  "predicted_positive": 46,
+  "false_positive": 3,
+  "false_negative": 0
+ },
+ "articles": [
+  {
+   "title": "Renfe prevé que todos los trenes afectados por el incendio comiencen a circular a las 23.00 de este lunes",
+   "description": "La circulación entre Madrid y Barcelona ha comenzado a recuperarse y Renfe prevé que todos los trenes detenidos empiecen a circular a las 23.00 horas de este lunes después de que un incendio en la cabina de cola de un AVE a la altura de Ricla (Zaragoza) que r…",
+   "content": "MADRID, 12 Oct. (EUROPA PRESS) - \r\n La circulación entre Madrid y Barcelona ha comenzado a recuperarse y Renfe prevé que todos los trenes detenidos empiecen a circular a las 23.00 horas de este lunes… [+1247 chars]",
+   "url": "https://www.europapress.es/economia/transportes-00343/noticia-renfe-preve-todos-trenes-afectados-incendio-comiencen-circular-2300-lunes-20261012225927.html",
+   "publishedAt": "2026-10-12T20:59:27Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Abqar a Lamine: \"Tú quieres jugar en Marruecos\"",
+   "description": "El jugador del Getafe persiguió al del Barcelona, mientras protestaba al colegiado una acción de Gordon sobre David Soria&nbsp;  Leer",
+   "content": "En el partido Barcelona - Getafe del pasado sábado se produjo una escena curiosa que pasó inicialmente desapercibida, pero que el programa El Día Después de Movistar Plus ha rescatado.\r\nLa acción tuv… [+867 chars]",
+   "url": "https://www.marca.com/futbol/barcelona/2026/10/12/abqar-lamine-quieres-jugar-marruecos.html",
+   "publishedAt": "2026-10-12T20:56:47Z",
+   "label_team_ids": [
+    "81",
+    "82"
+   ]
+  },
+  {
+   "title": "Deportivo Maldonado confirmó una importante baja por una grave lesión de rodilla",
+   "description": "Diego Segovia, arquero titular del equipo que marcha segundo en la Tabla Anual, sufrió la rotura del ligamento cruzado anterior.",
+   "content": "FútbolUy. Seguinos en Twitter @futbolportaluy\r\nDeportivo Maldonado anunció que el futbolista Diego Segovia sufrió una rotura del ligamento cruzado anterior en la pierna izquierda, por lo que se comie… [+1225 chars]",
+   "url": "https://www.montevideo.com.uy/Deportes/Deportivo-Maldonado-confirmo-una-importante-baja-por-una-grave-lesion-de-rodilla-uc978349",
+   "publishedAt": "2026-10-12T20:43:00Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Gobierno se aferra al Constitucional de Pumpido para salvar los 'votos de los nietos'",
+   "description": "El Gobierno no ha logrado finalmente que el Tribunal Supremo levante la suspensión de voto para los beneficiados de la ley de nietos y considera que su última opción es el...",
+   "content": "El Gobierno no ha logrado finalmente que el Tribunal Supremo levante la suspensión de voto para los beneficiados de la ley de nietos y considera que su última opción es el Constitucional presidido po… [+4408 chars]",
+   "url": "https://www.elmundo.es/elecciones/elecciones-generales/2026/10/12/6acd1eeae4d4d85c4e8b4599.html",
+   "publishedAt": "2026-10-12T20:42:11Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El ex futbolista Fernando Torres a la neurocientífica Nazareth Castellanos: \"El deporte es salud, pero el deporte de alta competición es lo contrario\"",
+   "description": "Un encuentro entre el ex jugador del Atlético de Madrid y la investigadora que estudia el impacto de la actividad cerebral en el bienestar. Una conversación sobre la alegría, el fracaso, la importancia de la respiración, el amor y el ruido Leer",
+   "content": "Fernando Torres sueña con haber conocido a Marco Aurelio y a Nazareth Castellanos le pasa lo mismo con Ramón y Cajal. El ex futbolista del Atlético de Madrid es un apasionado de la Filosofía y la neu… [+18391 chars]",
+   "url": "https://www.elmundo.es/papel/historias/2026/10/12/6acb7742e4d4d8721a8b458e.html",
+   "publishedAt": "2026-10-12T20:40:53Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Madrid insiste en su guerra contra el arbitraje y pone a Tebas como \"uno de los culpables\"",
+   "description": "El Real Madrid sigue en guerra contra los árbitros. Así, en general. En su diana aparece casi todo aquel que tenga que ver con la labor, designación o dirección del grupo de...",
+   "content": "El Real Madrid sigue en guerra contra los árbitros. Así, en general. En su diana aparece casi todo aquel que tenga que ver con la labor, designación o dirección del grupo de colegiados que, según el … [+2968 chars]",
+   "url": "https://www.elmundo.es/deportes/futbol/2026/10/12/6accf6f2fc6c834b108b4570.html",
+   "publishedAt": "2026-10-12T20:40:32Z",
+   "label_team_ids": [
+    "86"
+   ]
+  },
+  {
+   "title": "Adrián García, sargento de arma de transmisiones: \"Desde pequeño siempre me había gustado ver el desfile del 12 de octubre\"",
+   "description": "Un año más, el acuartelamiento del Bruch ha vuelto a abrir sus puertas a Mundo Deportivo y a la gente de a pie para conocer de primera mano cómo funcionan las Fuerzas Armadas de nuestro país. Uno de los rostros que quiso charlar con Mundo Deportivo para expli…",
+   "content": "Un año más, el acuartelamiento del Bruch ha vuelto a abrir sus puertas a Mundo Deportivo y a la gente de a pie para conocer de primera mano cómo funcionan las Fuerzas Armadas de nuestro país. Uno de … [+1512 chars]",
+   "url": "https://www.mundodeportivo.com/actualidad/20261012/1004237945/adrian-garcia-sargento-arma-transmisiones-pequeno-siempre-me-habia-gustado-ver-desfile-12-octubre-dml-expt-dct.html",
+   "publishedAt": "2026-10-12T20:37:45Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Amigos con y sin hijos: cómo encontrar la fórmula para seguir quedando sin distanciarse",
+   "description": "Padres y no padres analizan los roces en la amistad cuando cambian los planes, los horarios y la disponibilidad\r\nSer madre a los 30: entre la prisa por el reloj biológico y la soledad ante la falta de amigas con hijos\r\n\n Un mensaje de WhatsApp que llegaba al …",
+   "content": "Un mensaje de WhatsApp que llegaba al grupo un viernes por la tarde solía bastar para organizar una cena o una salida improvisada el fin de semana, pero con la llegada del primer bebé, esa sencillez … [+10402 chars]",
+   "url": "https://www.eldiario.es/nidos/amigos-hijos-encontrar-formula-seguir-quedando-distanciarse_1_13578883.html",
+   "publishedAt": "2026-10-12T20:35:11Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Transparencia requiere a Estepona que cumpla la ley y publique la declaración de bienes e incompatibilidades del alcalde",
+   "description": "García Urbano, vinculado a un holding millonario con sede en Luxemburgo, a una sociedad compartida con un amigo constructor y un condenado en Malaya o a la promoción de apartamentos turísticos, sólo ha publicado su declaración cuando fue diputado en 2016\r\nEl …",
+   "content": "El Consejo de Transparencia de Andalucía ha requerido “expresamente” al Ayuntamiento de Estepona (79.621 habitantes, Málaga) para que publique la declaración de bienes del alcalde, José María García … [+1068 chars]",
+   "url": "https://www.eldiario.es/andalucia/malaga/transparencia-requiere-estepona-cumpla-ley-publique-declaracion-bienes-e-incompatibilidades-alcalde_1_13579540.html",
+   "publishedAt": "2026-10-12T20:35:10Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El juicio a las parejas que llevan años juntas y quieren vivir separadas: \"La gente piensa que no es una relación de verdad\"",
+   "description": "Cada vez más personas mantienen relaciones sexoafectivas sin convivencia, un fenómeno que tiene nombre ('living apart together', LAT por sus siglas en inglés) y que aún desafía el ferreo estándar social que asocia la estabilidad y el compromiso dar este paso …",
+   "content": "Keka Puchades y Chema Ricart se conocen al dedillo los horarios de los trenes de alta velocidad que hacen el trayecto Madrid-Barcelona. Son pareja desde hace más de 12 años, pero siguen viviendo cada… [+916 chars]",
+   "url": "https://www.eldiario.es/sociedad/juicio-parejas-llevan-anos-juntas-quieren-vivir-separadas-gente-piensa-no-relacion_1_13519991.html",
+   "publishedAt": "2026-10-12T20:35:09Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "¿Qué ha pasado con los 57 millones que desaparecieron de Housers, la ‘startup’ de inversión en ladrillo?",
+   "description": "Un entramado de sociedades afines permitía a la empresa de 'crowdfunding' controlar las promociones inmobiliarias que publicitaba sin asumir ninguna responsabilidad sobre ellas\r\nHemeroteca - Chopera, 29: un propietario y un ‘inmobro’ se alían para echar a inq…",
+   "content": "“Invierte como los grandes fondos” era uno de los reclamos con los que la startup Housers, rebautizada hace un año como Crowpire, trataba de captar clientes para invertir en promociones inmobiliarias… [+7224 chars]",
+   "url": "https://www.eldiario.es/catalunya/pasado-57-millones-desaparecieron-housers-startup-inversion-ladrillo_1_13568276.html",
+   "publishedAt": "2026-10-12T20:35:08Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "La mayoría de votantes de izquierdas apoyan que Frente Amplio y Podemos vayan juntos a las elecciones",
+   "description": "El 57% le da “mucha” o “bastante” importancia a la unidad de la izquierda para intentar impedir que PP y Vox se hagan con el Gobierno. Los votantes progresistas destacan de Rufián su “capacidad para unir a la izquierda\", de Montero su \"valentía\" y de Colau su…",
+   "content": "La mayoría de votantes de izquierdas ven necesario que el Frente Amplio y Podemos lleguen a un acuerdo para acudir de la mano a las elecciones del 29 de noviembre. El 57% de los electores progresista… [+819 chars]",
+   "url": "https://www.eldiario.es/politica/mayoria-votantes-izquierdas-apoyan-frente-amplio-vayan-elecciones_1_13579824.html",
+   "publishedAt": "2026-10-12T20:35:06Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Mucho frente y poco amplio",
+   "description": "Apenas quedan un par de días para que expire el plazo legal para registrar las coaliciones, y la izquierda a la izquierda del PSOE sigue enfrascada en una guerra de despachos en la que se discute solo sobre el reparto de escaños mientras la derecha se frota l…",
+   "content": "No falla. Cuando dos partidos a la izquierda del PSOE se sientan a negociar, el resultado es siempre el mismo: tres comunicados, cuatro filtraciones y ningún acuerdo. Si son más de dos los que cruzan… [+863 chars]",
+   "url": "https://www.eldiario.es/opinion/zona-critica/frente-amplio_129_13579874.html",
+   "publishedAt": "2026-10-12T20:35:06Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Colau cambia de planes: de recuperar su libertad a recoser una parte de la izquierda",
+   "description": "La exalcaldesa de Barcelona, que durante mucho tiempo cerró la puerta a su regreso a la política institucional, se enfrentará en Catalunya a Rufián por un mismo electorado y ha insistido desde el principio en que le gustaría que Podemos se sumase al Frente Am…",
+   "content": "Una de las últimas stories compartidas por Ada Colau en Instagram es un vídeo de la canción Movin' To The Sun [Yendo hacia el sol] de Ultra Naté sobre el que se lee “a por el 29N”. Dos mensajes que, … [+769 chars]",
+   "url": "https://www.eldiario.es/catalunya/colau-cambia-planes-recuperar-libertad-recoser-parte-izquierda_129_13580468.html",
+   "publishedAt": "2026-10-12T20:35:06Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Las grietas que amenazan la contrucción del nuevo Barça",
+   "description": "Es el peor de la Euroliga en rebotes y asistencias, un déficit que lastra su juego, demasiado individualista en este inicio de curso&nbsp;  Leer",
+   "content": "El Barcelona (2-2) recibe este martes (20.30 h) al Maccabi Tel Aviv (1-3) en busca de su tercera victoria, aunque para ellos en los albores de esta temporada casi tan importante como el resultado es … [+3137 chars]",
+   "url": "https://www.marca.com/baloncesto/euroliga/2026/10/12/grietas-amenazan-contruccion-nuevo-barca.html",
+   "publishedAt": "2026-10-12T20:23:10Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Se incendió un AVE Madrid-Barcelona y hay demoras en los trenes de alta velocidad",
+   "description": "El fuego originó en la parte trasera de una unidad de Renfe que viajaba hacia Figueres; no hubo heridos, pero el incidente paralizó el principal trayecto ferroviario de alta velocidad de España",
+   "content": "El incendio de un tren AVE de Renfe interrumpió este lunes la circulación de alta velocidad entre Madrid y Barcelona en ambos sentidos y generó demoras, evacuaciones y cancelaciones que afectaron a m… [+2997 chars]",
+   "url": "https://www.lanacion.com.ar/el-mundo/se-incendio-un-ave-madrid-barcelona-y-hay-demoras-en-los-trenes-de-alta-velocidad-nid12102026/",
+   "publishedAt": "2026-10-12T20:19:52Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Las Peñas del Rayo se defienden: \"Miles de personas mostraron su descontento de forma pacífica\"",
+   "description": "La Agrupación del Peñas del cuadro franjirrojo ha emitido un comunicado oficial llamado 'Salvemos al Rayo Vallecano'  Leer",
+   "content": "Las peñas se defienden. Después del comunicado del Rayo Vallecano publicado en la noche del sábado, el mismo día en el que se suspendió el encuentro ante el Athletic Club, la Agrupación de Peñas del … [+2642 chars]",
+   "url": "https://www.marca.com/futbol/rayo/2026/10/12/penas-rayo-defienden-miles-personas-mostraron-descontento-forma-pacifica.html",
+   "publishedAt": "2026-10-12T20:10:01Z",
+   "label_team_ids": [
+    "77",
+    "87"
+   ]
+  },
+  {
+   "title": "La confesión más sincera de Iñaki Urdangarin sobre sus hijos: entona el 'mea culpa' al hablar de la relación que ha tenido con ellos",
+   "description": "El exmarido de la infanta Cristina se ha referido a su faceta como padre, durante una conferencia en Barcelona, cuando aludía a Juan (27 años), Pablo (25), Miguel (24) e Irene (21)",
+   "content": "Iñaki Urdangarin se ha sincerado sobre su faceta como padre durante su participación en The Change Congress, un encuentro celebrado en el CosmoCaixa de Barcelona y centrado en el futuro del deporte f… [+3612 chars]",
+   "url": "https://www.hola.com/actualidad/20261012928591/confesion-inaki-urdangarin-hijos-mea-culpa/",
+   "publishedAt": "2026-10-12T20:05:03Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Ure se estrena en LaLiga y aprieta la pelea por la Bota de Oro",
+   "description": "El delantero del Sevilla suma 16 goles, adelanta a Raphinha y se coloca segundo por detrás de Oloko del FK Liepaja  Leer",
+   "content": "En su octavo partido en LaLiga, Robbie Ure se ha estrenado con el Sevilla. El delantero escocés ha abierto la lata del conjunto hispalense tras aprovecharse de un error de la zaga del Levante que ced… [+833 chars]",
+   "url": "https://www.marca.com/futbol/sevilla/2026/10/12/ure-estrena-laliga-aprieta-pelea-bota-oro.html",
+   "publishedAt": "2026-10-12T20:02:06Z",
+   "label_team_ids": [
+    "559",
+    "88"
+   ]
+  },
+  {
+   "title": "Investigadores identifican 597 huellas de objetos de madera neandertales en el Abric Romaní de Barcelona, que revelan su dominio de la carpintería",
+   "description": "Los restos hallados en el yacimiento revelan la destreza y las habilidades de los neandertales hace entre 40.000 y 62.000 años.",
+   "content": "La comunidad arqueóloga sigue revelando grandes descubrimientos que se remontan a la vida en la Edad de Piedra. Un periodo conocido por la evolución de la especie humana en el campo de la caza, la pi… [+3211 chars]",
+   "url": "https://www.larazon.es/tecnologia-consumo/investigadores-identifican-597-huellas-objetos-madera-neandertales-abric-romani-barcelona-revelan-su-dominio-carpinteria_202610126acd10abbafd3d73635e3c65.html",
+   "publishedAt": "2026-10-12T20:02:00Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "La Real confirma que Beitia cayó lesionado en el entreno pospartido y se suma a las bajas",
+   "description": "Luken Beitia cayó lesionado en el entrenamiento pospartido, sobre el césped de Anoeta, que hicieron los suplentes el domingo. La Real Sociedad ha confirmado lo que ya se sospechaba al verle salir cojeando y con ayuda de miembros del cuerpo médico: tiene lesió…",
+   "content": "Luken Beitia cayó lesionado en el entrenamiento pospartido, sobre el césped de Anoeta, que hicieron los suplentes el domingo. La Real Sociedad ha confirmado lo que ya se sospechaba al verle salir coj… [+970 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/real-sociedad/20261012/1004237950/real-confirma-beitia-cayo-lesionado-entreno-pospartido-suma-bajas.html",
+   "publishedAt": "2026-10-12T19:49:18Z",
+   "label_team_ids": [
+    "92"
+   ]
+  },
+  {
+   "title": "Darko Brasanac será el entrenador asistente de Arrasate en Osasuna",
+   "description": "Pamplona, 12 oct (EFE).- El exjugador rojillo Darko Brasanac inicia su carrera en los banquillos de la mano de Jagoba Arrasate, del que será asistente en Osasuna, tras poner fin a su etapa como futbolista, mientras Sergi Pérez volverá a liderar la preparación…",
+   "content": "El exjugador rojillo Darko Brasanac inicia su carrera en los banquillos de la mano de Jagoba Arrasate, del que será asistente en Osasuna, tras poner fin a su etapa como futbolista, mientras Sergi Pér… [+1592 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/osasuna/20261012/1004237947/darko-brasanac-sera-entrenador-asistente-arrasate-osasuna.html",
+   "publishedAt": "2026-10-12T19:48:45Z",
+   "label_team_ids": [
+    "79"
+   ]
+  },
+  {
+   "title": "El Villarreal busca hacerse fuerte en La Cerámica ante el Nápoles",
+   "description": "El equipo amarillo regresa a la competición tras caer por la mínima en el Santiago Bernabéu",
+   "content": "El Villarreal recibe al Nápoles en el Estadio de la Cerámica (21 horas, Movistar+ Liga de Campeones 3) en la segunda jornada de la fase de liga de la Champions, un encuentro en el que el cuadro dirig… [+925 chars]",
+   "url": "https://www.lavozdegalicia.es/noticia/deportes/2026/10/12/villarreal-busca-hacerse-fuerte-ceramica-ante-napoles/00031791833493822181402.htm",
+   "publishedAt": "2026-10-12T19:42:00Z",
+   "label_team_ids": [
+    "94"
+   ]
+  },
+  {
+   "title": "Dónde ver Atlético de Madrid vs. Manchester United: Canales y hora del partido de Champions League",
+   "description": "Uno de los partidazos de la jornada de Champions llegará a Madrid para la emoción de los amantes del balompié",
+   "content": "Uno de los partidazos de la jornada de Champions llegará a Madrid para la emoción de los amantes del balompiéEl encuentro entre Atlético de Madrid y Manchester United se llevará a cabo el próximo 13 … [+1812 chars]",
+   "url": "https://www.record.com.mx/historia/donde-ver-atletico-madrid-manchester-united-canales-hora-partido-champions-league-2026101219390942705",
+   "publishedAt": "2026-10-12T19:39:09Z",
+   "label_team_ids": [
+    "78"
+   ]
+  },
+  {
+   "title": "Los metros llevan décadas automatizando la conducción. China acaba de enseñar uno que quiere dar el siguiente paso con IA",
+   "description": "Hay viajes en metro en los que nadie conduce el tren. No es una escena de ciencia ficción ni una novedad reciente: algunas redes llevan décadas confiando la marcha, las paradas y parte de la gestión de la circulación a sistemas automáticos. Como pasajeros, ap…",
+   "content": "Hay viajes en metro en los que nadie conduce el tren. No es una escena de ciencia ficción ni una novedad reciente: algunas redes llevan décadas confiando la marcha, las paradas y parte de la gestión … [+4196 chars]",
+   "url": "https://www.xataka.com/movilidad/metros-llevan-decadas-automatizando-conduccion-china-acaba-ensenar-uno-que-quiere-dar-siguiente-paso-ia",
+   "publishedAt": "2026-10-12T19:32:53Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Un gigante en horas bajas propicio para el Atlético de Madrid",
+   "description": "Los colchoneros no conocen la derrota en cuatro partidos previos ante el United",
+   "content": "El nombre del Manchester United todavía impone en el Viejo Continente. El pasado del conjunto de los Diablos Rojos, dominador con puño de hierro de las primeras dos décadas de historia en la Premier … [+2257 chars]",
+   "url": "https://www.lavozdegalicia.es/noticia/deportes/2026/10/12/gigante-horas-bajas-propicio-atletico/00031791833003843751928.htm",
+   "publishedAt": "2026-10-12T19:31:00Z",
+   "label_team_ids": [
+    "78"
+   ]
+  },
+  {
+   "title": "Nautilum gana el Campeonato de España y Las Pulperas el último evento de la Liga Iberdrola",
+   "description": "El Club Náutico Altea ha sido escenario del desenlace de la Liga Iberdrola 2026, con dos equipos como protagonistas. El Pulperas del Real Club Náutico de Calpe ha ganado la final de Altea, mientras que el Natulim Sailing Team, representante del Club Náutico S…",
+   "content": "El Club Náutico Altea ha sido escenario del desenlace de la Liga Iberdrola 2026, con dos equipos como protagonistas. El Pulperas del Real Club Náutico de Calpe ha ganado la final de Altea, mientras q… [+2910 chars]",
+   "url": "https://www.abc.es/deportes/vela/vela-crucero/nautilum-gana-campeonato-espana-pulperas-ultimo-evento-20261012212640-nt.html",
+   "publishedAt": "2026-10-12T19:27:07Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Dónde ver Galatasaray vs. Barcelona: Canales y hora del partido de Champions League",
+   "description": "El cuadro cule buscará seguir con su gran ritmo en el arranque de la temporada en Champions League",
+   "content": "El cuadro cule buscará seguir con su gran ritmo en el arranque de la temporada en Champions LeagueEl encuentro entre Galatasaray y Barcelona se llevará a cabo el próximo 13 de octubre de 2026 a las 1… [+1844 chars]",
+   "url": "https://www.record.com.mx/historia/donde-ver-galatasaray-barcelona-canales-hora-champions-league-2026101219232118455",
+   "publishedAt": "2026-10-12T19:23:21Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "Un infierno turco no tan fiero para un Barcelona invicto",
+   "description": "El conjunto azulgrana se llevó sus tres últimas visitas en Galatasaray, la más reciente en la Europa League del 2022",
+   "content": "El infierno turco, tópico por excelencia en las competiciones europeas de clubes, amenaza al intratable Barça 3.0 de Hansi Flick. El conjunto azulgrana, que suma nueve victorias en nueve partidos ofi… [+2190 chars]",
+   "url": "https://www.lavozdegalicia.es/noticia/deportes/2026/10/12/infierno-turco-fiero-barcelona-invicto/00031791832799293757522.htm",
+   "publishedAt": "2026-10-12T19:22:00Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "Levante UD - Sevilla FC, las estadísticas del partido",
+   "description": "El Sevilla FC se enfrenta este lunes al Levante UD en el partido que cierra la jornada 8 de LaLiga EA Sports. El equipo dirigido por Luis García Plaza regresa a la competición tras el largo parón por la disputa de partidos de selecciones. Aquí puedes consulta…",
+   "content": "El Sevilla FC se enfrenta este lunes al Levante UD en el partido que cierra la jornada 8 de LaLiga EA Sports. El equipo dirigido por Luis García Plaza regresa a la competición tras el largo parón por… [+1890 chars]",
+   "url": "https://www.abc.es/deportes/orgullodenervion/noticias-sevilla-fc/levante-sevilla-estadisticas-partido-20261012211230-dis.html",
+   "publishedAt": "2026-10-12T19:12:31Z",
+   "label_team_ids": [
+    "559",
+    "88"
+   ]
+  },
+  {
+   "title": "Adif comunica el restablecimiento parcial de la línea de alta velocidad entre Madrid y Barcelona",
+   "description": "El Administrador de Infraestructuras Ferroviarias (Adif) ha informado en la noche de este lunes de que se ha restablecido parcialmente la línea de alta velocidad que ha permanecido cortada por un incendio.",
+   "content": "MADRID 12 Oct. (EUROPA PRESS) - \r\n El Administrador de Infraestructuras Ferroviarias (Adif) ha informado en la noche de este lunes de que se ha restablecido parcialmente la línea de alta velocidad qu… [+694 chars]",
+   "url": "https://www.europapress.es/economia/transportes-00343/noticia-adif-comunica-restablecimiento-parcial-linea-alta-velocidad-madrid-barcelona-20261012211044.html",
+   "publishedAt": "2026-10-12T19:10:44Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Clement Turpin, árbitro el Betis - Oporto de Champions",
+   "description": "La UEFA ha encomendado al colegiado francés Clement Turpin la responsabilidad de impartir justicia en el choque entre el Real Betis y el Oporto , correspondiente a la segunda fecha de la fase de liga de la Champions League . El árbitro galo, de 44 años e inte…",
+   "content": "La UEFA ha encomendado al colegiado francés Clement Turpin la responsabilidad de impartir justicia en el choque entre el Real Betis y el Oporto, correspondiente a la segunda fecha de la fase de liga … [+1733 chars]",
+   "url": "https://www.abc.es/deportes/alfinaldelapalmera/noticias-betis/clement-turpin-arbitro-betis-oporto-champions-20261012210300-nts.html",
+   "publishedAt": "2026-10-12T19:03:00Z",
+   "label_team_ids": [
+    "90"
+   ]
+  },
+  {
+   "title": "Serrat homenajea a Tete Montoliu en el Park Güell durante el tributo del Festival de Jazz a dos leyendas del género",
+   "description": "El Park Güell ha acogido este lunes el homenaje del Festival de Jazz de Barcelona a Tete Montoliu y Bebo Valdés con el concierto Blues for Tete and Bebo, una velada que ha reunido a 1.800 personas y que ha contado con la participación sorpresa de Joan Manuel …",
+   "content": "El Park Güell ha acogido este lunes el homenaje del Festival de Jazz de Barcelona a Tete Montoliu y Bebo Valdés con el concierto Blues for Tete and Bebo, una velada que ha reunido a 1.800 personas y … [+1916 chars]",
+   "url": "https://www.elperiodico.com/es/barcelona/20261012/serrat-homenajea-tete-montoliu-festival-de-jazz-leyendas-genero-park-guell-135253293",
+   "publishedAt": "2026-10-12T19:00:32Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Roy Kent de 'Ted Lasso' está basado en un futbolista real. Un \"plomazo humano\" que fascinaba a los creadores de la serie",
+   "description": "Si bien el futuro de 'Ted Lasso' es, nuevamente, incierto, hay que reconocer que durante todas estas temporadas nos han regalado grandes personajes. Y uno de los pocos que sobrevivieron al traspaso de la serie de Apple TV al mundo del fútbol femenino es el ic…",
+   "content": "Si bien el futuro de 'Ted Lasso' es, nuevamente, incierto, hay que reconocer que durante todas estas temporadas nos han regalado grandes personajes. Y uno de los pocos que sobrevivieron al traspaso d… [+2101 chars]",
+   "url": "https://www.espinof.com/directores-y-guionistas/roy-kent-ted-lasso-esta-basado-futbolista-real-plomazo-humano-que-fascinaba-a-creadores-serie",
+   "publishedAt": "2026-10-12T19:00:27Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Frente Amplio acuerda designar a Ada Colau como cabeza de lista en las elecciones generales",
+   "description": "Los partidos que integran por el momento la coalición Frente Amplio (IU, Más Madrid, Movimiento Sumar y los comunes) han acordado designar a la exalcaldesa de Barcelona Ada Colau como candidata a la Presidencia del Gobierno en las elecciones generales, pero m…",
+   "content": "Los partidos que integran por el momento la coalición Frente Amplio (IU, Más Madrid, Movimiento Sumar y los comunes) han acordado designar a la exalcaldesa de Barcelona Ada Colau como candidata a la … [+3358 chars]",
+   "url": "https://www.mundodeportivo.com/actualidad/20261012/1004237940/frente-amplio-acuerda-designar-ada-colau-cabeza-lista-elecciones-generales-dct.html",
+   "publishedAt": "2026-10-12T18:57:52Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "\"Puede haber dificultades al comienzo de una temporada, pero estamos preparados para afrontarlas\"",
+   "description": "Leny Yoro, central francés del Manchester United, fue el encargado de acompañar a Michael Carrick en la rueda de prensa oficial del conjunto inglés en el Metropolitano, escenario del duelo de este martes frente al Atlético de Madrid, segunda jornada de la fas…",
+   "content": "Leny Yoro, central francés del Manchester United, fue el encargado de acompañar a Michael Carrick en la rueda de prensa oficial del conjunto inglés en el Metropolitano, escenario del duelo de este ma… [+1501 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/atletico-madrid/20261012/1004237939/haber-dificultades-comienzo-temporada-preparados-afrontarlas.html",
+   "publishedAt": "2026-10-12T18:52:41Z",
+   "label_team_ids": [
+    "78"
+   ]
+  },
+  {
+   "title": "Paulo Dybala ¿entre Roma y Boca?: “espero que pueda haber un final”.",
+   "description": "El delantero habló en la previa del choque con Real Madrid, por la Champions League",
+   "content": "El delantero argentino Pulo Dybala manifestó este lunes su deseo de finalizar su carrera en Roma, pero aclaró que es prematuro hablar de eso ahora. El cordobés de 32 años renovó su contrato a mediado… [+3488 chars]",
+   "url": "https://www.lanacion.com.ar/deportes/futbol/paulo-dybala-entre-roma-y-boca-espero-que-pueda-haber-un-final-nid12102026/",
+   "publishedAt": "2026-10-12T18:48:51Z",
+   "label_team_ids": [
+    "86"
+   ]
+  },
+  {
+   "title": "Jadson Viera, tras igualar frente a Tallares, se juega su cargo en Independiente en el clásico ante Racing",
+   "description": "“Es a todo o nada”, sostuvo el director técnico del Rojo en conferencia de prensa sobre lo que será la visita al Cilindro de Avellaneda, a partir de la hora 14:45, para enfrentar a la Academia.",
+   "content": "El ciclo de Jadson Viera en Independiente parece depender de un partido clave que es el clásico de Avellaneda frente a Racing. Será este domingo en el Cilindro, desde la hora 14:45. Los números del e… [+2743 chars]",
+   "url": "https://www.elpais.com.uy/ovacion/futbol/jadson-viera-tras-igualar-frente-a-tallares-se-juega-su-cargo-en-independiente-en-el-clasico-ante-racing",
+   "publishedAt": "2026-10-12T18:45:56Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Restablecen parcialmente la Alta Velocidad Barcelona-Madrid tras extinguirse el incendio",
+   "description": "El servicio de Alta Velocidad entre Barcelona y Madrid se ha restablecido parcialmente este lunes a última hora de la tarde tras finalizar la extinción del incendio que afectaba a un tren AVE a la altura de Ricla (Zaragoza) y que había interrumpido la circula…",
+   "content": "BARCELONA 12 Oct. (EUROPA PRESS) - \r\n El servicio de Alta Velocidad entre Barcelona y Madrid se ha restablecido parcialmente este lunes a última hora de la tarde tras finalizar la extinción del incen… [+498 chars]",
+   "url": "https://www.europapress.es/catalunya/noticia-restablecen-parcialmente-alta-velocidad-barcelona-madrid-extinguirse-incendio-20261012204442.html",
+   "publishedAt": "2026-10-12T18:44:42Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "\"Lo conseguido por el Atleti es extraordinario; es una gran prueba\"",
+   "description": "Michael Carrick, entrenador del Manchester United, atendió a los medios de comunicación en el auditorio del Metropolitano este lunes, 24 horas antes de enfrentarse al Atlético de Madrid en la segunda jornada de la fase liga de la Champions.",
+   "content": "Michael Carrick, entrenador del Manchester United, atendió a los medios de comunicación en el auditorio del Metropolitano este lunes, 24 horas antes de enfrentarse al Atlético de Madrid en la segunda… [+3837 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/atletico-madrid/20261012/1004237935/conseguido-atleti-extraordinario-gran-prueba.html",
+   "publishedAt": "2026-10-12T18:44:13Z",
+   "label_team_ids": [
+    "78"
+   ]
+  },
+  {
+   "title": "Detenido uno de los presuntos cabecillas de los robos en casas de futbolistas: asaltó la de Joan Garcia y vigiló la de Koundé",
+   "description": "Los Mossos d’Esquadra han detenido a dos hombres de 58 y 42 años, ambos con antecedentes, por su presunta implicación en varios robos en viviendas, entre ellos el asalto al domicilio de Joan Garcia, portero del FC Barcelona. Según ha publicado La Vanguardia, …",
+   "content": "Los Mossos dEsquadra han detenido a dos hombres de 58 y 42 años, ambos con antecedentes, por su presunta implicación en varios robos en viviendas, entre ellos el asalto al domicilio de Joan Garcia, p… [+1832 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/fc-barcelona/20261012/1004237934/detenido-presuntos-cabecillas-robos-casas-futbolistas-asalto-joan-garcia-vigilo-kounde.html",
+   "publishedAt": "2026-10-12T18:40:42Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "Frente Amplio designa a Ada Colau como candidata en las elecciones",
+   "description": "Los partidos que integran por el momento la coalición Frente Amplio (IU, Más Madrid, Movimiento Sumar y los comunes) han acordado designar a la exalcaldesa de Barcelona Ada Colau...",
+   "content": "Mantienen la puerta abierta a Podemos para unirse a Frente Amplio, después de que los morados hayan llegado a un acuerdo con ERC para colaborar en Cataluña. Los partidos que integran por el momento l… [+1399 chars]",
+   "url": "https://www.expansion.com/elecciones/elecciones-generales/2026/10/12/6acd290ae5fdeafd1e8b4593.html",
+   "publishedAt": "2026-10-12T18:40:21Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Levante - Sevilla, en directo",
+   "description": "Sigue en vivo la cobertura minuto a minuto y el resultado del partido de fútbol de la LaLiga EA Sports que enfrenta a Levante contra Sevilla",
+   "content": "LaLiga EA Sports - Jornada 8 - 12/10/2026 21:00 CEST",
+   "url": "https://www.mundodeportivo.com/futbol/laliga/20261012/1004235991/levante-sevilla-directo-laliga-ea-sports-futbol-primera-division.html",
+   "publishedAt": "2026-10-12T18:39:54Z",
+   "label_team_ids": [
+    "559",
+    "88"
+   ]
+  },
+  {
+   "title": "El Tercio de Olivares celebra en Sevilla el Día la Hispanidad con un concurrido desfile",
+   "description": "Como ya viene siendo una tradición en los últimos años, el Tercio de Olivares ha vuelto a celebrar la festividad del 12 de octubre con la IV edición del Desfile de la Hispanidad . Partiendo desde la Nao Victoria, el recorrido, que ha sido presenciado por un n…",
+   "content": "Como ya viene siendo una tradición en los últimos años, el Tercio de Olivares ha vuelto a celebrar la festividad del 12 de octubre con la IV edición del Desfile de la Hispanidad. Partiendo desde la N… [+2198 chars]",
+   "url": "https://www.abc.es/sevilla/ciudad/tercio-olivares-celebra-sevilla-dia-hispanidad-concurrido-20261012202017-nts.html",
+   "publishedAt": "2026-10-12T18:36:11Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Linternitas y la ola, o cómo invocar al gafe",
+   "description": "El gafe existe. Lo producen determinadas situaciones y lo transmiten algunas personas. Ni racionalmente ni científicamente está demostrado, eso es una realidad, pero todos tenemos a un amigo al que nunca le salen las cosas, el familiar de turno que siempre ti…",
+   "content": "El gafe existe. Lo producen determinadas situaciones y lo transmiten algunas personas. Ni racionalmente ni científicamente está demostrado, eso es una realidad, pero todos tenemos a un amigo al que n… [+1976 chars]",
+   "url": "https://www.abc.es/opinion/sevilla/ramon-roman-linternitas-ola-invocar-gafe-20261013203228-nts.html",
+   "publishedAt": "2026-10-12T18:32:28Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Carrick confirma dos bajas más para medirse al Atlético",
+   "description": "Michael Carrick, entrenador del Manchester United, confirmó desde el auditorio del Metropolitano dos nuevas bajas para el encuentro de este martes ante el Atlético de Madrid, en la segunda jornada de la fase liga de la Champions.",
+   "content": "Michael Carrick, entrenador del Manchester United, confirmó desde el auditorio del Metropolitano dos nuevas bajas para el encuentro de este martes ante el Atlético de Madrid, en la segunda jornada de… [+1675 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/atletico-madrid/20261012/1004237929/carrick-confirma-dos-bajas-medirse-atletico.html",
+   "publishedAt": "2026-10-12T18:32:11Z",
+   "label_team_ids": [
+    "78"
+   ]
+  },
+  {
+   "title": "¿Por qué Sevilla se merece tan poco?",
+   "description": "Hace solo unos días el Ministerio de Cultura anunció la creación de un jurado que decidirá sobre el proyecto de ampliación del Museo de Bellas Artes de Sevilla. Se trata del primer paso administrativo para utilizar el Palacio de Monsalves como segundo edifici…",
+   "content": "Hace solo unos días el Ministerio de Cultura anunció la creación de un jurado que decidirá sobre el proyecto de ampliación del Museo de Bellas Artes de Sevilla. Se trata del primer paso administrativ… [+5040 chars]",
+   "url": "https://www.abc.es/opinion/sevilla/jose-luis-sanz-sevilla-merece-poco-20261013203147-nts.html",
+   "publishedAt": "2026-10-12T18:31:47Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Valencia Basket se cita ante un viejo conocido por un inicio histórico",
+   "description": "El equipo 'taronja' puede firmar su mejor arranque de siempre en la Euroliga si gana en el Roig Arena al Olympiacos de Jean Montero",
+   "content": "Valencia Basket se cita ante un viejo conocido por un inicio histórico \r\nEl equipo 'taronja' puede firmar su mejor arranque de siempre en la Euroliga si gana en el Roig Arena al Olympiacos de Jean Mo… [+4315 chars]",
+   "url": "https://www.europapress.es/deportes/baloncesto-00163/noticia-valencia-basket-cita-viejo-conocido-inicio-historico-20261012202715.html",
+   "publishedAt": "2026-10-12T18:27:15Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Barça quiere rehacerse en el Palau ante el Maccabi",
+   "description": "El Barça recibe este martes en el Palau Blaugrana al Maccabi Rapyd Tel Aviv (20.30 horas) en la quinta jornada de la Fase Regular de la Euroliga 2026-2027, con la intención y necesidad de reencontrarse con la victoria tras encajar un inesperado tropiezo el pa…",
+   "content": "El Barça quiere rehacerse en el Palau ante el Maccabi\r\nEl conjunto blaugrana busca volver a la senda de la victoria en la Euroliga y ante su afición tras su tropiezo ante el Zalgiris\r\n BARCELONA, 12 … [+4286 chars]",
+   "url": "https://www.europapress.es/deportes/baloncesto-00163/noticia-barca-quiere-rehacerse-palau-maccabi-20261012202531.html",
+   "publishedAt": "2026-10-12T18:25:31Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Real Madrid necesita impulso europeo en Milán",
+   "description": "El conjunto madridista arranca una doble jornada semanal en busca de lograr ante el Olimpia Milán su primera victoria a domicilio en Euroliga",
+   "content": "El Real Madrid desea impulso europeo en Milán\r\nEl conjunto madridista arranca una doble jornada semanal en busca de lograr ante el Olimpia Milán su primera victoria a domicilio en Euroliga\r\n MADRID, … [+3928 chars]",
+   "url": "https://www.europapress.es/deportes/baloncesto-00163/noticia-real-madrid-necesita-impulso-europeo-milan-20261012202403.html",
+   "publishedAt": "2026-10-12T18:24:03Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Las auditoras Audria y Activa se fusionan y crean Nexia Audiva",
+   "description": "Las dos firmas de servicios profesionales con sede en Barcelona suman un equipo profesional de 70 personas y una facturación de 6,5 millones de euros. Leer",
+   "content": "Las dos firmas de servicios profesionales con sede en Barcelona suman un equipo profesional de 70 personas y una facturación de 6,5 millones de euros.Concentración en el sector de los servicios profe… [+1807 chars]",
+   "url": "https://www.expansion.com/catalunya/2026/10/12/auditoras-audria-activa-fusionan-crean-nexia-audiva.html",
+   "publishedAt": "2026-10-12T18:22:56Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Real Madrid, frente a Gollini, el rapero que soñaba con la Champions",
+   "description": "El portero italiano se ha hecho con la titularidad tras la lesión de Svilar, a tiempo para recibir al equipo blanco en el Estadio Olímpico",
+   "content": "Pierluigi Gollini grabó en el 2022 una canción titulada Champions Dream, el sueño de la Liga de Campeones. Cuatro años después, el portero del Roma, conocido en la música como Gollorius, tiene una gr… [+2445 chars]",
+   "url": "https://www.lavozdegalicia.es/noticia/deportes/2026/10/12/real-madrid-frente-gollini-rapero-sonaba-champions/00031791828715946580114.htm",
+   "publishedAt": "2026-10-12T18:15:00Z",
+   "label_team_ids": [
+    "86"
+   ]
+  },
+  {
+   "title": "\"Con el Cholo tuve una charla de padre a hijo\"",
+   "description": "Rodrigo Riquelme, ex jugador del Atlético de Madrid y ahora en las filas del Real Betis Balompié, se ha abierto en una entrevista en 'El Camino de Mario', canal en el que el que fuera futbolista colchonero va entrevistando a profesionales.",
+   "content": "Rodrigo Riquelme, ex jugador del Atlético de Madrid y ahora en las filas del Real Betis Balompié, se ha abierto en una entrevista en 'El Camino de Mario', canal en el que el que fuera futbolista colc… [+2289 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/atletico-madrid/20261012/1004237926/le-dije-mi-padre-dejaba-dia-siguiente-cholo-me-llamo-pretemporada.html",
+   "publishedAt": "2026-10-12T18:14:22Z",
+   "label_team_ids": [
+    "78",
+    "90"
+   ]
+  },
+  {
+   "title": "El cariñoso encuentro de Morante de La Puebla con su hijo, tras la primera faena del canterano en la Cartuja",
+   "description": "Un día después de que José Antonio Morante Antúnez debutara oficialmente en LaLiga de Primera división con el Real Betis y lo hiciera con gol, el canterano bético ha acudido a la Plaza de Toros de Las Ventas (Madrid) para acompañar a su padre, Morante de La P…",
+   "content": "Un día después de que José Antonio Morante Antúnez debutara oficialmente en LaLiga de Primera división con el Real Betis y lo hiciera con gol, el canterano bético ha acudido a la Plaza de Toros de La… [+1934 chars]",
+   "url": "https://www.abc.es/deportes/alfinaldelapalmera/noticias-betis/carinoso-encuentro-morante-puebla-hijo-tras-primera-20261012200644-nts.html",
+   "publishedAt": "2026-10-12T18:10:31Z",
+   "label_team_ids": [
+    "90"
+   ]
+  },
+  {
+   "title": "Retrasos de hasta dos horas en los trenes de Alta Velocidad a Andalucía por el incendio de Zaragoza",
+   "description": "Nueva jornada conflictiva en el transporte ferroviario en Andalucía . El incendio de un vagón de un convoy de la Alta Velocidad entre en Zaragoza y en el tendido entre Barcelona y Madrid no solo afecta a ese tramo: el perjuicio también lo están padeciendo los…",
+   "content": "Nueva jornada conflictiva en el transporte ferroviario en Andalucía. El incendio de un vagón de un convoy de la Alta Velocidad entre en Zaragoza y en el tendido entre Barcelona y Madrid no solo afect… [+1355 chars]",
+   "url": "https://www.abc.es/espana/andalucia/retrasos-dos-horas-trenes-alta-velocidad-andalucia-20261012200950-nts.html",
+   "publishedAt": "2026-10-12T18:09:50Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Frente Amplio coloca como candidata a la Presidencia a Colau, que vuelve a la política",
+   "description": "Los partidos del Frente Amplio han situado oficialmente como candidata a la Presidencia del Gobierno en las elecciones del 29-N a la exalcaldesa de Barcelona, Ada Colau, que regresa así, por todo lo alto, a la política institucional tras dos años. IU, Comuns,…",
+   "content": "Los partidos del Frente Amplio han situado oficialmente como candidata a la Presidencia del Gobierno en las elecciones del 29-N a la exalcaldesa de Barcelona, Ada Colau, que regresa así, por todo lo … [+313 chars]",
+   "url": "https://www.abc.es/espana/frente-amplio-coloca-candidata-presidencia-colau-vuelve-20261012200501-nt.html",
+   "publishedAt": "2026-10-12T18:05:02Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Los partidos de Frente Amplio proponen a Ada Colau como candidata al 29N",
+   "description": "Los partidos de Frente Amplio han resuelto este lunes proponer a la exalcaldesa de Barcelona Ada Colau como la candidata a la Presidencia del Gobierno a las elecciones generales del 29N, según han informado en un comunicado.",
+   "content": "MADRID 12 Oct. (EUROPA PRESS) - \r\n Los partidos de Frente Amplio han resuelto este lunes proponer a la exalcaldesa de Barcelona Ada Colau como la candidata a la Presidencia del Gobierno a las eleccio… [+420 chars]",
+   "url": "https://www.europapress.es/nacional/noticia-partidos-frente-amplio-proponen-ada-colau-candidata-29n-20261012200309.html",
+   "publishedAt": "2026-10-12T18:03:09Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Malestar en el Real Madrid por el partido en Valencia",
+   "description": "LaLiga hizo públicos los horarios de la jornada 12 del campeonato liguero. En esa jornada, el Real Madrid juega en Mestalla ante el Valencia. Lo hará el sábado, 7 de noviembre, a las 21.00 horas. Y eso no ha gustado en el seno del club blanco.",
+   "content": "LaLiga hizo públicos los horarios de la jornada 12 del campeonato liguero. En esa jornada, el Real Madrid juega en Mestalla ante el Valencia. Lo hará el sábado, 7 de noviembre, a las 21.00 horas. Y e… [+796 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/real-madrid/20261012/1004237881/malestar-real-madrid-partido-valencia.html",
+   "publishedAt": "2026-10-12T18:00:00Z",
+   "label_team_ids": [
+    "86",
+    "95"
+   ]
+  },
+  {
+   "title": "Tenerife - Girona, en directo",
+   "description": "Buenas tardes y bienvenidos a la narración, en directo, del partido de fútbol de la LaLiga HyperMotion que enfrenta al Tenerife contra el Girona correspondiente a Jornada 9. Desde Mundo Deportivo, te ofrecemos toda la cobertura minuto a minuto, la previa, las…",
+   "content": "Javier Boñar (Girona) ha recibido una falta en la zona defensiva.\r\nIzan González (Girona) ha visto tarjeta amarilla por juego peligroso.\r\nFalta de Izan González (Girona).\r\nChristian Gomis (Tenerife) … [+1839 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/liga-segunda-division/20261012/1004236000/tenerife-girona-directo-laliga-hypermotion-segunda-division.html",
+   "publishedAt": "2026-10-12T18:00:00Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Barça toma contacto con un Ali Sami Yen preparado para una noche de máxima presión",
+   "description": "El FC Barcelona completó su último entrenamiento en el Ali Sami Yen antes de enfrentarse al Galatasaray en la Champions League. Hansi Flick dirigió una sesión pensada para que los jugadores se familiarizaran con el césped y con un estadio conocido por la enor…",
+   "content": "El FC Barcelona completó su último entrenamiento en el Ali Sami Yen antes de enfrentarse al Galatasaray en la Champions League. Hansi Flick dirigió una sesión pensada para que los jugadores se famili… [+420 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/fc-barcelona/20261012/1004237922/barca-toma-contacto-ali-sami-yen-preparado-noche-maxima-presion.html",
+   "publishedAt": "2026-10-12T17:58:47Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "Pubill, el último ex perico que brilla en el Atlético",
+   "description": "El Espanyol recibe este sábado al Atlético de Madrid en el RCDE Stadium (14 horas) con el reto de volver a ganar, finiquitar ya la mala racha de juego y resultados y alejarse de una zona de descenso que se atisba demasiado cerca.",
+   "content": "El Espanyol recibe este sábado al Atlético de Madrid en el RCDE Stadium (14 horas) con el reto de volver a ganar, finiquitar ya la mala racha de juego y resultados y alejarse de una zona de descenso … [+1888 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/rcd-espanyol/20261012/1004237910/pubill.html",
+   "publishedAt": "2026-10-12T17:56:53Z",
+   "label_team_ids": [
+    "78",
+    "80"
+   ]
+  },
+  {
+   "title": "Riquelme: \"Le dije a mi padre que lo dejaba y al día siguiente el Cholo me llamó para hacer la pretemporada\"",
+   "description": "El atacante del Betis se confiesa con Mario Suárez en el podcast El Camino de Mario  Leer",
+   "content": "Roro Riquelme ha sido el último invitado en pasarse por el Podcast de Mario Suárez, El Camino de Mario. El jugador del Betis analiza toda su carrera profesional, tan marcada por su paso por el Atléti… [+3275 chars]",
+   "url": "https://www.marca.com/futbol/betis/2026/10/12/riquelme-le-dije-mi-padre-dejaba-dia-siguiente-cholo-me-llamo-pretemporada.html",
+   "publishedAt": "2026-10-12T17:56:52Z",
+   "label_team_ids": [
+    "78",
+    "90"
+   ]
+  },
+  {
+   "title": "El Frente Amplio responde al órdago de Podemos y Rufián: confirma a Colau como candidata y llama a Montero a sumarse",
+   "description": "Los cuatro partidos afirman que \"es hora\" de que todas las organizaciones \"expresen con claridad su voluntad de contribuir a la unidad\"\r\n\n Los cuatro partidos del Frente Amplio han respondido al órdago de Podemos y Gabriel Rufián con el acuerdo de proponer a …",
+   "content": "Los cuatro partidos del Frente Amplio han respondido al órdago de Podemos y Gabriel Rufián con el acuerdo de proponer a Ada Colau como candidata a la presidencia del Gobierno. Tras reunirse este lune… [+446 chars]",
+   "url": "https://www.eldiario.es/politica/frente-amplio-responde-ordago-rufian-confirma-colau-candidata-llama-montero-sumarse_1_13580395.html",
+   "publishedAt": "2026-10-12T17:56:36Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Ayuntamiento de Valladolid, premiado por la calidad de sus Servicios Sociales",
+   "description": "El Ayuntamiento de Valladolid ha sido distinguido con el Premio Anual en la modalidad de Institución Pública 2026 otorgado por la Asociación Estatal de Directoras y Gerentes en Servicios Sociales , un galardón con el que se reconoce la labor desarrollada en e…",
+   "content": "El Ayuntamiento de Valladolid ha sido distinguido con el Premio Anual en la modalidad de Institución Pública 2026 otorgado por la Asociación Estatal de Directoras y Gerentes en Servicios Sociales , u… [+1364 chars]",
+   "url": "https://www.abc.es/espana/castilla-leon/ayuntamiento-valladolid-premiado-calidad-servicios-sociales-20261012195613-nt.html",
+   "publishedAt": "2026-10-12T17:56:14Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Bilbao Athletic se mantiene en el playoff",
+   "description": "El Bilbao Athletic se mantiene en posiciones de playoff en Primera RFEF pese a su reciente 1 de 6 en Lezama. Encajó su primera derrota del curso ante el Extremadura (1-3) y el pasado domingo firmó tablas, y gracias, con el Real Unión (0-0). Pese a todo los ca…",
+   "content": "El Bilbao Athletic se mantiene en posiciones de playoff en Primera RFEF pese a su reciente 1 de 6 en Lezama. Encajó su primera derrota del curso ante el Extremadura (1-3) y el pasado domingo firmó ta… [+620 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/athletic-bilbao/20261012/1004237916/bilbao-athletic-mantiene-playoff.html",
+   "publishedAt": "2026-10-12T17:51:32Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Moleiro: \"Sabemos lo que nos vamos a encontrar\"",
+   "description": "Vila-real (Castellón), 12 oct (EFE).- El centrocampista del Villarreal Alberto Moleiro aseguró que su equipo afronta con confianza y buenas sensaciones el partido de la Liga de Campeones ante el Nápoles, después de haber mejorado su rendimiento en las últimas…",
+   "content": "El centrocampista del Villarreal Alberto Moleiro aseguró que su equipo afronta con confianza y buenas sensaciones el partido de la Liga de Campeones ante el Nápoles, después de haber mejorado su rend… [+2690 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/villarreal/20261012/1004237915/moleiro-encontrar.html",
+   "publishedAt": "2026-10-12T17:48:50Z",
+   "label_team_ids": [
+    "94"
+   ]
+  },
+  {
+   "title": "Más de 28.000 cordobeses votarán por primera vez en unas generales el 29 de noviembre",
+   "description": "El colectivo de los nuevos votantes es especialmente interesante para los partidos cuando llega una cita con las urnas , como es el caso de los comicios del 29 de noviembre , en el que se elegirán los componentes de Congreso y Senado . El Instituto Nacional d…",
+   "content": "El colectivo de los nuevos votantes es especialmente interesante para los partidos cuando llega una cita con las urnas, como es el caso de los comicios del 29 de noviembre, en el que se elegirán los … [+1348 chars]",
+   "url": "https://www.abc.es/espana/andalucia/cordoba/28000-cordobeses-votaran-primera-vez-generales-noviembre-20261012194354-nts.html",
+   "publishedAt": "2026-10-12T17:43:54Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Santiago Sosa se ganó a Vasco en tiempo récord: surgió de River, fue campeón con Racing y sueña con amargar a Boca",
+   "description": "En menos de dos meses, pasó de ser un recién llegado a convertirse en una pieza importante; su influencia defensiva, el cariño de los hinchas y una adaptación acelerada en Río de Janeiro. El martes volverá a la Bombonera por la Copa Sudamericana",
+   "content": "Hay futbolistas que necesitan meses para conocer un vestuario, adaptarse a otra ciudad -a otro país- y ganarse a una hinchada. Santiago Sosa llegó pateando la puerta y tardó bastante menos. Arribó a … [+8804 chars]",
+   "url": "https://www.lanacion.com.ar/deportes/futbol/santiago-sosa-se-gano-a-vasco-en-tiempo-record-surgio-de-river-fue-campeon-con-racing-y-suena-con-nid12102026/",
+   "publishedAt": "2026-10-12T17:42:11Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Cubarsí, sobre Yamal: \"Todo el mundo ya sabe que es el mejor del mundo\"",
+   "description": "El central del FC Barcelona defendió la candidatura de su compañero de equipo al galardón individual en la previa del duelo de Champions League del martes ante el Galatasaray.&nbsp;",
+   "content": "Lamine Yamal es uno de los grandes candidatos al Balón de Oro, y para muchos, el principal favorito. Esa es la opinión, entre otros, de Pau Cubarsí, que en la rueda de prensa previa al encuentro de C… [+2357 chars]",
+   "url": "https://www.20minutos.es/deportes/futbol/pau-cubarsi-sobre-lamine-yamal-todo-mundo-ya-sabe-que-es-mejor-mundo-se-merece-balon-oro_7047862_0.html",
+   "publishedAt": "2026-10-12T17:40:51Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "A qué hora es el Armani Milán - Real Madrid: horario y dónde ver hoy en TV el partido de la Euroliga",
+   "description": "El Madrid busca su primer triunfo fuera del Movistar Arena  Leer",
+   "content": "Tres de tres es el balance que luce el Madrid en sus salidas en la Euroliga. El año pasado llegó a perder sus cuatro primeros partidos fuera ante de ganar en el Palau en la jornada 9. De hecho, de lo… [+2189 chars]",
+   "url": "https://www.marca.com/baloncesto/euroliga/2026/10/12/que-hora-armani-milan-real-madrid-horario-donde-ver-hoy-tv-partido-euroliga.html",
+   "publishedAt": "2026-10-12T17:39:07Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Tras consolidar su retorno a la Fórmula 1, Ford Racing observa de reojo a la IndyCar",
+   "description": "Durante años, Ford había manifestado en numerosas ocasiones un total desinterés en la IndyCar porque su filosofía era centrarse en la promoción de sus modelos comerciales y no en las virtudes de sus motores o tecnología, por ello el fabricante competía con su…",
+   "content": "Durante años, Ford había manifestado en numerosas ocasiones un total desinterés en la IndyCar porque su filosofía era centrarse en la promoción de sus modelos comerciales y no en las virtudes de sus … [+2814 chars]",
+   "url": "https://www.diariomotor.com/competicion/noticia/tras-retorno-formula-1-ford-observa-indycar/",
+   "publishedAt": "2026-10-12T17:37:20Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Seat pone Martorell a pleno rendimiento pero fía todo su futuro a una segunda plataforma eléctrica",
+   "description": "Seat S.A. vive inmersa en una paradoja. Mientras su horizonte a corto plazo está asegurado, hasta el punto de que la compañía anuncia que la planta de Martorell (Barcelona) se prepara para comenzar a funcionar al máximo de su capacidad a lo largo de 2027 impu…",
+   "content": "Seat S.A. vive inmersa en una paradoja. Mientras su horizonte a corto plazo está asegurado, hasta el punto de que la compañía anuncia que la planta de Martorell (Barcelona) se prepara para comenzar a… [+6806 chars]",
+   "url": "https://www.abc.es/motor/seat-pone-martorell-pleno-rendimiento-fia-futuro-20261012193606-nt.html",
+   "publishedAt": "2026-10-12T17:36:06Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Caos en la estación Delicias de Zaragoza tras el accidente del AVE: \"Las filas daban la vuelta al edificio\"",
+   "description": "Cientos de personas se encuentran atrapadas en la estación Delicias de Zaragoza tras cortarse la circulación en alta velocidad entre Madrid y Barcelona al arder un convoy de Renfe a la altura del municipio de Ricla. Ningún tren circula en ninguno de los senti…",
+   "content": "Cientos de personas se encuentran atrapadas en la estación Delicias de Zaragoza tras cortarse la circulación en alta velocidad entre Madrid y Barcelona al arder un convoy de Renfe a la altura del mun… [+2284 chars]",
+   "url": "https://www.elperiodico.com/es/economia/20261012/caos-estacion-delicias-zaragoza-accidente-135258562",
+   "publishedAt": "2026-10-12T17:33:44Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Flick, tajante sobre el Madrid: \"Espero que algún día aprendáis que no respondo preguntas sobre otros equipos\"",
+   "description": "El técnico alemán, en la previa del Galatasaray-Barcelona, echa balones fuera cuando le preguntan por el Madrid y sus quejas arbitrales.",
+   "content": "El entrenador del FC Barcelona, Hansi Flick, ha reconocido que es \"un privilegio\" estar viviendo este momento, con pleno de victorias en los nueve primeros partidos de la temporada, pero ha advertido… [+2615 chars]",
+   "url": "https://www.libertaddigital.com/deportes/champions/2026-10-12/flick-tajante-sobre-el-madrid-espero-que-algun-dia-aprendais-que-no-respondo-preguntas-sobre-otros-equipos-7474446/",
+   "publishedAt": "2026-10-12T17:28:34Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "“Está gordo” y “mirá el ort... que tiene”: Azzaro destrozó al Pacha Espino por su físico",
+   "description": "El periodista de Racing hizo la “Espino Cam” y criticó al uruguayo, que “no está gordo para jugar al fútbol” sino “para la edad que tiene”.",
+   "content": "FútbolUy. Seguinos en Twitter @futbolportaluy\r\nFlavio Azzaro, periodista deportivo argentino reconocido hincha de Racing y director del canal de streaming AZZ, fue muy crítico con el uruguayo Alfonso… [+2046 chars]",
+   "url": "https://www.montevideo.com.uy/Deportes/-Esta-gordo-y-mira-el-ort--que-tiene--Azzaro-destrozo-al-Pacha-Espino-por-su-fisico-uc978323",
+   "publishedAt": "2026-10-12T17:16:00Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Flick: \"Las cosas pueden cambiar muy rápido en el fútbol si pierdes el foco\"",
+   "description": "El entrenador del FC Barcelona, Hansi Flick, ha reconocido que es \"un privilegio\" estar viviendo este momento, con pleno de victorias en los nueve primeros partidos de la temporada, pero ha advertido de que las cosas pueden \"cambiar muy rápido\" si se pierde \"…",
+   "content": "MADRID, 12 Oct. (EUROPA PRESS) - \r\n   El entrenador del FC Barcelona, Hansi Flick, ha reconocido que es \"un privilegio\" estar viviendo este momento, con pleno de victorias en los nueve primeros parti… [+2670 chars]",
+   "url": "https://www.europapress.es/deportes/futbol-00162/noticia-flick-cosas-pueden-cambiar-muy-rapido-futbol-si-pierdes-foco-20261012191528.html",
+   "publishedAt": "2026-10-12T17:15:28Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "Diego Simeone, propietario de 180 pisos en Madrid: «Si me preguntasen dónde voy a vivir cuando deje de entrenar, respondería en la Argentina. ¿Dónde si no?»",
+   "description": "Diego Simeone está en el foco de la noticia y no es por los resultados de su Atlético de Madrid. El entrenador se juega en los próximos días su lugar en La Liga y en Champions, lo primero ante el Manchester United y el Stuttgart y lo segundo frente al Espanyo…",
+   "content": "Diego Simeone está en el foco de la noticia y no es por los resultados de su Atlético de Madrid. El entrenador se juega en los próximos días su lugar en La Liga y en Champions, lo primero ante el Man… [+2555 chars]",
+   "url": "https://www.abc.es/gente/diego-simeone-propietario-180-pisos-madrid-preguntasen-20261013191420-nt.html",
+   "publishedAt": "2026-10-12T17:14:21Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Alpine presenta el A310 VISION: un espectacular deportivo inspirado en los años 70 y la Fórmula 1",
+   "description": "Alpine recupera uno de sus deportivos más emblemáticos con el nuevo A310 VISION, un espectacular prototipo que combina el diseño de los años 70 con soluciones aerodinámicas inspiradas en la Fórmula 1 y una estética futurista.",
+   "content": "La marca francesa Alpine ha aprovechado el Salón del Automóvil de París 2026 para presentar el nuevo Alpine A310 VISION, un prototipo que recupera el espíritu de uno de los deportivos más emblemático… [+4997 chars]",
+   "url": "https://www.elconfidencialdigital.com/articulo/motor/alpine-presenta-a310-vision-espectacular-deportivo-inspirado-anos-70-formula-1/202610121909251492969.html",
+   "publishedAt": "2026-10-12T17:09:25Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Konaté, cuatro amarillas en siete partidos: \"Tiene que estar alucinando\"",
+   "description": "El Madrid ha recurrido la polémica tarjeta del central ante el Villarreal, que lo deja apercibido de cara al Clásico  Leer",
+   "content": "la enésima guerra arbitral en el Madrid tras el partido frente al Villarreal deja muchos nombres propios. Uno de ellos el de Konaté, que se ha convertido en una figura clave en la denuncia madridista… [+1330 chars]",
+   "url": "https://www.marca.com/futbol/real-madrid/2026/10/12/konate-cuatro-amarillas-siete-partidos-alucinando.html",
+   "publishedAt": "2026-10-12T17:07:47Z",
+   "label_team_ids": [
+    "86",
+    "94"
+   ]
+  },
+  {
+   "title": "Dueños de la angustia: el Atlético Mineiro de Eduardo Domínguez vuelve a ganar sobre la hora",
+   "description": "El argentino rescató el corazón, pero reprochó el regreso de resultados infartantes en la previa a la semifinal de Copa Sudamericana",
+   "content": "Aquel futbolero que, al menos, miró de reojo dos o hasta tres veces los últimos minutos del resultado entre Atlético Mineiro y Santos, duelo correspondiente al Brasileirão, se habrá agarrado varias v… [+3812 chars]",
+   "url": "https://www.lanacion.com.ar/deportes/futbol/duenos-de-la-angustia-el-atletico-mineiro-de-eduardo-dominguez-vuelve-a-ganar-sobre-la-hora-nid12102026/",
+   "publishedAt": "2026-10-12T17:07:43Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Esto es lo que dijo Vinicius cuando vio la roja ante el Villarreal",
+   "description": "Vinicius vio la roja directa en el partido que el Real Madrid jugó en el Bernabéu ante el Villarreal (1-0). Díaz de Mera le expulsó porque el brasileño le tiró del pelo a Saliba. El VAR avisó al colegiado, que fue a ver las imágenes y no dudó en expulsar a Vi…",
+   "content": "Vinicius vio la roja directa en el partido que el Real Madrid jugó en el Bernabéu ante el Villarreal (1-0). Díaz de Mera le expulsó porque el brasileño le tiró del pelo a Saliba. El VAR avisó al cole… [+1129 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/real-madrid/20261012/1004237858/esto-dijo-vinicius-vio-roja-villarreal.html",
+   "publishedAt": "2026-10-12T17:00:00Z",
+   "label_team_ids": [
+    "86",
+    "94"
+   ]
+  },
+  {
+   "title": "El nuevo Škoda Epiq Sportline llega para revolucionar su gama eléctrica: más equipamiento, diseño deportivo y 440 km de autonomía",
+   "description": "El nuevo Škoda Epiq Sportline llega para ampliar la gama eléctrica de la marca checa con un diseño más deportivo, un completo equipamiento tecnológico y dos versiones de hasta 211 CV de potencia y 440 kilómetros de autonomía.",
+   "content": "koda continúa ampliando su ofensiva eléctrica con la presentación del nuevo koda Epiq Sportline, una versión que apuesta por una estética más deportiva y un equipamiento superior al del resto de la g… [+5116 chars]",
+   "url": "https://www.elconfidencialdigital.com/articulo/motor/nuevo-skoda-epiq-sportline-llega-revolucionar-gama-electrica-mas-equipamiento-diseno-deportivo-440-km-autonomia/202610121859571492951.html",
+   "publishedAt": "2026-10-12T16:59:57Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Sporting de Hortaleza quiere jugar la eliminatoria de Copa del Rey ante el Sevilla FC en Butarque",
+   "description": "El Sevilla FC está centrado en los próximo partidos de Liga que tiene por delante tras el largo parón de selecciones. Luis García Plaza está pendiente de cómo puede responder su equipo tras 23 días sin competir . Además, es un técnico que no quiere distraccio…",
+   "content": "El Sevilla FC está centrado en los próximo partidos de Liga que tiene por delante tras el largo parón de selecciones. Luis García Plaza está pendiente de cómo puede responder su equipo tras 23 días s… [+1377 chars]",
+   "url": "https://www.abc.es/deportes/orgullodenervion/noticias-sevilla-fc/sporting-hortaleza-quiere-jugar-eliminatoria-copa-rey-20261012185944-nts.html",
+   "publishedAt": "2026-10-12T16:59:44Z",
+   "label_team_ids": [
+    "559"
+   ]
+  },
+  {
+   "title": "Una evacuada por el incendio del AVE en Zaragoza: \"Hemos sacado todo el agua y las Coca-Colas del tren para aguantar el calor\"",
+   "description": "Un total de 283 pasajeros han tenido que ser desalojados de un AVE que circulaba por Zaragoza, en la línea Madrid-Barcelona, por el incendio que ha afectado a una de las locomotoras y el vagón contiguo. Una de las viajeras, Ivana Prados, ha relatado a El Peri…",
+   "content": "Un total de 283 pasajeros han tenido que ser desalojados de un AVE que circulaba por Zaragoza, en la línea Madrid-Barcelona, por el incendio que ha afectado a una de las locomotoras y el vagón contig… [+1725 chars]",
+   "url": "https://www.elperiodico.com/es/economia/20261012/evacuada-incendio-ave-zaragoza-hemos-135257127",
+   "publishedAt": "2026-10-12T16:58:11Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Un fuego en la cabina de un AVE de Renfe interrumpe la circulación en la línea de alta velocidad Madrid-Barcelona",
+   "description": "Los 283 pasajeros fueron evacuados sin problemas y no hay daños personales",
+   "content": "La circulación ferroviaria en la línea de alta velocidad entre Madrid y Barcelona está interrumpida este lunes tras registrarse un incendio en un tren AVE. El tren salió de Madrid-Puerta de Atocha a … [+1327 chars]",
+   "url": "https://www.lavozdegalicia.es/noticia/espana/2026/10/12/fuego-cabina-ave-renfe-interrumpe-circulacion-linea-alta-velocidad-madrid-barcelona/00031791823502374946843.htm",
+   "publishedAt": "2026-10-12T16:51:00Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Cubarsí: \"No nos sentimos imparables, no hay que frenar\"",
+   "description": "El defensa del FC Barcelona Pau Cubarsí ha asegurado que \"no\" se sienten \"imparables\" tras el buen arranque de temporada y ha animado a \"no frenar\", empezando por el partido de la segunda jornada de la fase de liga de la Liga de Campeones de este martes ante …",
+   "content": "MADRID, 12 Oct. (EUROPA PRESS) - \r\n   El defensa del FC Barcelona Pau Cubarsí ha asegurado que \"no\" se sienten \"imparables\" tras el buen arranque de temporada y ha animado a \"no frenar\", empezando po… [+3612 chars]",
+   "url": "https://www.europapress.es/deportes/futbol-00162/noticia-cubarsi-no-nos-sentimos-imparables-no-hay-frenar-20261012184714.html",
+   "publishedAt": "2026-10-12T16:47:14Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "Fran, ingeniero español en Japón: \"Pago 730€ por vivir en un dúplex de 45 m cuadrados en el centro\"",
+   "description": "Mundo Deportivo ha podido hablar largo y tendido con Fran, un sevillano que decidió hace unos meses embarcarse en la aventura de su vida, vivir y trabajar en Japón. El joven, además, ha ido creciendo como la espuma en redes sociales, ya que cuenta cómo es su …",
+   "content": "Mundo Deportivo ha podido hablar largo y tendido con Fran, un sevillano que decidió hace unos meses embarcarse en la aventura de su vida, vivir y trabajar en Japón. El joven, además, ha ido creciendo… [+2320 chars]",
+   "url": "https://www.mundodeportivo.com/tressesenta/20261012/1004237892/fran-ingeniero-espanol-japon-pago-730-euros-vivir-duplex-45-metros-cuadrados-centro-expt-dct.html",
+   "publishedAt": "2026-10-12T16:43:55Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Flick: \"Gabriel Jesus fue una pequeña sorpresa\"",
+   "description": "Hansi Flick no quiere ningún exceso de confianza en la visita del Barça al Galatasaray de este martes. El técnico alemán compareció ante los medios en Estambul y dejó claro que, pese a la confianza que transmite el equipo, será necesario volver a demostrar su…",
+   "content": "Hansi Flick no quiere ningún exceso de confianza en la visita del Barça al Galatasaray de este martes. El técnico alemán compareció ante los medios en Estambul y dejó claro que, pese a la confianza q… [+2695 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/fc-barcelona/20261012/1004237897/flick-gabriel-jesus-pequena-sorpresa.html",
+   "publishedAt": "2026-10-12T16:41:57Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "Batalla campal entre ultras del Levante y el Sevilla en los aledaños del Ciudad de Valencia",
+   "description": "Unos cien radicales se enfrentan en los aledaños del estadio granota con palos, sillas y botellas.",
+   "content": "La violencia se adelantó al fútbol en Valencia. Decenas de ultras del Levante y del Sevilla se han enfrentado este lunes al mediodía en las inmediaciones del estadio Ciudad de Valencia, horas antes d… [+1206 chars]",
+   "url": "https://www.libertaddigital.com/deportes/liga/2026-10-12/batalla-campal-entre-ultras-del-levante-y-el-sevilla-antes-del-partido-en-el-ciudad-de-valencia-7474435/",
+   "publishedAt": "2026-10-12T16:36:30Z",
+   "label_team_ids": [
+    "559",
+    "88"
+   ]
+  },
+  {
+   "title": "Cubarsí: \"No somos imparables pero estamos en buena dinámica\"",
+   "description": "El Barça ha encadenado 9 victorias de 9 partidos posibles. Espectacular racha que Pau Cubarsí prefiere no encumbrar en exceso. No se siente pertenecer al mejor equipo del mundo. Eso es cuestión del día a día. \"Imparables no, pero sí en una dinámica muy buena.…",
+   "content": "El Barça ha encadenado 9 victorias de 9 partidos oficiales posibles, 8 de LaLiga y uno de la Champions League. Espectacular racha que Pau Cubarsí prefiere no encumbrar en exceso. No se siente pertene… [+2174 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/fc-barcelona/20261012/1004237888/cubarsi-no-imparables-buena-dinamica.html",
+   "publishedAt": "2026-10-12T16:36:01Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "Flick reivindica el esfuerzo detrás de la racha del Barça: \"Los campeones del mundo tienen el mismo hambre\"",
+   "description": "La segunda jornada de la Champions traslada al Barça a Estambul para medirse al Galatasaray, donde defenderá racha de nueve partidos seguidos ganados. \"Es un privilegio encontrarnos en esta situación\", reconoció el entrenador azulgrana. No cree Flick que nada…",
+   "content": "La segunda jornada de la Champions traslada al Barça a Estambul para medirse al Galatasaray, donde defenderá racha de nueve partidos seguidos ganados. \"Es un privilegio encontrarnos en esta situación… [+2079 chars]",
+   "url": "https://www.elperiodico.com/es/deportes/20261012/flick-reivindica-esfuerzo-detras-racha-135254971",
+   "publishedAt": "2026-10-12T16:34:54Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "Ya se conoce el día y la hora del Espanyol-Dépor",
+   "description": "LaLiga ha dado a conocer este lunes los horarios de los partidos correspondientes a la jornada décimo segunda, la última antes del último parón por las selecciones de este año. El Espanyol se medirá al Deportivo el sábado 7 de noviembre a partir de las 16.15 …",
+   "content": "LaLiga ha dado a conocer este lunes los horarios de los partidos correspondientes a la jornada décimo segunda, la última antes del último parón por las selecciones de este año. El Espanyol se medirá … [+878 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/rcd-espanyol/20261012/1004237885/conoce-dia-hora-espanyol-depor.html",
+   "publishedAt": "2026-10-12T16:29:48Z",
+   "label_team_ids": [
+    "560",
+    "80"
+   ]
+  },
+  {
+   "title": "Doncic y su peso vuelven a ser tema de conversación en la NBA",
+   "description": "El peso de Luka Doncic siempre ha sido tema candente de conversación en la NBA y más aún desde su célebre traspaso de los Dallas Mavericks a Los Angeles Lakers en 2025. Y es que, según varias informaciones en Estados Unidos, el ex del Real Madrid llegó a pesa…",
+   "content": "El peso de Luka Doncic siempre ha sido tema candente de conversación en la NBA y más aún desde su célebre traspaso de los Dallas Mavericks a Los Angeles Lakers en 2025. Y es que, según varias informa… [+1929 chars]",
+   "url": "https://www.mundodeportivo.com/baloncesto/nba/20261012/1004237890/doncic-peso-vuelven-tema-conversacion-nba.html",
+   "publishedAt": "2026-10-12T16:28:56Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "La papa rellena del Pueblo Libre, Barcelona",
+   "description": "La papa rellena del Pueblo Libre, Barcelona Para la papa rellena del Restaurante Pueblo Libre en Barcelona, en lugar de cocer la patata, la hornean para que el puré quede más seco. Pelan las patatas, las pasan por el pasapuré, añaden harina de maíz y sal y me…",
+   "content": "La papa rellena del Pueblo Libre, Barcelona\r\nPapa rellena de canre en Pueblo Libre (Barcelona)\r\nPara la papa rellena del Restaurante Pueblo Libre en Barcelona, en lugar de cocer la patata, la hornean… [+855 chars]",
+   "url": "https://elcocinerofiel.com/2026/10/12/la-papa-rellena-del-pueblo-libre-barcelona/",
+   "publishedAt": "2026-10-12T16:26:41Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Desalojan un AVE en Ricla (Zaragoza) con 283 pasajeros a bordo tras un incidente",
+   "description": "Interrumpen el servicio de alta velocidad entre Barcelona y Madrid, en ambos sentidos, por una avería en un AVE entre Ricla y Plasencia de Jalón (Zaragoza) con destino a Figueres, según informa el 112 Aragón.",
+   "content": "Interrumpen el servicio de alta velocidad entre Barcelona y Madrid, en ambos sentidos, por una avería en un AVE entre Ricla y Plasencia de Jalón (Zaragoza) con destino a Figueres, según informa el 11… [+544 chars]",
+   "url": "https://www.mundodeportivo.com/actualidad/20261012/1004237889/desalojan-ave-ricla-zaragoza-283-pasajeros-bordo-incidente-provocado-incendio-dct.html",
+   "publishedAt": "2026-10-12T16:26:34Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "Elogios de Flick a la joven perla del Galatasaray que sueña con el Barça",
+   "description": "Hansi Flick fue preguntado en la rueda de prensa previa al partido contra el Galatasaray por Aleksey Batrakov, una de las jóvenes promesas que está despuntando en el conjunto turco. El mediapunta ruso, de 21 años, ha manifestado abiertamente que uno de sus su…",
+   "content": "Hansi Flick fue preguntado en la rueda de prensa previa al partido contra el Galatasaray por Aleksey Batrakov, una de las jóvenes promesas que está despuntando en el conjunto turco. El mediapunta rus… [+949 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/fc-barcelona/20261012/1004237887/elogios-flick-joven-perla-galatasaray-suena-barca.html",
+   "publishedAt": "2026-10-12T16:19:35Z",
+   "label_team_ids": [
+    "81"
+   ]
+  },
+  {
+   "title": "Interrumpida la circulación de Alta Velocidad entre Barcelona y Madrid por el incendio de un tren en Zaragoza",
+   "description": "La circulación ferroviaria de la línea de Alta Velocidad entre Madrid y Barcelona ha quedado interrumpida este lunes tras registrarse un incendio en un tren AVE que había partido de Madrid Puerta de Atocha a las 14:27 horas con destino Figueres, según ha conf…",
+   "content": "La circulación ferroviaria de la línea de Alta Velocidad entre Madrid y Barcelona ha quedado interrumpida este lunes tras registrarse un incendio en un tren AVE que había partido de Madrid Puerta de … [+1410 chars]",
+   "url": "https://www.abc.es/espana/aragon/interrumpida-circulacion-alta-velocidad-barcelona-madrid-incendio-20261012181516-nt.html",
+   "publishedAt": "2026-10-12T16:15:17Z",
+   "label_team_ids": []
+  },
+  {
+   "title": "El Rayo – Athletic apunta a la primera semana de noviembre",
+   "description": "El miércoles 4 de noviembre asoma como la opción principal para disputar a puerta cerrada los 77 minutos restantes tras la suspensión del choque por lanzamiento de objetos  Leer",
+   "content": "El desenlace del Rayo-Athletic, suspendido a los 13 minutos por el lanzamiento de objetos, tendrá que esperar a noviembre. El calendario de octubre no da tregua al equipo de Edin Terzi, que debe visi… [+1377 chars]",
+   "url": "https://www.marca.com/futbol/athletic/2026/10/12/rayo-athletic-apunta-primera-semana-noviembre.html",
+   "publishedAt": "2026-10-12T16:05:59Z",
+   "label_team_ids": [
+    "77",
+    "87"
+   ]
+  },
+  {
+   "title": "Contundente respuesta de Flick para hablar del Madrid y los arbitrajes",
+   "description": "Hansi Flick no quiso entrar en polémicas en la víspera del partido contra el Galatasaray. El entrenador del Barça fue preguntado en Estambul por las críticas del Real Madrid al arbitraje, pero evitó pronunciarse y recordó que su equipo tiene un compromiso imp…",
+   "content": "Hansi Flick no quiso entrar en polémicas en la víspera del partido contra el Galatasaray. El entrenador del Barça fue preguntado en Estambul por las críticas del Real Madrid al arbitraje, pero evitó … [+894 chars]",
+   "url": "https://www.mundodeportivo.com/futbol/fc-barcelona/20261012/1004237882/contundente-respuesta-flick-hablar-madrid-arbitrajes.html",
+   "publishedAt": "2026-10-12T16:05:49Z",
+   "label_team_ids": [
+    "81",
+    "86"
+   ]
+  },
+  {
+   "title": "El Villarreal busca hacerse fuerte en La Cerámica",
+   "description": "Los de Iñigo Pérez, sin Buchanan ni Pépé, reciben al Nápoles con el objetivo de sumar su primera victoria en 'Champions'",
+   "content": "MADRID, 12 Oct. (EUROPA PRESS) - \r\n   El Villarreal recibe este martes al Nápoles en el Estadio de la Cerámica (21.00 horas/Movistar+ Liga de Campeones 3) en la segunda jornada de la fase de liga de … [+3521 chars]",
+   "url": "https://www.europapress.es/deportes/futbol-00162/noticia-villarreal-busca-hacerse-fuerte-ceramica-20261012180334.html",
+   "publishedAt": "2026-10-12T16:03:34Z",
+   "label_team_ids": [
+    "94"
+   ]
+  }
+ ]
+}

@@ -42,6 +42,20 @@ def classify_body(response: httpx.Response, payload: Any) -> ProviderError | Non
     return ProviderError(message, http_status=response.status_code)
 
 
+def redact_raw(payload: Any) -> Any:
+    """Copy of the response safe to keep in ingestion_run.raw_payload: the articles'
+    `content` snippet and image URL are third-party material we don't store."""
+    if not isinstance(payload, dict) or not isinstance(payload.get("articles"), list):
+        return payload
+    articles = [
+        {k: v for k, v in a.items() if k not in {"content", "urlToImage"}}
+        if isinstance(a, dict)
+        else a
+        for a in payload["articles"]
+    ]
+    return {**payload, "articles": articles}
+
+
 class _Source(BaseModel):
     name: str | None = None
 
@@ -75,6 +89,9 @@ class NewsApiProvider:
 
     def close(self) -> None:
         self._http.close()
+
+    def redact_raw(self, payload: Any) -> Any:
+        return redact_raw(payload)
 
     def fetch_news(self) -> RawResponse:
         return self._http.get_json(
@@ -114,5 +131,7 @@ class NewsApiProvider:
             source=self.source,
             language=LANGUAGE,
             total_results=parsed.totalResults,
+            page_count=len(parsed.articles),
+            oldest_in_page=min((a.publishedAt for a in parsed.articles), default=None),
             articles=articles,
         )

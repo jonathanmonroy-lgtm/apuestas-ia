@@ -6,6 +6,8 @@
 """
 
 from collections.abc import Callable
+from dataclasses import replace
+from typing import Any
 
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -29,6 +31,7 @@ def fetch_with_budget(
     expected_cost: int = 1,
     cost_of: Callable[[RawResponse], int] = lambda raw: max(1, raw.attempts),
     remaining_of: Callable[[RawResponse], int | None] = lambda raw: None,
+    redact: Callable[[Any], Any] | None = None,
 ) -> RawResponse | RunOutcome:
     """Returns the raw response, or the finished RunOutcome if we must stop here."""
     with session_factory() as s:
@@ -57,5 +60,6 @@ def fetch_with_budget(
     with session_factory() as s:
         QuotaBudget(s, source, policy).record_call(cost=cost_of(raw), remaining=remaining)
         s.commit()
-    recorder.save_raw(raw, remaining)
+    # What we keep for audit can be less than what we use (e.g. third-party text).
+    recorder.save_raw(replace(raw, payload=redact(raw.payload)) if redact else raw, remaining)
     return raw

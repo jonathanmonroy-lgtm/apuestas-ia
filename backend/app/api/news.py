@@ -37,6 +37,8 @@ class NewsOut(BaseModel):
     publisher: str | None
     published_at: datetime
     teams: list[TeamOut]
+    # The article is third-party data; WHICH teams it is about is our inference.
+    teams_assignment: Literal["inferred_by_rules"] = "inferred_by_rules"
 
 
 class NewsDataAsOf(BaseModel):

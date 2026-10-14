@@ -6,8 +6,11 @@ import pytest
 from app.services.news_provider.classifier import classify, normalize
 from app.services.news_provider.team_terms import TEAM_TERMS, newsapi_query
 
-# 25 real articles returned by the production query on 2026-10-14, labelled BY HAND by
-# reading each one (title, description, content snippet and URL).
+# 27 real articles returned by the production query on 2026-10-14, labelled BY HAND by
+# reading each one (title, description, content snippet and URL): a 25-article subset of
+# a 100-article call (20:54-23:21 UTC) plus 2 false positives from a second real call.
+# This is the TUNING sample (rules were designed on it). The held-out measurement is in
+# test_news_classifier_qa.py.
 REAL = Path(__file__).parent / "fixtures/newsapi/everything_laliga_es_real.json"
 BARCA, ATLETI, VILLARREAL, BETIS, OSASUNA, SEVILLA, LEVANTE = (
     "81", "78", "94", "90", "79", "559", "88",
