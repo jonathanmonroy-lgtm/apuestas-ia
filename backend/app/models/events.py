@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, String
+from sqlalchemy import CheckConstraint, ForeignKey, Index, String, false
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
@@ -20,6 +20,9 @@ class Event(TimestampMixin, Base):
     home_participant_id: Mapped[int] = mapped_column(ForeignKey("participant.id"))
     away_participant_id: Mapped[int] = mapped_column(ForeignKey("participant.id"))
     starts_at: Mapped[datetime] = mapped_column(UTCDateTime())
+    # False = only the date is known; the time in starts_at is a provider placeholder
+    # (football-data sends 00:00Z) and must be shown as "hora por confirmar".
+    kickoff_confirmed: Mapped[bool] = mapped_column(default=False, server_default=false())
     status: Mapped[EventStatus] = mapped_column(
         db_enum(EventStatus, "event_status"), default=EventStatus.SCHEDULED
     )

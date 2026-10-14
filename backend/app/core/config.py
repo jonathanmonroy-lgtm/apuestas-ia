@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import SecretStr
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,13 +25,28 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./apuestas.db"
 
     # --- External data providers (keys are created manually by the user) ---
-    fixtures_provider: Literal["api_football", "football_data"] = "api_football"
+    # football_data is active: API-Football's free plan has no access to season 2026-27
+    # (verified with a real call on 2026-10-14).
+    fixtures_provider: Literal["api_football", "football_data"] = "football_data"
     odds_provider: Literal["the_odds_api"] = "the_odds_api"
     news_provider: Literal["newsapi"] = "newsapi"
 
     api_football_key: SecretStr | None = None
+    football_data_key: SecretStr | None = None
     odds_api_key: SecretStr | None = None
     newsapi_key: SecretStr | None = None
+
+    # Scope: start with one league end-to-end. Codes are our internal competition codes.
+    fixtures_competitions: list[str] = ["PD"]
+    # Self-imposed daily budgets (below the providers' real limits).
+    football_data_daily_budget: int = 100  # provider limit is 10/min, no daily cap
+    api_football_daily_budget: int = 90  # provider limit: 100/day
+
+    # Fixtures sync runs daily, so a day and a bit is the freshness threshold.
+    fixtures_stale_after_hours: float = 30.0
+    # Worker schedule (UTC). 06:15 UTC: overnight results are in, before European mornings.
+    fixtures_sync_hour_utc: int = Field(default=6, ge=0, le=23)
+    fixtures_sync_minute: int = Field(default=15, ge=0, le=59)
 
     # --- Compliance defaults (INTERNAL MODE until jurisdiction is decided) ---
     # When True, bookmaker names are stored but never exposed by public endpoints.
