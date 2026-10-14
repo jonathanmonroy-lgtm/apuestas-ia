@@ -35,10 +35,17 @@ def test_median_odd_even_and_empty():
         median([])
 
 
-def test_summary_of_real_prices():
+def test_summary_of_real_prices_excludes_the_exchange():
+    """QA F3 #3: betfair_ex_eu back prices (pre-commission) are not bookmaker prices."""
     s = summarize(REAL, STALE)
-    assert s.median_price == {H: Decimal("2.085"), D: Decimal("3.41"), A: Decimal("3.455")}
+    assert s.n_bookmakers == 3  # pinnacle, williamhill, unibet_fr
+    assert s.median_price == {H: Decimal("2.05"), D: Decimal("3.3"), A: Decimal("3.3")}
+
+
+def test_median_with_an_even_number_of_bookmakers():
+    s = summarize(REAL + book("bet365", "2.10", "3.40", "3.50"), STALE)
     assert s.n_bookmakers == 4
+    assert s.median_price == {H: Decimal("2.075"), D: Decimal("3.35"), A: Decimal("3.40")}
 
 
 def test_implied_probability_of_real_medians():
@@ -62,14 +69,14 @@ def test_only_latest_quote_per_bookmaker_counts():
 def test_incomplete_bookmaker_is_ignored():
     partial = [Quote("x", H, Decimal("9.0"), T0)]  # no draw/away
     s = summarize(REAL + partial, STALE)
-    assert s.n_bookmakers == 4
-    assert s.median_price[H] == Decimal("2.085")
+    assert s.n_bookmakers == 3
+    assert s.median_price[H] == Decimal("2.05")
 
 
 def test_bookmaker_that_stopped_updating_is_ignored():
     old = book("sleepy", "5.0", "5.0", "5.0", T0 - timedelta(hours=5))
     s = summarize(REAL + old, STALE)
-    assert s.n_bookmakers == 4
+    assert s.n_bookmakers == 3
     assert s.oldest_quote_at == T0
 
 

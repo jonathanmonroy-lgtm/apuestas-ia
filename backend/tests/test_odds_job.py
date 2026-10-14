@@ -24,10 +24,16 @@ def load(name):
     return json.loads((FIXTURES / name).read_text(encoding="utf-8"))
 
 
-def raw(payload, headers=None) -> RawResponse:
+# When the real payloads were recorded: "already started" is judged against this, so the
+# tests don't change meaning once the recorded matches are in the past.
+RECORDED_AT = datetime(2026, 10, 14, 23, 5, 30, tzinfo=UTC)
+
+
+def raw(payload, headers=None, fetched_at=RECORDED_AT) -> RawResponse:
     return RawResponse(
-        payload=payload, url="https://x", http_status=200, headers=headers or {}, attempts=1
-    )
+        payload=payload, url="https://x", http_status=200, headers=headers or {}, attempts=1,
+        fetched_at=fetched_at,
+    )  # fmt: skip
 
 
 class FakeOddsProvider(TheOddsApiProvider):

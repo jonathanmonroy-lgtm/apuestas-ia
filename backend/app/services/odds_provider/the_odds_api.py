@@ -5,11 +5,17 @@ Free plan: 500 credits/month. Cost of /odds = number of regions x number of mark
 balance comes in `x-requests-remaining`. The key can only travel as the `apiKey` query
 param, so it is passed as `auth_params` and stripped from every stored URL.
 
+PRE-MATCH ONLY: /odds also returns events already in play, with live prices (1.10 for a
+team 2-0 up). Mixing those with pre-match prices would poison both the summary and the
+model's history, so we ask only for future kick-offs (commenceTimeFrom) and, defensively,
+drop any event that has started and any quote stamped at or after kick-off.
+
 Verified 2026-10-14 with a real call (LaLiga, regions=eu, markets=h2h): 21 events,
 21 bookmakers each. Betfair-style exchanges also return an `h2h_lay` market (prices to
 bet AGAINST an outcome): it is not a back price and is discarded.
 """
 
+from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
@@ -104,9 +110,10 @@ class TheOddsApiProvider:
     def close(self) -> None:
         self._http.close()
 
-    def fetch_odds(self, competition: str) -> RawResponse:
+    def fetch_odds(self, competition: str, now: datetime | None = None) -> RawResponse:
         if competition not in SPORT_KEYS:
             raise ProviderError(f"unknown competition code for The Odds API: {competition}")
+        now = now or datetime.now(UTC)
         return self._http.get_json(
             f"/sports/{SPORT_KEYS[competition]}/odds",
             params={
@@ -114,15 +121,19 @@ class TheOddsApiProvider:
                 "markets": ",".join(MARKETS),
                 "oddsFormat": "decimal",
                 "dateFormat": "iso",
+                "commenceTimeFrom": now.strftime("%Y-%m-%dT%H:%M:%SZ"),  # pre-match only
             },
         )
+
+    def expected_cost(self) -> int:
+        """Documented cost formula: regions x markets (checked before calling)."""
+        return len([r for r in self.regions.split(",") if r.strip()]) * len(MARKETS)
 
     def request_cost(self, raw: RawResponse) -> int:
         value = raw.headers.get("x-requests-last")
         if value is not None and value.isdigit():
             return int(value)
-        # Documented formula as fallback: regions x markets.
-        return len(self.regions.split(",")) * len(MARKETS)
+        return self.expected_cost()
 
     def quota_remaining(self, raw: RawResponse) -> int | None:
         value = raw.headers.get("x-requests-remaining")
@@ -138,11 +149,17 @@ class TheOddsApiProvider:
             events = [_Event.model_validate(e) for e in raw.payload]
         except ValidationError as exc:
             raise FormatError(f"unexpected odds payload: {exc.error_count()} errors") from exc
+        upcoming = []
+        for e in events:
+            if e.commence_time <= raw.fetched_at:
+                log.warning("odds_event_already_started_skipped", odds_event_id=e.id)
+                continue
+            upcoming.append(e)
         try:
             return OddsBatch(
                 source=self.source,
                 competition=competition,
-                events=[self._event(e) for e in events],
+                events=[self._event(e) for e in upcoming],
             )
         except ValidationError as exc:
             raise FormatError(f"unexpected odds data: {exc}") from exc
@@ -169,16 +186,27 @@ class TheOddsApiProvider:
                     )  # fmt: skip
                     continue
                 captured_at = market.last_update or book.last_update
-                prices.extend(
-                    PriceDTO(
-                        bookmaker=book.key,
-                        market=MARKETS[market.key],
-                        selection=names[o.name],
-                        price=to_decimal(o.price),
-                        captured_at=captured_at,
+                if captured_at >= e.commence_time:
+                    continue  # an in-play quote, never mixed with pre-match prices
+                try:
+                    quotes = [
+                        PriceDTO(
+                            bookmaker=book.key,
+                            market=MARKETS[market.key],
+                            selection=names[o.name],
+                            price=to_decimal(o.price),
+                            captured_at=captured_at,
+                        )
+                        for o in market.outcomes
+                    ]
+                except (ValidationError, FormatError):
+                    # e.g. a suspended market quoted at 1.0: drop this bookmaker only,
+                    # never the whole run (the credit is already spent).
+                    log.warning(
+                        "odds_invalid_price_skipped", odds_event_id=e.id, bookmaker=book.key
                     )
-                    for o in market.outcomes
-                )
+                    continue
+                prices.extend(quotes)
         return OddsEventDTO(
             external_id=e.id,
             commence_time=e.commence_time,

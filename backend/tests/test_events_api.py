@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import sessionmaker
 
+from app.api.events import utc_now
 from app.core.config import Settings, get_settings
 from app.db.session import get_db
 from app.main import app
@@ -54,15 +55,20 @@ def test_events_with_odds_and_implied_probability(client, with_odds):
     dep = body["events"][0]
     assert dep["starts_at"] == "2026-10-16T19:00:00Z"
     assert dep["kickoff_confirmed"] is True
-    assert dep["odds"]["kind"] == "data"
-    assert dep["odds"]["n_bookmakers"] == 4
+    # QA F3 #3: the median is a statistic, labelled as analysis with its method
+    assert dep["odds"]["kind"] == "analysis"
+    assert "Mediana" in dep["odds"]["method"]
+    assert dep["odds"]["n_bookmakers"] == 3  # the exchange is excluded
     assert {k: Decimal(v) for k, v in dep["odds"]["median_price"].items()} == {
-        "home": Decimal("2.085"), "draw": Decimal("3.41"), "away": Decimal("3.455"),
+        "home": Decimal("2.05"), "draw": Decimal("3.3"), "away": Decimal("3.3"),
     }  # fmt: skip
-    assert dep["odds"]["as_of"] == "2026-10-14T23:05:05Z"
+    assert dep["odds"]["as_of"] == "2026-10-14T23:05:01Z"  # pinnacle, freshest bookmaker
     ip = dep["implied_probability"]
     assert ip["kind"] == "analysis"
-    assert (ip["home"], ip["draw"], ip["away"]) == ("0.4515", "0.2761", "0.2725")
+    # Checked with exact fractions: 0.445946, 0.277027, 0.277027; margin 9.39%
+    assert (ip["home"], ip["draw"], ip["away"], ip["overround"]) == (
+        "0.4459", "0.2770", "0.2770", "0.0939",
+    )  # fmt: skip
 
 
 def test_internal_mode_never_exposes_bookmakers(client, with_odds):
@@ -73,27 +79,17 @@ def test_internal_mode_never_exposes_bookmakers(client, with_odds):
         assert name not in text
 
 
-def odds_observed_at(sf, when: datetime) -> None:
-    """Real recorded prices, re-stamped so staleness doesn't depend on the test's date."""
-    payload = load(ODDS)
-    stamp = when.strftime("%Y-%m-%dT%H:%M:%SZ")
-    for e in payload:
-        for b in e["bookmakers"]:
-            b["last_update"] = stamp
-            for m in b["markets"]:
-                m["last_update"] = stamp
-    run_odds_ingestion(
-        sf, FakeOddsProvider(payload), "PD", policy=QuotaPolicy(QuotaPeriod.MONTH, 450)
-    )
+def at(when: datetime) -> None:
+    app.dependency_overrides[utc_now] = lambda: when
 
 
-def test_old_odds_are_flagged_stale(client, sf, calendar):  # noqa: F811
-    odds_observed_at(sf, datetime.now(UTC) - timedelta(hours=5))
+def test_old_odds_are_flagged_stale(client, with_odds):
+    at(datetime(2026, 10, 15, 6, 0, tzinfo=UTC))  # 7h after the recorded quotes
     assert get(client)["events"][0]["odds"]["is_stale"] is True
 
 
-def test_fresh_odds_are_not_stale(client, sf, calendar):  # noqa: F811
-    odds_observed_at(sf, datetime.now(UTC) - timedelta(minutes=10))
+def test_fresh_odds_are_not_stale(client, with_odds):
+    at(datetime(2026, 10, 14, 23, 30, tzinfo=UTC))  # 25 min after
     assert get(client)["events"][0]["odds"]["is_stale"] is False
 
 

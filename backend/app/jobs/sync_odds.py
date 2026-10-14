@@ -27,7 +27,9 @@ log = get_logger(__name__)
 
 
 def odds_quota_policy(settings: Settings) -> QuotaPolicy:
-    return QuotaPolicy(QuotaPeriod.MONTH, settings.odds_monthly_budget)
+    return QuotaPolicy(
+        QuotaPeriod.MONTH, settings.odds_monthly_budget, reserve=settings.odds_credit_reserve
+    )
 
 
 def sync_odds(
@@ -44,7 +46,11 @@ def sync_odds(
     try:
         for code in competitions or settings.fixtures_competitions:
             outcome = run_odds_ingestion(
-                session_factory, provider, code, policy=odds_quota_policy(settings)
+                session_factory,
+                provider,
+                code,
+                policy=odds_quota_policy(settings),
+                expected_cost=provider.expected_cost(),
             )
             ok = ok and outcome.status is IngestionStatus.SUCCESS
     finally:

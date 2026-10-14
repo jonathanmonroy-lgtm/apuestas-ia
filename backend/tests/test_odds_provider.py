@@ -1,4 +1,5 @@
 import json
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -24,10 +25,16 @@ def load() -> list:
     return json.loads(REAL.read_text(encoding="utf-8"))
 
 
-def raw(payload, headers=None) -> RawResponse:
+# When the real payloads were recorded: "already started" is judged against this, so the
+# tests don't change meaning once the recorded matches are in the past.
+RECORDED_AT = datetime(2026, 10, 14, 23, 5, 30, tzinfo=UTC)
+
+
+def raw(payload, headers=None, fetched_at=RECORDED_AT) -> RawResponse:
     return RawResponse(
-        payload=payload, url="https://x", http_status=200, headers=headers or {}, attempts=1
-    )
+        payload=payload, url="https://x", http_status=200, headers=headers or {}, attempts=1,
+        fetched_at=fetched_at,
+    )  # fmt: skip
 
 
 def test_normalize_real_payload():
@@ -125,7 +132,9 @@ def test_request_shape_and_key_never_stored():
 
     req = seen[0]
     assert req.url.path == "/v4/sports/soccer_spain_la_liga/odds"
-    assert dict(req.url.params) == {
+    params = dict(req.url.params)
+    assert params.pop("commenceTimeFrom").endswith("Z")  # pre-match only (QA F3 #1)
+    assert params == {
         "regions": "eu", "markets": "h2h", "oddsFormat": "decimal", "dateFormat": "iso",
         "apiKey": "SECRET",
     }  # fmt: skip

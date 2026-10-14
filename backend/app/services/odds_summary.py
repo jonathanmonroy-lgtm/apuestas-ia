@@ -1,9 +1,12 @@
-"""Odds summary for an event: hard data (median price) and statistical analysis
-(implied probability) kept apart, both in exact Decimal arithmetic.
+"""Odds summary for an event: statistics OVER observed prices (median price, implied
+probability), in exact Decimal arithmetic. The observed prices themselves are the hard
+data; these aggregates are analysis and must be labelled as such.
 
 Which prices count: the latest quote of each bookmaker that offers the full 1X2 triple,
 ignoring bookmakers whose latest quote is older than `stale_after` relative to the
 freshest one (a book that stopped updating would drag the median with an old price).
+Betting exchanges are excluded: their back prices are before commission and not
+comparable with a bookmaker's price (they are still stored for history).
 """
 
 from collections.abc import Iterable
@@ -14,6 +17,8 @@ from decimal import ROUND_HALF_EVEN, Decimal
 from app.models.enums import Selection
 
 PROB_QUANTUM = Decimal("0.0001")
+# The Odds API keys of betting exchanges (as opposed to bookmakers).
+EXCHANGES = frozenset({"betfair_ex_eu", "betfair_ex_uk", "betfair_ex_au", "matchbook", "smarkets"})
 SELECTIONS = (Selection.HOME, Selection.DRAW, Selection.AWAY)
 
 
@@ -52,6 +57,8 @@ def median(values: list[Decimal]) -> Decimal:
 def summarize(quotes: Iterable[Quote], stale_after: timedelta) -> OddsSummary | None:
     latest: dict[tuple[str, Selection], Quote] = {}
     for q in quotes:
+        if q.bookmaker in EXCHANGES:
+            continue
         key = (q.bookmaker, q.selection)
         if key not in latest or q.captured_at > latest[key].captured_at:
             latest[key] = q

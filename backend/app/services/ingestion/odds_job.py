@@ -2,12 +2,13 @@
 
 Event matching rules (the fixtures provider is the source of truth for Event):
 - Odds NEVER create or modify an Event. No match -> `unmatched_odd`, for a human to fix.
-- An odds event already linked (ExternalRef event) is reused directly.
-- Otherwise both team names must resolve to Participants, via an existing ExternalRef or
+- Both team names must always resolve to Participants, via an existing ExternalRef or
   the hand-curated alias table (never fuzzy matching). Then exactly one Event with that
   home/away pair must start within MATCH_WINDOW of the odds' commence_time. In a league
   a home/away pair meets once per season, so the window only guards against a stale
   odds event or a fixture moved by weeks; it is not the identity criterion.
+- An odds event already linked (ExternalRef event) is reused only while its Event still
+  has those same two teams.
 - Kick-off disagreements are logged, never "fixed": Event keeps the calendar's time.
 """
 
@@ -17,7 +18,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.logging import get_logger
-from app.models import Event, OddSnapshot, UnmatchedOdd
+from app.models import Event, ExternalRef, OddSnapshot, UnmatchedOdd
 from app.models.enums import EntityType, EventStatus, IngestionStatus, Provider
 from app.services.errors import ProviderError
 from app.services.ingestion.fetch import fetch_with_budget
@@ -92,15 +93,23 @@ def store_batch(s: Session, batch: OddsBatch, *, run_id: int | None) -> dict[str
 
 def match_event(s: Session, source: Provider, dto: OddsEventDTO) -> tuple[int | None, str]:
     """Returns (event_id, "") or (None, reason)."""
-    linked = find_ref(s, source, EntityType.EVENT, dto.external_id)
-    if linked is not None:
-        return linked, ""
-
     home_id = participant_for(s, source, dto.home_name)
     away_id = participant_for(s, source, dto.away_name)
     unknown = [n for n, pid in ((dto.home_name, home_id), (dto.away_name, away_id)) if not pid]
     if unknown:
         return None, f"unknown team name(s): {', '.join(unknown)}"
+
+    linked = find_ref(s, source, EntityType.EVENT, dto.external_id)
+    if linked is not None:
+        event = s.get(Event, linked)
+        if event is not None and (event.home_participant_id, event.away_participant_id) == (
+            home_id,
+            away_id,
+        ):
+            return linked, ""
+        # A link made under a wrong (since corrected) alias: never keep feeding it.
+        log.error("odds_event_link_disagrees", odds_event_id=dto.external_id, event_id=linked)
+        return None, "linked event's teams disagree with the current aliases"
 
     candidates = s.scalars(
         select(Event).where(
@@ -129,17 +138,27 @@ def match_event(s: Session, source: Provider, dto: OddsEventDTO) -> tuple[int | 
 
 
 def participant_for(s: Session, source: Provider, name: str) -> int | None:
-    pid = find_ref(s, source, EntityType.PARTICIPANT, name)
-    if pid is not None:
-        return pid
+    """The alias table is the source of truth on every run: a learned ExternalRef that
+    disagrees with it (alias corrected after a mistake) is repointed, never trusted."""
     target_id = ODDS_API_TO_FOOTBALL_DATA.get(name)
     if target_id is None:
         return None
     pid = find_ref(s, ALIAS_TARGET, EntityType.PARTICIPANT, target_id)
     if pid is None:
         return None  # alias known, but that team was never ingested from the calendar
-    add_ref(s, source, EntityType.PARTICIPANT, name, pid, raw_name=name)
-    s.flush()
+    ref = s.scalar(
+        select(ExternalRef).where(
+            ExternalRef.source == source,
+            ExternalRef.entity_type == EntityType.PARTICIPANT,
+            ExternalRef.external_id == name,
+        )
+    )
+    if ref is None:
+        add_ref(s, source, EntityType.PARTICIPANT, name, pid, raw_name=name)
+        s.flush()
+    elif ref.entity_id != pid:
+        log.warning("odds_team_alias_repointed", name=name, old=ref.entity_id, new=pid)
+        ref.entity_id = pid
     return pid
 
 

@@ -1,0 +1,239 @@
+{
+ "_source": "Real responses recorded 2026-10-14: football-data /v4/competitions/PD/matches (season 2026) and The Odds API soccer_spain_la_liga odds (regions=eu). Reduced to names/ids/kick-offs.",
+ "football_data_teams": {
+  "263": "Deportivo Alavés",
+  "285": "Elche CF",
+  "5335": "Real Racing Club de Santander",
+  "558": "RC Celta de Vigo",
+  "559": "Sevilla FC",
+  "560": "RC Deportivo La Coruña",
+  "77": "Athletic Club",
+  "78": "Club Atlético de Madrid",
+  "79": "CA Osasuna",
+  "80": "RCD Espanyol de Barcelona",
+  "81": "FC Barcelona",
+  "82": "Getafe CF",
+  "84": "Málaga CF",
+  "86": "Real Madrid CF",
+  "87": "Rayo Vallecano de Madrid",
+  "88": "Levante UD",
+  "90": "Real Betis Balompié",
+  "92": "Real Sociedad de Fútbol",
+  "94": "Villarreal CF",
+  "95": "Valencia CF"
+ },
+ "odds_api_events": [
+  {
+   "commence_time": "2026-10-16T19:00:00Z",
+   "home_team": "Deportivo La Coruña",
+   "away_team": "Levante"
+  },
+  {
+   "commence_time": "2026-10-17T12:00:00Z",
+   "home_team": "Espanyol",
+   "away_team": "Atlético Madrid"
+  },
+  {
+   "commence_time": "2026-10-17T14:15:00Z",
+   "home_team": "Villarreal",
+   "away_team": "Elche CF"
+  },
+  {
+   "commence_time": "2026-10-17T16:30:00Z",
+   "home_team": "Real Betis",
+   "away_team": "Barcelona"
+  },
+  {
+   "commence_time": "2026-10-17T19:00:00Z",
+   "home_team": "Valencia",
+   "away_team": "Athletic Bilbao"
+  },
+  {
+   "commence_time": "2026-10-18T12:00:00Z",
+   "home_team": "CA Osasuna",
+   "away_team": "Real Racing Club de Santander"
+  },
+  {
+   "commence_time": "2026-10-18T14:15:00Z",
+   "home_team": "Celta Vigo",
+   "away_team": "Alavés"
+  },
+  {
+   "commence_time": "2026-10-18T16:30:00Z",
+   "home_team": "Málaga",
+   "away_team": "Real Sociedad"
+  },
+  {
+   "commence_time": "2026-10-18T19:00:00Z",
+   "home_team": "Real Madrid",
+   "away_team": "Sevilla"
+  },
+  {
+   "commence_time": "2026-10-19T19:00:00Z",
+   "home_team": "Getafe",
+   "away_team": "Rayo Vallecano"
+  },
+  {
+   "commence_time": "2026-10-21T18:00:00Z",
+   "home_team": "Levante",
+   "away_team": "Athletic Bilbao"
+  },
+  {
+   "commence_time": "2026-10-23T19:00:00Z",
+   "home_team": "Alavés",
+   "away_team": "Málaga"
+  },
+  {
+   "commence_time": "2026-10-24T12:00:00Z",
+   "home_team": "Rayo Vallecano",
+   "away_team": "Elche CF"
+  },
+  {
+   "commence_time": "2026-10-24T14:15:00Z",
+   "home_team": "Real Racing Club de Santander",
+   "away_team": "Espanyol"
+  },
+  {
+   "commence_time": "2026-10-24T16:30:00Z",
+   "home_team": "Valencia",
+   "away_team": "Villarreal"
+  },
+  {
+   "commence_time": "2026-10-24T19:00:00Z",
+   "home_team": "Atlético Madrid",
+   "away_team": "Deportivo La Coruña"
+  },
+  {
+   "commence_time": "2026-10-25T13:00:00Z",
+   "home_team": "Athletic Bilbao",
+   "away_team": "Getafe"
+  },
+  {
+   "commence_time": "2026-10-25T15:15:00Z",
+   "home_team": "Celta Vigo",
+   "away_team": "Real Betis"
+  },
+  {
+   "commence_time": "2026-10-25T17:30:00Z",
+   "home_team": "Real Sociedad",
+   "away_team": "Levante"
+  },
+  {
+   "commence_time": "2026-10-25T20:00:00Z",
+   "home_team": "Barcelona",
+   "away_team": "Real Madrid"
+  },
+  {
+   "commence_time": "2026-10-26T20:00:00Z",
+   "home_team": "Sevilla",
+   "away_team": "CA Osasuna"
+  }
+ ],
+ "football_data_matches_same_kickoffs": [
+  {
+   "utcDate": "2026-10-16T19:00:00Z",
+   "home_id": "560",
+   "away_id": "88"
+  },
+  {
+   "utcDate": "2026-10-17T12:00:00Z",
+   "home_id": "80",
+   "away_id": "78"
+  },
+  {
+   "utcDate": "2026-10-17T14:15:00Z",
+   "home_id": "94",
+   "away_id": "285"
+  },
+  {
+   "utcDate": "2026-10-17T16:30:00Z",
+   "home_id": "90",
+   "away_id": "81"
+  },
+  {
+   "utcDate": "2026-10-17T19:00:00Z",
+   "home_id": "95",
+   "away_id": "77"
+  },
+  {
+   "utcDate": "2026-10-18T12:00:00Z",
+   "home_id": "79",
+   "away_id": "5335"
+  },
+  {
+   "utcDate": "2026-10-18T14:15:00Z",
+   "home_id": "558",
+   "away_id": "263"
+  },
+  {
+   "utcDate": "2026-10-18T16:30:00Z",
+   "home_id": "84",
+   "away_id": "92"
+  },
+  {
+   "utcDate": "2026-10-18T19:00:00Z",
+   "home_id": "86",
+   "away_id": "559"
+  },
+  {
+   "utcDate": "2026-10-19T19:00:00Z",
+   "home_id": "82",
+   "away_id": "87"
+  },
+  {
+   "utcDate": "2026-10-21T18:00:00Z",
+   "home_id": "88",
+   "away_id": "77"
+  },
+  {
+   "utcDate": "2026-10-23T19:00:00Z",
+   "home_id": "263",
+   "away_id": "84"
+  },
+  {
+   "utcDate": "2026-10-24T12:00:00Z",
+   "home_id": "87",
+   "away_id": "285"
+  },
+  {
+   "utcDate": "2026-10-24T14:15:00Z",
+   "home_id": "5335",
+   "away_id": "80"
+  },
+  {
+   "utcDate": "2026-10-24T16:30:00Z",
+   "home_id": "95",
+   "away_id": "94"
+  },
+  {
+   "utcDate": "2026-10-24T19:00:00Z",
+   "home_id": "78",
+   "away_id": "560"
+  },
+  {
+   "utcDate": "2026-10-25T13:00:00Z",
+   "home_id": "77",
+   "away_id": "82"
+  },
+  {
+   "utcDate": "2026-10-25T15:15:00Z",
+   "home_id": "558",
+   "away_id": "90"
+  },
+  {
+   "utcDate": "2026-10-25T17:30:00Z",
+   "home_id": "92",
+   "away_id": "88"
+  },
+  {
+   "utcDate": "2026-10-25T20:00:00Z",
+   "home_id": "81",
+   "away_id": "86"
+  },
+  {
+   "utcDate": "2026-10-26T20:00:00Z",
+   "home_id": "559",
+   "away_id": "79"
+  }
+ ]
+}

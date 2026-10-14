@@ -21,6 +21,9 @@ log = get_logger(__name__)
 class QuotaPolicy:
     period: QuotaPeriod
     limit: int  # our self-imposed budget, <= the provider's real limit
+    # Credits that must stay untouched per the PROVIDER's own count (it also sees calls
+    # made outside our jobs, e.g. manual tests), so the worker never drains the account.
+    reserve: int = 0
 
 
 def period_start(now: datetime, period: QuotaPeriod) -> datetime:
@@ -68,8 +71,10 @@ class QuotaBudget:
             return False, f"provider paused until {row.exhausted_until.isoformat()}"
         if row.used + cost > row.limit:
             return False, f"budget {row.used}/{row.limit} per {row.period.value}"
-        if row.remaining is not None and row.remaining < cost:
-            return False, f"provider reports {row.remaining} remaining"
+        if row.remaining is not None and row.remaining - cost < self.policy.reserve:
+            return False, (
+                f"provider reports {row.remaining} remaining (reserve {self.policy.reserve})"
+            )
         return True, "ok"
 
     def record_call(

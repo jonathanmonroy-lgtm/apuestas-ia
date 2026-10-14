@@ -37,3 +37,12 @@ def test_monthly_reset_crosses_year():
     assert next_reset(datetime(2026, 12, 20, tzinfo=UTC), QuotaPeriod.MONTH) == datetime(
         2027, 1, 1, tzinfo=UTC
     )
+
+
+def test_provider_reported_balance_keeps_the_reserve(db):
+    """QA F3 #5: the reserve is checked against the provider's own count."""
+    b = QuotaBudget(db, Provider.THE_ODDS_API, QuotaPolicy(QuotaPeriod.MONTH, 450, reserve=50))
+    b.record_call(remaining=51, now=DAY1)
+    db.commit()
+    assert b.can_spend(1, now=DAY1)[0]
+    assert not b.can_spend(2, now=DAY1)[0]  # would leave 49 < 50

@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     # The Odds API free plan: 500 credits/month; 1 credit per call (regions=eu, h2h).
     # Self-imposed 450 leaves room for manual runs. Every 3h = 8/day = ~248/month.
     odds_monthly_budget: int = 450
+    # Never let the provider's remaining balance drop below this (manual runs, tests).
+    odds_credit_reserve: int = 50
     odds_sync_interval_hours: float = Field(default=3.0, gt=0)
 
 
