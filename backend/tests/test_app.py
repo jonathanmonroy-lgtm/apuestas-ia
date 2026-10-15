@@ -30,3 +30,9 @@ def test_api_keys_never_leak_in_repr():
 def test_internal_mode_is_on_by_default():
     # Compliance default until jurisdiction is decided: bookmaker names stay hidden.
     assert Settings(_env_file=None).internal_mode is True
+
+
+def test_root_points_to_docs_instead_of_404(migrated_engine):
+    response = TestClient(app).get("/")
+    assert response.status_code == 200
+    assert response.json()["docs"] == "/docs"
