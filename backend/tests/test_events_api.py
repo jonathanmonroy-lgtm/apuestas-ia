@@ -113,3 +113,29 @@ def test_date_range_validation(client):
         ).status_code
         == 422
     )
+
+
+def test_matchday_returns_a_whole_round_past_or_future(client, sf):
+    """The schedule view must reach every match of the season, not only the next days."""
+    import json
+    from pathlib import Path
+
+    from app.services.fixtures_provider.football_data import FootballDataProvider
+    from app.services.http import RawResponse
+    from app.services.ingestion.fixtures_job import upsert_batch
+
+    payload = json.loads(
+        (
+            Path(__file__).parent / "fixtures/football_data/matches_pd_2026_real_matchday1.json"
+        ).read_text(encoding="utf-8")
+    )
+    raw = RawResponse(payload=payload, url="x", http_status=200, headers={}, attempts=1)
+    with sf() as s, s.begin():
+        upsert_batch(s, FootballDataProvider("k").normalize(raw))
+
+    body = client.get("/api/events", params={"matchday": 1}).json()
+    assert len(body["events"]) == 10  # all 10 matches of matchday 1 (Aug 2026, played)
+    assert all(e["round"] == "Jornada 1" for e in body["events"])
+    assert all(e["result"] is not None for e in body["events"])
+    assert client.get("/api/events", params={"matchday": 2}).json()["events"] == []
+    assert client.get("/api/events", params={"matchday": 0}).status_code == 422

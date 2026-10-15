@@ -23,15 +23,22 @@ const STATUS_ES: Record<EventOut["status"], string> = {
   unknown: "Estado desconocido",
 };
 
+// LaLiga: 20 teams, double round robin = 38 matchdays.
+const MATCHDAYS = Array.from({ length: 38 }, (_, i) => i + 1);
+
 export default async function ProgramacionPage({ searchParams }: PageProps<"/programacion">) {
   const params = await searchParams;
+  const jornadaParam = Number(Array.isArray(params.jornada) ? params.jornada[0] : params.jornada);
+  const jornada = MATCHDAYS.includes(jornadaParam) ? jornadaParam : undefined;
   const days = RANGES.includes(Number(params.dias) as (typeof RANGES)[number]) ? Number(params.dias) : 14;
   const today = new Date();
   const to = new Date(today.getTime() + days * 86_400_000);
   const iso = (d: Date) => d.toISOString().slice(0, 10);
 
   const [data, news] = await Promise.all([
-    api.events({ date_from: iso(today), date_to: iso(to) }),
+    jornada
+      ? api.events({ matchday: jornada })
+      : api.events({ date_from: iso(today), date_to: iso(to) }),
     api.news({ limit: 100 }),
   ]);
 
@@ -48,13 +55,55 @@ export default async function ProgramacionPage({ searchParams }: PageProps<"/pro
         <Freshness label="Cuotas" iso={data.data_as_of.odds} stale={anyStale} />
       </PageHeader>
 
-      <nav className="filters" aria-label="Rango de fechas">
-        {RANGES.map((r) => (
-          <Link key={r} href={`/programacion?dias=${r}`} aria-current={r === days ? "true" : undefined} className="chip">
-            Próximos {r} días
-          </Link>
-        ))}
-      </nav>
+      <div className="filters">
+        <nav className="filters-inline" aria-label="Rango de fechas">
+          {RANGES.map((r) => (
+            <Link
+              key={r}
+              href={`/programacion?dias=${r}`}
+              aria-current={!jornada && r === days ? "true" : undefined}
+              className="chip"
+            >
+              Próximos {r} días
+            </Link>
+          ))}
+        </nav>
+        <form method="get" className="filters-inline" aria-label="Ver una jornada">
+          <label>
+            Jornada
+            <select name="jornada" defaultValue={jornada ?? ""}>
+              <option value="" disabled>
+                Elige…
+              </option>
+              {MATCHDAYS.map((j) => (
+                <option key={j} value={j}>
+                  Jornada {j}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="submit">Ver</button>
+        </form>
+        {jornada && (
+          <nav className="filters-inline" aria-label="Jornada anterior y siguiente">
+            {jornada > 1 && (
+              <Link href={`/programacion?jornada=${jornada - 1}`} className="chip">
+                ← Jornada {jornada - 1}
+              </Link>
+            )}
+            {jornada < MATCHDAYS.length && (
+              <Link href={`/programacion?jornada=${jornada + 1}`} className="chip">
+                Jornada {jornada + 1} →
+              </Link>
+            )}
+          </nav>
+        )}
+      </div>
+      {jornada && (
+        <h2 className="day-title">
+          Jornada {jornada} · {data.events.length} partidos
+        </h2>
+      )}
 
       <p className="explainer">
         <Badge kind="analisis" /> Las cuotas son la <strong>mediana</strong> de
@@ -63,7 +112,9 @@ export default async function ProgramacionPage({ searchParams }: PageProps<"/pro
         pronóstico nuestro</strong>.
       </p>
 
-      {data.events.length === 0 && <p className="muted">No hay partidos en este rango.</p>}
+      {data.events.length === 0 && (
+        <p className="muted">{jornada ? `La jornada ${jornada} no tiene partidos en el calendario.` : "No hay partidos en este rango."}</p>
+      )}
 
       {[...byDay.entries()].map(([day, events]) => (
         <section key={day} aria-label={formatDate(events[0].starts_at)}>

@@ -217,3 +217,6 @@ table.bets { width: 100%; border-collapse: collapse; font-size: 14px; }
   max-width: 1200px; margin: 0 auto; padding: 24px var(--gutter) 48px; font-size: 13px;
   border-top: 1px solid var(--border);
 }
+
+.filters-inline { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.filters-inline label { flex-direction: column; }

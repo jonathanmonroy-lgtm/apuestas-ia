@@ -109,14 +109,25 @@ def utc_now() -> datetime:
 def list_events(
     date_from: date | None = Query(None, description="UTC date; default today"),  # noqa: B008
     date_to: date | None = Query(None, description="UTC date, inclusive; default +14 days"),  # noqa: B008
+    matchday: int | None = Query(
+        None, ge=1, le=60, description="a whole matchday (jornada), past or future; ignores dates"
+    ),
     db: Session = Depends(get_db),  # noqa: B008
     settings: Settings = Depends(get_settings),  # noqa: B008
     now: datetime = Depends(utc_now),  # noqa: B008 - injectable clock for tests
 ) -> EventsResponse:
-    start = date_from or now.date()
-    end = date_to or start + timedelta(days=14)
-    if end < start or (end - start).days > MAX_RANGE_DAYS:
-        raise HTTPException(422, f"date range must be 0..{MAX_RANGE_DAYS} days")
+    if matchday is not None:
+        # The calendar provider labels rounds "Jornada N" (football_data normalizer).
+        where = [Event.round == f"Jornada {matchday}"]
+    else:
+        start = date_from or now.date()
+        end = date_to or start + timedelta(days=14)
+        if end < start or (end - start).days > MAX_RANGE_DAYS:
+            raise HTTPException(422, f"date range must be 0..{MAX_RANGE_DAYS} days")
+        where = [
+            Event.starts_at >= datetime.combine(start, time.min, UTC),
+            Event.starts_at < datetime.combine(end + timedelta(days=1), time.min, UTC),
+        ]
 
     events = (
         db.scalars(
@@ -127,10 +138,7 @@ def list_events(
                 joinedload(Event.competition),
                 joinedload(Event.result),
             )
-            .where(
-                Event.starts_at >= datetime.combine(start, time.min, UTC),
-                Event.starts_at < datetime.combine(end + timedelta(days=1), time.min, UTC),
-            )
+            .where(*where)
             .order_by(Event.starts_at, Event.id)
         )
         .unique()

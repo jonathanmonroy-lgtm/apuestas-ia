@@ -184,7 +184,7 @@ const qs = (params: Record<string, string | number | undefined | null>) => {
 };
 
 export const api = {
-  events: (p: { date_from?: string; date_to?: string } = {}) =>
+  events: (p: { date_from?: string; date_to?: string; matchday?: number } = {}) =>
     request<EventsResponse>(`/api/events${qs(p)}`),
   news: (p: { participant_id?: number; event_id?: number; limit?: number } = {}) =>
     request<NewsResponse>(`/api/news${qs(p)}`),
