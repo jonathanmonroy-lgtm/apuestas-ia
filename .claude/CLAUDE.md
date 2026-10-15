@@ -50,4 +50,4 @@ Backend (desde `backend/`, requiere `uv`):
 
 Infra: `docker compose up -d db` — Postgres 16 local. Usar `127.0.0.1`, no `localhost` (en Windows `localhost` resuelve a IPv6 y la conexión se cuelga).
 
-Frontend (desde `frontend/`): `npm run dev`, `npm run lint`, `npm run build`.
+Frontend (desde `frontend/`): `npm run dev` (http://127.0.0.1:3000), `npm run lint`, `npm run build`. Lee la API desde el servidor (`API_BASE_URL`, por defecto http://127.0.0.1:8000): arranca antes el backend. Vistas: `/` Resumen, `/programacion`, `/historial`. Diseño: `docs/diseno-frontend.md`.
