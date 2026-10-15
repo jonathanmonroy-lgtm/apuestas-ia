@@ -29,6 +29,9 @@ class User(TimestampMixin, Base):
     age_verification_method: Mapped[str | None] = mapped_column(String(40))
     terms_version_accepted: Mapped[str | None] = mapped_column(String(20))
     terms_accepted_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    # The user's own declared starting bankroll for the bet tracker (optional).
+    starting_bankroll: Mapped[Decimal | None] = mapped_column(Money())
+    bankroll_currency: Mapped[str | None] = mapped_column(String(3))
 
     spending_limits: Mapped[list["SpendingLimit"]] = relationship(back_populates="user")
     self_exclusions: Mapped[list["SelfExclusion"]] = relationship(back_populates="user")

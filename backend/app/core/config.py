@@ -48,6 +48,11 @@ class Settings(BaseSettings):
     fixtures_sync_hour_utc: int = Field(default=6, ge=0, le=23)
     fixtures_sync_minute: int = Field(default=15, ge=0, le=59)
 
+    # INTERNAL MODE has no login yet (auth strategy pending): every request acts as this
+    # single local user. Replace with real authentication before any external user.
+    internal_user_email: str = "interno@localhost"
+    default_currency: str = "EUR"
+
     # --- Compliance defaults (INTERNAL MODE until jurisdiction is decided) ---
     # When True, bookmaker names are stored but never exposed by public endpoints.
     internal_mode: bool = True
