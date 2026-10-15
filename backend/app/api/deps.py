@@ -2,6 +2,7 @@
 
 from fastapi import Depends
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
@@ -18,9 +19,13 @@ def current_user(
     Every request is the internal user, created on first use. This must be replaced by
     real auth (and age verification) before anyone else can reach the API.
     """
-    user = db.scalar(select(User).where(User.email == settings.internal_user_email))
+    query = select(User).where(User.email == settings.internal_user_email)
+    user = db.scalar(query)
     if user is None:
-        user = User(email=settings.internal_user_email)
-        db.add(user)
-        db.commit()
+        db.add(User(email=settings.internal_user_email))
+        try:
+            db.commit()
+        except IntegrityError:  # a parallel first request created it (QA F5 #6)
+            db.rollback()
+        user = db.scalar(query)
     return user

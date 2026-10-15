@@ -52,6 +52,9 @@ class Settings(BaseSettings):
     # single local user. Replace with real authentication before any external user.
     internal_user_email: str = "interno@localhost"
     default_currency: str = "EUR"
+    # Raising a spending limit waits this long (lowering is immediate). Jurisdiction-
+    # dependent: 24 h is a conservative default until the target country is decided.
+    limit_increase_cooling_off_hours: int = Field(default=24, ge=0)
 
     # --- Compliance defaults (INTERNAL MODE until jurisdiction is decided) ---
     # When True, bookmaker names are stored but never exposed by public endpoints.

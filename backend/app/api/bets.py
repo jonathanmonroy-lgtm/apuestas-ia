@@ -36,19 +36,32 @@ def _currency(value: str) -> str:
 def _cents(value: Decimal) -> Decimal:
     if value != value.quantize(Decimal("0.01")):
         raise ValueError("at most 2 decimals")
+    return value.quantize(Decimal("0.01"))  # "10.5" -> "10.50" on every database
+
+
+# A logged bet can't be in the future (small allowance for clock skew).
+CLOCK_SKEW = timedelta(minutes=5)
+
+
+def _utc_not_future(value: datetime) -> datetime:
+    value = value.astimezone(UTC)
+    if value > datetime.now(UTC) + CLOCK_SKEW:
+        raise ValueError("cannot be in the future")
     return value
 
 
 def _odds(value: Decimal) -> Decimal:
     if value != value.quantize(Decimal("0.001")):
         raise ValueError("at most 3 decimals")
-    return value
+    return value.quantize(Decimal("0.001"))  # the column's scale: same string on any DB
 
 
 Currency = Annotated[str, AfterValidator(_currency)]
-Stake = Annotated[Decimal, Field(gt=0, max_digits=14), AfterValidator(_cents)]
+# Caps keep stake x odds inside NUMERIC(14,2): 10^7 x 10^4 = 10^11 < 10^12.
+Stake = Annotated[Decimal, Field(gt=0, le=10_000_000), AfterValidator(_cents)]
 Odds = Annotated[Decimal, Field(gt=1, lt=10000), AfterValidator(_odds)]
-Payout = Annotated[Decimal, Field(ge=0, max_digits=14), AfterValidator(_cents)]
+Payout = Annotated[Decimal, Field(ge=0, le=100_000_000_000), AfterValidator(_cents)]
+PastUtc = Annotated[AwareDatetime, AfterValidator(_utc_not_future)]
 
 
 class BetCreate(BaseModel):
@@ -59,7 +72,7 @@ class BetCreate(BaseModel):
     odds_taken: Odds
     stake: Stake
     currency: Currency
-    placed_at: AwareDatetime | None = None  # default: now
+    placed_at: PastUtc | None = None  # default: now
     notes: str | None = Field(None, max_length=2000)
 
     @model_validator(mode="after")
@@ -76,12 +89,19 @@ class BetUpdate(BaseModel):
     selection: Selection | None = None
     odds_taken: Odds | None = None
     stake: Stake | None = None
-    placed_at: AwareDatetime | None = None
+    placed_at: PastUtc | None = None
     notes: str | None = Field(None, max_length=2000)
     status: BetStatus | None = None
     # Optional override for a settled bet (cash-out, bookmaker rules); default from odds.
     payout: Payout | None = None
-    settled_at: AwareDatetime | None = None
+    settled_at: PastUtc | None = None
+
+    @model_validator(mode="after")
+    def _no_explicit_nulls(self) -> "BetUpdate":
+        for field in ("status", "selection", "odds_taken", "stake", "placed_at"):
+            if field in self.model_fields_set and getattr(self, field) is None:
+                raise ValueError(f"{field} cannot be null")
+        return self
 
 
 class BetOut(BaseModel):
@@ -138,18 +158,35 @@ DbDep = Annotated[Session, Depends(get_db)]
 UserDep = Annotated[User, Depends(current_user)]
 
 
-@router.post("/bets", response_model=BetOut, status_code=201)
-def create_bet(body: BetCreate, db: DbDep, user: UserDep) -> BetOut:
+PERIOD_ES = {"daily": "diario", "weekly": "semanal", "monthly": "mensual"}
+
+
+def _check_responsible_gambling(
+    db: Session,
+    user: User,
+    stake: Decimal,
+    currency: str,
+    logged_at: datetime,
+    exclude_bet_id: int | None = None,
+) -> None:
+    """Self-exclusion blocks it (403); a limit it would exceed refuses it (409)."""
     now = datetime.now(UTC)
     if active_self_exclusion(db, user.id, now):
-        raise HTTPException(403, "autoexclusión activa: no se pueden registrar apuestas")
-    breach = spending_limit_breach(db, user.id, body.stake, body.currency, now)
+        raise HTTPException(403, "autoexclusión activa: no se pueden registrar ni ampliar apuestas")
+    breach = spending_limit_breach(db, user.id, stake, currency, logged_at, exclude_bet_id)
     if breach:
         raise HTTPException(
             409,
-            f"supera tu límite {breach.period.value} de {breach.limit} {breach.currency} "
-            f"(llevas {breach.already_staked})",
+            f"supera tu límite {PERIOD_ES[breach.period.value]} de {breach.limit} "
+            f"{breach.currency} (llevas {breach.already_staked})",
         )
+
+
+@router.post("/bets", response_model=BetOut, status_code=201)
+def create_bet(body: BetCreate, db: DbDep, user: UserDep) -> BetOut:
+    now = datetime.now(UTC)
+    # Counted in the period it is LOGGED (now), whatever placed_at says (QA F5 #2).
+    _check_responsible_gambling(db, user, body.stake, body.currency, now)
     label = body.event_label.strip() if body.event_label else None
     if body.event_id is not None:
         event = db.get(Event, body.event_id)
@@ -168,9 +205,11 @@ def create_bet(body: BetCreate, db: DbDep, user: UserDep) -> BetOut:
         status=BetStatus.PENDING,
         placed_at=body.placed_at or now,
         notes=body.notes,
+        created_at=now,
     )
     db.add(bet)
     db.commit()
+    db.refresh(bet)
     return _out(bet)
 
 
@@ -219,6 +258,15 @@ def update_bet(bet_id: int, body: BetUpdate, db: DbDep, user: UserDep) -> BetOut
     target = changes.get("status", bet.status)
     if financial and (bet.status is not BetStatus.PENDING or target is not BetStatus.PENDING):
         raise HTTPException(409, "reopen the bet (status=pending) before editing it")
+    new_stake = changes.get("stake", bet.stake)
+    # Raising the stake, or reopening a void bet (its stake counts again), is new spending:
+    # same checks as logging it, in the period the bet was logged (QA F5 #1).
+    if target is not BetStatus.VOID and (
+        new_stake > bet.stake or (bet.status is BetStatus.VOID and target is not BetStatus.VOID)
+    ):
+        _check_responsible_gambling(
+            db, user, new_stake, bet.currency, bet.created_at, exclude_bet_id=bet.id
+        )
     for field in ("event_label", "notes", *financial):
         if field in changes and changes[field] is not None:
             setattr(bet, field, changes[field])
@@ -237,7 +285,10 @@ def update_bet(bet_id: int, body: BetUpdate, db: DbDep, user: UserDep) -> BetOut
                 payout if payout is not None else default_payout(target, bet.stake, bet.odds_taken)
             )
             bet.settled_at = changes.get("settled_at") or bet.settled_at or datetime.now(UTC)
+            if bet.settled_at < bet.placed_at:
+                raise HTTPException(422, "settled_at cannot be before placed_at")
     db.commit()
+    db.refresh(bet)
     return _out(bet)
 
 

@@ -77,7 +77,7 @@ def test_create_bet_linked_to_a_real_event(client, event_id):
     assert bet["event_label"] == "Deportivo - Levante"
     assert bet["event_starts_at"] == "2026-10-16T19:00:00Z"
     assert bet["status"] == "pending"
-    assert bet["stake"] == "10.00" and bet["odds_taken"] == "1.95"  # strings, not floats
+    assert bet["stake"] == "10.00" and bet["odds_taken"] == "1.950"  # strings, not floats
     assert bet["payout"] is None
 
 
@@ -211,7 +211,7 @@ def test_daily_spending_limit(client, sf):
     assert new_bet(client, stake="20.00", placed_at=today).status_code == 201  # 50 exactly
     r = new_bet(client, stake="0.01", placed_at=today)
     assert r.status_code == 409
-    assert "límite daily de 50" in r.json()["detail"]
+    assert "límite diario de 50" in r.json()["detail"]
     assert new_bet(client, stake="5.00", placed_at=today, currency="USD").status_code == 201
 
 
@@ -282,7 +282,7 @@ def test_metrics_never_mix_currencies(client):
 def test_bankroll_roundtrip(client):
     assert client.get("/api/me/bankroll").json() == {"starting_bankroll": None, "currency": None}
     r = client.put("/api/me/bankroll", json={"amount": "250.5", "currency": "eur"})
-    assert r.json() == {"starting_bankroll": "250.5", "currency": "EUR"}
+    assert r.json() == {"starting_bankroll": "250.50", "currency": "EUR"}  # same on any DB
     assert (
         client.put("/api/me/bankroll", json={"amount": "-1", "currency": "EUR"}).status_code == 422
     )
