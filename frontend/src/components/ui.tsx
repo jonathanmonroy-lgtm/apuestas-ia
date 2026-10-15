@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { DISPLAY_TZ } from "@/lib/format";
+
 /**
  * The provenance label every number carries (CLAUDE.md principle: the user must tell
  * hard data from analysis from model output).
@@ -60,7 +62,7 @@ export function toneOf(value: string | null | undefined): "positive" | "negative
 export function Freshness({ label, iso, stale }: { label: string; iso: string | null; stale?: boolean }) {
   return (
     <span className={`freshness${stale ? " is-stale" : ""}`}>
-      {label}: {iso ? <time dateTime={iso}>{new Date(iso).toLocaleString("es-ES", { timeZone: "Europe/Madrid", dateStyle: "short", timeStyle: "short" })}</time> : "sin datos"}
+      {label}: {iso ? <time dateTime={iso}>{new Date(iso).toLocaleString("es-ES", { timeZone: DISPLAY_TZ, dateStyle: "short", timeStyle: "short" })}</time> : "sin datos"}
       {stale && <strong> · desactualizado</strong>}
     </span>
   );

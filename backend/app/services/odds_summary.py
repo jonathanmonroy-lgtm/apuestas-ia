@@ -18,7 +18,10 @@ from app.models.enums import Selection
 
 PROB_QUANTUM = Decimal("0.0001")
 # The Odds API keys of betting exchanges (as opposed to bookmakers).
-EXCHANGES = frozenset({"betfair_ex_eu", "betfair_ex_uk", "betfair_ex_au", "matchbook", "smarkets"})
+EXCHANGES = frozenset(
+    {"betfair_ex_eu", "betfair_ex_uk", "betfair_ex_au", "matchbook", "smarkets",
+     "Betfair"}  # API-Football's "Betfair" = the exchange's back prices
+)  # fmt: skip
 SELECTIONS = (Selection.HOME, Selection.DRAW, Selection.AWAY)
 
 

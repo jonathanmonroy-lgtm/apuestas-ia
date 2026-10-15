@@ -24,7 +24,7 @@ from app.services.errors import ProviderError
 from app.services.ingestion.fetch import fetch_with_budget
 from app.services.ingestion.refs import add_ref, find_ref
 from app.services.ingestion.runs import RunOutcome, RunRecorder
-from app.services.odds_provider.base import OddsBatch, OddsEventDTO, OddsProvider
+from app.services.odds_provider.base import OddsBatch, OddsEventDTO, OddsProvider, PriceDTO
 from app.services.odds_provider.team_aliases import ODDS_API_TO_FOOTBALL_DATA
 from app.services.quota import QuotaPolicy
 
@@ -87,7 +87,9 @@ def store_batch(s: Session, batch: OddsBatch, *, run_id: int | None) -> dict[str
             continue
         resolve_unmatched(s, batch.source, dto.external_id)
         stats["events_matched"] += 1
-        stats["snapshots_inserted"] += insert_snapshots(s, batch.source, event_id, dto, run_id)
+        stats["snapshots_inserted"] += insert_snapshots(
+            s, batch.source, event_id, dto.prices, run_id
+        )
     return stats
 
 
@@ -163,7 +165,7 @@ def participant_for(s: Session, source: Provider, name: str) -> int | None:
 
 
 def insert_snapshots(
-    s: Session, source: Provider, event_id: int, dto: OddsEventDTO, run_id: int | None
+    s: Session, source: Provider, event_id: int, prices: list[PriceDTO], run_id: int | None
 ) -> int:
     existing = set(
         s.execute(
@@ -176,7 +178,7 @@ def insert_snapshots(
         ).all()
     )
     inserted = 0
-    for p in dto.prices:
+    for p in prices:
         key = (p.bookmaker, p.market, p.selection, p.captured_at.astimezone(UTC))
         if key in existing:
             continue  # same observation already stored (append-only, idempotent)

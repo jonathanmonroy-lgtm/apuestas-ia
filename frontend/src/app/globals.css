@@ -220,3 +220,61 @@ table.bets { width: 100%; border-collapse: collapse; font-size: 14px; }
 
 .filters-inline { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
 .filters-inline label { flex-direction: column; }
+
+/* --- matches of the day by country --- */
+.day-layout { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
+.country-list {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  max-height: 75vh; overflow-y: auto; position: sticky; top: 12px;
+}
+.country-list ul { list-style: none; margin: 0; padding: 6px; }
+.country-list a {
+  display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px;
+  color: var(--text); text-decoration: none; font-size: 14px;
+}
+.country-list a:hover { background: var(--surface-2); }
+.country-list a[aria-current="true"] { background: var(--surface-2); outline: 1px solid var(--gold); }
+.flag { width: 20px; height: 14px; object-fit: cover; border-radius: 2px; flex: none; vertical-align: middle; }
+.flag-world { display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted); }
+.country-list .country-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.country-count {
+  font-size: 12px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 999px;
+  padding: 0 8px; font-variant-numeric: tabular-nums;
+}
+.country-title { margin: 0 0 8px; font-size: 22px; }
+.league-block {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  margin: 12px 0; overflow: hidden;
+}
+.league-block h3 { margin: 0; padding: 10px 14px; font-size: 15px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+.match-list { list-style: none; margin: 0; padding: 0; }
+.match-row {
+  display: grid; grid-template-columns: 96px minmax(0, 1fr) minmax(0, 290px); gap: 12px;
+  align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+.match-row:last-child { border-bottom: 0; }
+.match-time { display: flex; flex-direction: column; gap: 2px; font-variant-numeric: tabular-nums; }
+.match-time em { color: var(--text-muted); font-size: 13px; }
+.match-status { font-size: 11px; font-weight: 600; }
+.status-live { color: var(--positive); }
+.status-finished { color: var(--text-muted); }
+.status-postponed, .status-cancelled, .status-unknown { color: var(--warning); }
+.match-teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; }
+.match-teams > span:first-child { text-align: right; }
+.match-teams .score { color: var(--gold); white-space: nowrap; }
+.match-odds { justify-self: end; }
+.odds-inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.odd-cell { display: flex; flex-direction: column; align-items: center; min-width: 46px; line-height: 1.2; }
+.odd-cell strong { font-variant-numeric: tabular-nums; }
+.odds-meta { flex-basis: 100%; text-align: right; }
+.fetch-odds { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+@media (max-width: 760px) {
+  .day-layout { grid-template-columns: 1fr; }
+  .country-list { position: static; max-height: 220px; }
+  .match-row { grid-template-columns: 64px minmax(0, 1fr); }
+  .match-odds { grid-column: 1 / -1; justify-self: stretch; }
+  .odds-inline { justify-content: flex-start; }
+  .odds-meta { text-align: left; }
+  .fetch-odds { align-items: flex-start; }
+}

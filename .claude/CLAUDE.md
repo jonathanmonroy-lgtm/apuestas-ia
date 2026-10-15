@@ -46,7 +46,8 @@ Backend (desde `backend/`, requiere `uv`):
 - `uv run python -m app.jobs.sync_fixtures [--competition PD] [--season 2026]` — sincronizar partidos/resultados (requiere `FOOTBALL_DATA_KEY`; exit != 0 si algo falla)
 - `uv run python -m app.jobs.sync_odds` — sincronizar cuotas 1X2 de The Odds API (1 crédito por llamada de 500/mes; requiere `ODDS_API_KEY` y fixtures ya sincronizados)
 - `uv run python -m app.jobs.sync_news` — sincronizar noticias de NewsAPI (1 petición de 100/día; requiere `NEWSAPI_KEY` y fixtures ya sincronizados)
-- `uv run python -m app.worker` — worker (proceso aparte de la API): fixtures diario 06:15 UTC, odds cada 3 h, noticias cada hora; recupera al arrancar si hay datos viejos. Reiniciarlo tras cambiar `.env` (la config se lee al arrancar)
+- `uv run python -m app.jobs.sync_day` — partidos del día de todos los países + cuotas (API-Football gratis: ayer/hoy/mañana, 3 páginas de cuotas; requiere `API_FOOTBALL_KEY`)
+- `uv run python -m app.worker` — worker (proceso aparte de la API): partidos del día cada 6 h, fixtures LaLiga diario 06:15 UTC, odds LaLiga cada 3 h, noticias cada hora; recupera al arrancar si hay datos viejos. Reiniciarlo tras cambiar `.env`
 
 Infra: `docker compose up -d db` — Postgres 16 local. Usar `127.0.0.1`, no `localhost` (en Windows `localhost` resuelve a IPv6 y la conexión se cuelga).
 

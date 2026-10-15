@@ -1,167 +1,184 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
-import { EvolutionChart } from "@/components/EvolutionChart";
-import { BankrollForm, LimitForm, SelfExclusionForm } from "@/components/forms";
-import { Badge, Freshness, PageHeader, StatTile, toneOf } from "@/components/ui";
-import { api } from "@/lib/api";
-import { ago, formatDate, formatDateTime, formatTime, money, percent, signedMoney } from "@/lib/format";
+import { FetchOddsButton } from "@/components/FetchOddsButton";
+import { Badge, Freshness, PageHeader } from "@/components/ui";
+import { api, type EventOut } from "@/lib/api";
+import { countryFlagUrl, countryName } from "@/lib/countries";
+import { dayKey, formatTime, odds, percent } from "@/lib/format";
 
-const CURRENCY = "EUR";
-const PERIOD_ES = { daily: "Diario", weekly: "Semanal", monthly: "Mensual" } as const;
+export const metadata: Metadata = { title: "Partidos del día" };
 
-export default async function ResumenPage() {
-  const [metrics, limits, exclusion, events, news] = await Promise.all([
-    api.metrics(CURRENCY),
-    api.limits(CURRENCY),
-    api.selfExclusion(),
-    api.events(),
-    api.news({ limit: 5 }),
-  ]);
-  const m = metrics;
-  const upcoming = events.events.filter((e) => e.status === "scheduled").slice(0, 4);
-  const points = m.series.map((p) => ({
-    id: p.bet_id,
-    at: p.settled_at,
-    value: p.bankroll ?? p.cumulative_profit,
-    delta: p.profit,
-  }));
+const DAYS = [
+  { key: "ayer", label: "Ayer", offset: -1 },
+  { key: "hoy", label: "Hoy", offset: 0 },
+  { key: "manana", label: "Mañana", offset: 1 },
+] as const;
+
+const STATUS_ES: Record<EventOut["status"], string> = {
+  scheduled: "",
+  live: "En juego",
+  finished: "Final",
+  postponed: "Aplazado",
+  cancelled: "Cancelado",
+  unknown: "Estado desconocido",
+};
+
+/** Colombia's calendar day `offset` days from today, as YYYY-MM-DD. */
+function colombiaDay(offset: number): string {
+  return dayKey(new Date(Date.now() + offset * 86_400_000).toISOString());
+}
+
+const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+
+export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/">) {
+  const params = await searchParams;
+  const dayParam = DAYS.find((d) => d.key === one(params.dia)) ?? DAYS[1];
+  const day = colombiaDay(dayParam.offset);
+  const menu = await api.countries(day);
+
+  const requested = one(params.pais);
+  const selected =
+    menu.countries.find((c) => c.name === requested) ??
+    menu.countries.find((c) => c.name === "Colombia") ??
+    menu.countries[0];
+  const data = selected ? await api.events({ day, country: selected.name }) : null;
+
+  const byLeague = new Map<string, EventOut[]>();
+  for (const e of data?.events ?? []) byLeague.set(e.competition, [...(byLeague.get(e.competition) ?? []), e]);
+  const href = (pais: string | undefined, dia: string) =>
+    `/?${new URLSearchParams({ dia, ...(pais ? { pais } : {}) })}`;
 
   return (
     <main className="page">
-      <PageHeader title="Resumen">
-        <Badge kind="tuyo" title="Calculado sobre las apuestas que tú registras" />
+      <PageHeader title="Partidos del día">
+        <Freshness label="Partidos" iso={menu.data_as_of.fixtures} />
+        <Freshness label="Cuotas" iso={menu.data_as_of.odds} />
       </PageHeader>
 
-      <section aria-label="Tus métricas">
-        <div className="kpis">
-          <StatTile
-            label="Bankroll"
-            value={m.bankroll ? money(m.bankroll, CURRENCY) : "—"}
-            hint={m.bankroll ? `inicial ${money(m.starting_bankroll, CURRENCY)}` : "fija tu bankroll inicial abajo"}
-          />
-          <StatTile
-            label="Beneficio"
-            value={signedMoney(m.profit, CURRENCY)}
-            tone={toneOf(m.profit)}
-            hint={`${m.n_won + m.n_lost} resueltas`}
-          />
-          <StatTile label="ROI" value={percent(m.roi)} tone={toneOf(m.roi)} hint={m.definitions.roi} />
-          <StatTile label="Acierto" value={percent(m.win_rate)} hint={`${m.n_won} ganadas · ${m.n_lost} perdidas`} />
-          <StatTile label="Stake medio" value={m.avg_stake ? money(m.avg_stake, CURRENCY) : "—"} hint={m.definitions.avg_stake} />
-          <StatTile
-            label="Pendiente"
-            value={money(m.pending_stake, CURRENCY)}
-            hint={m.available ? `disponible ${money(m.available, CURRENCY)}` : `${m.n_pending} apuestas abiertas`}
-          />
-        </div>
-        {m.n_void > 0 && (
-          <p className="muted small">
-            {m.n_void} apuesta(s) anulada(s): devolvieron el importe y no cuentan en ROI, acierto ni
-            stake medio.
-          </p>
-        )}
-      </section>
+      <nav className="filters" aria-label="Día">
+        {DAYS.map((d) => (
+          <Link key={d.key} href={href(selected?.name, d.key)} className="chip"
+                aria-current={d.key === dayParam.key ? "true" : undefined}>
+            {d.label}
+          </Link>
+        ))}
+        <span className="muted small">
+          {day} · hora de Colombia ({menu.timezone})
+        </span>
+      </nav>
 
-      <section className="card" aria-labelledby="evo">
-        <div className="card-head">
-          <h2 id="evo">{m.bankroll ? "Evolución del bankroll" : "Beneficio acumulado"}</h2>
-          <Badge kind="tuyo" />
-        </div>
-        <EvolutionChart
-          points={points}
-          currency={CURRENCY}
-          label={m.bankroll ? "Bankroll" : "Beneficio acumulado"}
-          baseline={m.starting_bankroll ?? "0"}
-        />
-        <BankrollForm current={m.starting_bankroll} currency={CURRENCY} />
-      </section>
-
-      <section className="card rg" aria-labelledby="rg">
-        <div className="card-head">
-          <h2 id="rg">Juego responsable</h2>
-        </div>
-        {exclusion.active ? (
-          <p className="form-error" role="status">
-            Autoexclusión activa
-            {exclusion.ends_at ? ` hasta el ${formatDateTime(exclusion.ends_at)}` : " (indefinida)"}. No
-            puedes registrar apuestas.
-          </p>
-        ) : null}
-        {limits.limits.length === 0 ? (
-          <p>
-            No tienes límites de gasto. Te recomendamos fijar uno antes de registrar apuestas.
-          </p>
-        ) : (
-          <ul className="limits">
-            {limits.limits.map((l) => (
-              <li key={l.period}>
-                <strong>{PERIOD_ES[l.period]}</strong>: llevas {money(l.used, l.currency)} de{" "}
-                {money(l.amount, l.currency)} · te quedan <strong>{money(l.remaining, l.currency)}</strong>
-                {l.pending_amount && l.pending_effective_from && (
-                  <span className="muted">
-                    {" "}
-                    (subida a {money(l.pending_amount, l.currency)} desde el{" "}
-                    {formatDateTime(l.pending_effective_from)})
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="muted small">{limits.note}</p>
-        <div className="rg-forms">
-          <LimitForm currency={CURRENCY} />
-          {!exclusion.active && <SelfExclusionForm />}
-        </div>
-        <p className="small">
-          Si el juego te genera problemas, pide ayuda profesional. Los recursos de ayuda dependen
-          del país y se mostrarán cuando se decida la jurisdicción.
+      {menu.countries.length === 0 ? (
+        <p className="muted">
+          No hay partidos guardados para este día. El plan gratuito sólo da ayer, hoy y mañana;
+          el worker los sincroniza cada 6 h (o a mano: <code>uv run python -m app.jobs.sync_day</code>).
         </p>
-      </section>
+      ) : (
+        <div className="day-layout">
+          <aside className="country-list" aria-label="Países">
+            <ul>
+              {menu.countries.map((c) => (
+                <li key={c.name}>
+                  <Link href={href(c.name, dayParam.key)}
+                        aria-current={c.name === selected?.name ? "true" : undefined}>
+                    <Flag name={c.name} code={c.code} />
+                    <span className="country-name">{countryName(c.name, c.code)}</span>
+                    <span className="country-count" title={`${c.n_with_odds} con cuotas`}>
+                      {c.n_events}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </aside>
 
-      <div className="two-col">
-        <section className="card" aria-labelledby="next">
-          <div className="card-head">
-            <h2 id="next">Próximos partidos</h2>
-            <Freshness label="Calendario" iso={events.data_as_of.fixtures} />
-          </div>
-          <ul className="compact-list">
-            {upcoming.map((e) => (
-              <li key={e.id}>
-                <span>
-                  {e.home.name} – {e.away.name}
-                </span>
-                <span className="muted">
-                  {formatDate(e.starts_at)} · {e.kickoff_confirmed ? formatTime(e.starts_at) : "hora por confirmar"}
-                </span>
-              </li>
-            ))}
-            {upcoming.length === 0 && <li className="muted">Sin partidos en los próximos 14 días.</li>}
-          </ul>
-          <Link href="/programacion">Ver programación con cuotas →</Link>
-        </section>
-
-        <section className="card" aria-labelledby="news">
-          <div className="card-head">
-            <h2 id="news">Últimas noticias</h2>
-            <Badge kind="noticia" />
-          </div>
-          <ul className="news-list">
-            {news.items.map((n) => (
-              <li key={n.id}>
-                <a href={n.url} target="_blank" rel="noopener noreferrer">
-                  {n.title}
-                </a>
+          <section className="day-matches" aria-label="Partidos">
+            {selected && (
+              <h2 className="country-title">
+                <Flag name={selected.name} code={selected.code} />{" "}
+                {countryName(selected.name, selected.code)}
                 <span className="muted small">
-                  {n.publisher} · {ago(n.published_at)} · {n.teams.map((t) => t.name).join(", ")}{" "}
-                  <Badge kind="inferido" title="Equipos asignados por reglas automáticas" />
+                  {" "}· {selected.n_events} partidos · {selected.n_with_odds} con cuotas
                 </span>
-              </li>
+              </h2>
+            )}
+            <p className="explainer">
+              <Badge kind="dato" /> hora, estado y resultado ·{" "}
+              <Badge kind="analisis" /> cuota = mediana de las casas (sin exchanges, sólo
+              prepartido) y su probabilidad implícita, no un pronóstico.
+            </p>
+            {[...byLeague.entries()].map(([league, events]) => (
+              <div key={league} className="league-block">
+                <h3>{league}</h3>
+                <ul className="match-list">
+                  {events.map((e) => (
+                    <MatchRow key={e.id} e={e} />
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
-          <p className="muted small">{news.notice}</p>
-        </section>
-      </div>
+          </section>
+        </div>
+      )}
     </main>
+  );
+}
+
+function MatchRow({ e }: { e: EventOut }) {
+  const status = STATUS_ES[e.status];
+  return (
+    <li className="match-row">
+      <div className="match-time">
+        {e.kickoff_confirmed ? (
+          <time dateTime={e.starts_at}>{formatTime(e.starts_at)}</time>
+        ) : (
+          <em title="El proveedor no ha confirmado la hora">por confirmar</em>
+        )}
+        {status && <span className={`match-status status-${e.status}`}>{status}</span>}
+      </div>
+      <div className="match-teams">
+        <span>{e.home.name}</span>
+        {e.result ? (
+          <strong className="score">
+            {e.result.home} – {e.result.away}
+          </strong>
+        ) : (
+          <span className="muted">vs</span>
+        )}
+        <span>{e.away.name}</span>
+      </div>
+      <div className="match-odds">
+        {e.odds && e.implied_probability ? (
+          <div className="odds-inline" title={e.odds.method}>
+            {(["home", "draw", "away"] as const).map((k, i) => (
+              <span key={k} className="odd-cell">
+                <small className="muted">{["1", "X", "2"][i]}</small>
+                <strong>{odds(e.odds!.median_price[k])}</strong>
+                <small className="muted">{percent(e.implied_probability![k])}</small>
+              </span>
+            ))}
+            <small className="muted odds-meta">
+              {e.odds.n_bookmakers} casas{e.odds.is_stale ? " · desactualizadas" : ""}
+            </small>
+          </div>
+        ) : e.can_fetch_odds ? (
+          <FetchOddsButton eventId={e.id} />
+        ) : (
+          <span className="muted small">sin cuotas</span>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function Flag({ name, code }: { name: string; code: string | null }) {
+  const url = countryFlagUrl(name, code);
+  return url ? (
+    // eslint-disable-next-line @next/next/no-img-element -- tiny external SVG, no optimisation needed
+    <img className="flag" src={url} alt="" width={20} height={14} loading="lazy" />
+  ) : (
+    <span className="flag flag-world" aria-hidden>
+      ◎
+    </span>
   );
 }

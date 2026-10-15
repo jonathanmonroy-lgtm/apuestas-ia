@@ -81,6 +81,7 @@ class _Season(BaseModel):
 
 class _Area(BaseModel):
     code: str | None = None
+    name: str | None = None
 
 
 class _Match(BaseModel):
@@ -181,6 +182,7 @@ class FootballDataProvider:
                 name=parsed.competition.name,
                 sport=Sport.FOOTBALL,
                 country_code=AREA_TO_ISO2.get(area_code or ""),
+                country_name=area.name if area else None,
             )
             season = SeasonDTO(
                 external_id=str(first_season.id),

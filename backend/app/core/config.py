@@ -40,7 +40,15 @@ class Settings(BaseSettings):
     fixtures_competitions: list[str] = ["PD"]
     # Self-imposed daily budgets (below the providers' real limits).
     football_data_daily_budget: int = 100  # provider limit is 10/min, no daily cap
-    api_football_daily_budget: int = 90  # provider limit: 100/day
+    api_football_daily_budget: int = 90  # provider limit: 100/day (on-demand odds use this)
+    # Scheduled day syncs stop at this many calls/day, leaving the rest for on-demand odds.
+    api_football_scheduled_budget: int = 45
+    day_sync_interval_hours: float = Field(default=6.0, gt=0)
+    # Leagues whose calendar comes from another source (LaLiga = football-data): skipped
+    # in the multi-country sync so a match never exists twice.
+    api_football_skip_leagues: list[str] = ["140"]
+    # The product's "day" is Colombia's (UTC-5, no daylight saving since 1993).
+    local_utc_offset_hours: int = -5
 
     # Fixtures sync runs daily, so a day and a bit is the freshness threshold.
     fixtures_stale_after_hours: float = 30.0

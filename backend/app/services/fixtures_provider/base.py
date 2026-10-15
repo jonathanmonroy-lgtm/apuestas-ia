@@ -43,6 +43,7 @@ class CompetitionDTO(BaseModel):
     name: str
     sport: Sport
     country_code: str | None = None  # ISO 3166-1 alpha-2
+    country_name: str | None = None  # provider's English name ("Colombia", "England", "World")
 
 
 class SeasonDTO(BaseModel):

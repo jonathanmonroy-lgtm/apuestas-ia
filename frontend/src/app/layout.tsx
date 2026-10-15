@@ -31,9 +31,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             puede fallar. Ninguna cifra es una garantía.
           </p>
           <p className="muted">
-            Fuentes: football-data.org (calendario y resultados, con retraso), The Odds API (cuotas
-            prepartido, región UE), NewsAPI.org (noticias, ~24 h de retraso). Horas en hora de
-            España. +18. Modo interno: no se muestran casas de apuestas.
+            Fuentes: API-Football (partidos y cuotas de todos los países, plan gratuito: ayer, hoy
+            y mañana), football-data.org (LaLiga completa, con retraso), The Odds API (cuotas de
+            LaLiga, región UE), NewsAPI.org (noticias de LaLiga, ~24 h de retraso). Días y horas en
+            hora de Colombia (UTC-5). +18. Modo interno: no se muestran casas de apuestas.
           </p>
         </footer>
       </body>

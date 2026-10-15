@@ -100,3 +100,15 @@ export async function selfExclude(_prev: ActionState, form: FormData): Promise<A
   refresh();
   return { ok: true, message: "Autoexclusión activada. No podrás registrar apuestas." };
 }
+
+/** Ask the backend for this match's real pre-match odds (one budgeted provider call). */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- useActionState passes it
+export async function fetchOdds(eventId: number, _prev: ActionState): Promise<ActionState> {
+  try {
+    const res = await api.fetchOdds(eventId);
+    refresh();
+    return { ok: res.status === "ok" && res.snapshots_inserted > 0, message: res.message };
+  } catch (err) {
+    return failure(err);
+  }
+}

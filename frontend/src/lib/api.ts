@@ -51,7 +51,10 @@ export type Team = { id: number; name: string };
 
 export type EventOut = {
   id: number;
+  competition_id: number;
   competition: string;
+  country: string | null;
+  country_code: string | null;
   round: string | null;
   starts_at: string;
   kickoff_confirmed: boolean;
@@ -78,12 +81,30 @@ export type EventOut = {
     away: string;
     overround: string;
   } | null;
+  can_fetch_odds: boolean;
 };
 
 export type EventsResponse = {
   data_as_of: { fixtures: string | null; odds: string | null };
   events: EventOut[];
 };
+
+export type Country = {
+  name: string;
+  code: string | null;
+  n_events: number;
+  n_with_odds: number;
+  leagues: string[];
+};
+
+export type CountriesResponse = {
+  day: string;
+  timezone: string;
+  data_as_of: { fixtures: string | null; odds: string | null };
+  countries: Country[];
+};
+
+export type FetchOddsResult = { status: string; snapshots_inserted: number; message: string };
 
 export type NewsItem = {
   id: number;
@@ -184,8 +205,12 @@ const qs = (params: Record<string, string | number | undefined | null>) => {
 };
 
 export const api = {
-  events: (p: { date_from?: string; date_to?: string; matchday?: number } = {}) =>
-    request<EventsResponse>(`/api/events${qs(p)}`),
+  events: (
+    p: { date_from?: string; date_to?: string; matchday?: number; day?: string; country?: string } = {},
+  ) => request<EventsResponse>(`/api/events${qs(p)}`),
+  countries: (day?: string) => request<CountriesResponse>(`/api/countries${qs({ day })}`),
+  fetchOdds: (eventId: number) =>
+    request<FetchOddsResult>(`/api/events/${eventId}/fetch-odds`, { method: "POST" }),
   news: (p: { participant_id?: number; event_id?: number; limit?: number } = {}) =>
     request<NewsResponse>(`/api/news${qs(p)}`),
   bets: (p: { status?: string; date_from?: string; date_to?: string; limit?: number } = {}) =>

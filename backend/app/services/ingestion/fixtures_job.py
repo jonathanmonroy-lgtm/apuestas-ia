@@ -78,7 +78,10 @@ def upsert_batch(s: Session, batch: FixturesBatch) -> int:
     comp_id = find_ref(s, src, EntityType.COMPETITION, comp_dto.external_id)
     if comp_id is None:
         comp = Competition(
-            name=comp_dto.name, sport=comp_dto.sport, country_code=comp_dto.country_code
+            name=comp_dto.name,
+            sport=comp_dto.sport,
+            country_code=comp_dto.country_code,
+            country_name=comp_dto.country_name,
         )
         s.add(comp)
         s.flush()

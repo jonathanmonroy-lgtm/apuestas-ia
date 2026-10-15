@@ -18,10 +18,12 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging, get_logger
+from app.jobs.sync_day import sync_day
 from app.jobs.sync_fixtures import sync_fixtures
 from app.jobs.sync_news import sync_news
 from app.jobs.sync_odds import sync_odds
 from app.models.enums import Provider
+from app.services.ingestion.day_job import JOB_DAY_FIXTURES
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
 from app.services.ingestion.news_job import JOB_NEWS
 from app.services.ingestion.odds_job import JOB_ODDS
@@ -34,6 +36,7 @@ FIXTURES_JOB_ID = "sync_fixtures"
 ODDS_JOB_ID = "sync_odds"
 NEWS_JOB_ID = "sync_news"
 RETENTION_JOB_ID = "purge_raw_payloads"
+DAY_JOB_ID = "sync_day"
 # On a cold start, give the fixtures catch-up time to finish before odds look for events.
 ODDS_STARTUP_DELAY = timedelta(minutes=10)
 
@@ -124,6 +127,23 @@ def build_scheduler(
         # After downtime, fetch soon (after the fixtures catch-up: news are linked to
         # teams that must exist). The free plan can't page back, so waiting loses more.
         **({"next_run_time": datetime.now(UTC) + ODDS_STARTUP_DELAY} if news_stale else {}),
+    )
+
+    def run_day() -> None:
+        code = sync_day(settings, session_factory)
+        log.info("scheduled_job_done", job=DAY_JOB_ID, exit_code=code)
+
+    day_stale = is_stale(
+        session_factory, Provider.API_FOOTBALL, JOB_DAY_FIXTURES, settings.day_sync_interval_hours
+    )
+    scheduler.add_job(
+        run_day,
+        IntervalTrigger(hours=settings.day_sync_interval_hours, timezone=UTC),
+        id=DAY_JOB_ID,
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=1800,
+        **({"next_run_time": datetime.now(UTC) + timedelta(minutes=1)} if day_stale else {}),
     )
 
     def run_retention() -> None:

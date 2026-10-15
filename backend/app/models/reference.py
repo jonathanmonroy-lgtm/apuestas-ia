@@ -16,6 +16,8 @@ class Competition(TimestampMixin, Base):
     name: Mapped[str] = mapped_column(String(120))
     sport: Mapped[Sport] = mapped_column(db_enum(Sport, "sport"))
     country_code: Mapped[str | None] = mapped_column(String(2))  # ISO 3166-1 alpha-2
+    # Provider's country name: also covers what has no ISO alpha-2 code (England, World).
+    country_name: Mapped[str | None] = mapped_column(String(60))
 
     seasons: Mapped[list["Season"]] = relationship(back_populates="competition")
 

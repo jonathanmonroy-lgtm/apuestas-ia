@@ -1,10 +1,10 @@
 /**
  * Display formatting. Money and odds arrive from the API as exact decimal STRINGS and are
  * formatted as strings: they never go through a JS float (no 0.1 + 0.2 surprises).
- * Dates arrive as UTC ISO strings and are shown in Spain's time zone (LaLiga's), labelled.
+ * Dates arrive as UTC ISO strings and are shown in Colombia's time zone (the product's day), labelled.
  */
 
-export const DISPLAY_TZ = "Europe/Madrid";
+export const DISPLAY_TZ = "America/Bogota"; // the product's day and clock: Colombia (UTC-5)
 
 function groupThousands(int: string): string {
   return int.replace(/\B(?=(\d{3})+(?!\d))/g, ".");

@@ -1,5 +1,9 @@
-"""Read-only calendar + odds endpoint. Serves ONLY what's in the database: it never calls a
-provider (ingestion lives in the worker), so a provider outage can't break the API.
+"""Calendar + odds endpoints.
+
+GET endpoints serve ONLY what's in the database (ingestion lives in the worker), so a
+provider outage can't break the pages. The one exception is POST /events/{id}/fetch-odds:
+an explicit user action ("get the real odds of this match") that makes ONE budgeted
+provider request for ONE match.
 
 Response layers, kept apart so the UI can label them (see CLAUDE.md principles):
 - `kickoff`, `result`, team names (data): what the calendar provider says.
@@ -16,19 +20,31 @@ from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, sessionmaker
 
 from app.core.config import Settings, get_settings
 from app.db.session import get_db
-from app.models import Event, OddSnapshot
-from app.models.enums import EventStatus, Market, Provider
+from app.jobs.sync_day import api_football
+from app.models import Competition, Event, ExternalRef, OddSnapshot
+from app.models.enums import (
+    EntityType,
+    EventStatus,
+    IngestionStatus,
+    Market,
+    Provider,
+    QuotaPeriod,
+)
+from app.services.fixtures_provider import ProviderNotConfiguredError
+from app.services.ingestion.day_job import JOB_DAY_FIXTURES, run_event_odds
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
 from app.services.ingestion.runs import last_success_at
 from app.services.odds_summary import Quote, implied_probability, summarize
+from app.services.quota import QuotaPolicy
 
 router = APIRouter(prefix="/api", tags=["events"])
 
 MAX_RANGE_DAYS = 120
+INTERNATIONAL = "World"  # API-Football's "country" for international competitions
 ODDS_METHOD = (
     "Mediana de la última cuota prepartido de cada casa (sin exchanges; se ignoran casas "
     "que llevan más de {hours:g} h sin actualizar). Agregado estadístico, no una cuota "
@@ -79,7 +95,10 @@ class ImpliedProbabilityOut(BaseModel):
 
 class EventOut(BaseModel):
     id: int
+    competition_id: int
     competition: str
+    country: str | None
+    country_code: str | None
     round: str | None
     starts_at: datetime
     kickoff_confirmed: bool
@@ -89,10 +108,11 @@ class EventOut(BaseModel):
     result: ResultOut | None
     odds: OddsOut | None
     implied_probability: ImpliedProbabilityOut | None
+    can_fetch_odds: bool  # an upcoming match from the multi-country source
 
 
 class DataAsOf(BaseModel):
-    fixtures: datetime | None  # last successful calendar sync
+    fixtures: datetime | None  # last successful calendar sync (any calendar source)
     odds: datetime | None  # newest bookmaker quote actually stored (not just "a run ran")
 
 
@@ -101,8 +121,104 @@ class EventsResponse(BaseModel):
     events: list[EventOut]
 
 
+class CountryOut(BaseModel):
+    name: str  # provider's English name; "World" = international competitions
+    code: str | None  # ISO alpha-2 when there is one (England has none)
+    n_events: int
+    n_with_odds: int
+    leagues: list[str]
+
+
+class CountriesResponse(BaseModel):
+    day: date
+    timezone: str
+    data_as_of: DataAsOf
+    countries: list[CountryOut]
+
+
 def utc_now() -> datetime:
     return datetime.now(UTC)
+
+
+def local_day_bounds(day: date, offset_hours: int) -> tuple[datetime, datetime]:
+    """Colombia's day (UTC-5) as a UTC interval: 2026-10-15 -> [10-15 05:00Z, 10-16 05:00Z)."""
+    start = datetime.combine(day, time.min, UTC) - timedelta(hours=offset_hours)
+    return start, start + timedelta(days=1)
+
+
+def local_today(now: datetime, offset_hours: int) -> date:
+    return (now + timedelta(hours=offset_hours)).date()
+
+
+def tz_label(offset_hours: int) -> str:
+    return f"UTC{offset_hours:+d}"
+
+
+def _data_as_of(db: Session, settings: Settings) -> DataAsOf:
+    runs = [
+        last_success_at(db, Provider(settings.fixtures_provider), JOB_FIXTURES),
+        last_success_at(db, Provider.API_FOOTBALL, JOB_DAY_FIXTURES),
+    ]
+    return DataAsOf(
+        fixtures=max((r for r in runs if r), default=None),
+        odds=db.scalar(select(func.max(OddSnapshot.captured_at))),
+    )
+
+
+def _load_events(db: Session, where: list) -> list[Event]:
+    return list(
+        db.scalars(
+            select(Event)
+            .options(
+                joinedload(Event.home),
+                joinedload(Event.away),
+                joinedload(Event.competition),
+                joinedload(Event.result),
+            )
+            .join(Event.competition)
+            .where(*where)
+            .order_by(Event.starts_at, Event.id)
+        )
+        .unique()
+        .all()
+    )
+
+
+def _quotes(
+    db: Session, events: list[Event], settings: Settings
+) -> dict[int, tuple[Provider, list[Quote]]]:
+    """Per event, quotes from ONE source: the dedicated odds provider when it has any,
+    else the multi-country source. Two providers' books are never mixed in one median."""
+    if not events:
+        return {}
+    preferred = Provider(settings.odds_provider)
+    rows = db.execute(
+        select(
+            OddSnapshot.event_id,
+            OddSnapshot.source,
+            OddSnapshot.bookmaker,
+            OddSnapshot.selection,
+            OddSnapshot.price,
+            OddSnapshot.captured_at,
+        ).where(
+            OddSnapshot.event_id.in_([e.id for e in events]),
+            OddSnapshot.market == Market.H2H,
+            OddSnapshot.source.in_([preferred, Provider.API_FOOTBALL]),
+        )
+    )
+    kickoff = {e.id: e.starts_at for e in events}
+    by_source: dict[int, dict[Provider, list[Quote]]] = {}
+    for event_id, source, book, sel, price, captured_at in rows:
+        if captured_at >= kickoff[event_id]:
+            continue  # pre-match prices only (defence in depth; ingestion skips live)
+        by_source.setdefault(event_id, {}).setdefault(source, []).append(
+            Quote(book, sel, price, captured_at)
+        )
+    out = {}
+    for event_id, sources in by_source.items():
+        source = preferred if preferred in sources else next(iter(sources))
+        out[event_id] = (source, sources[source])
+    return out
 
 
 @router.get("/events", response_model=EventsResponse)
@@ -112,83 +228,161 @@ def list_events(
     matchday: int | None = Query(
         None, ge=1, le=60, description="a whole matchday (jornada), past or future; ignores dates"
     ),
+    day: date | None = Query(None, description="a whole LOCAL day (Colombia); ignores dates"),  # noqa: B008
+    country: str | None = Query(None, description="provider country name, e.g. Colombia"),
     db: Session = Depends(get_db),  # noqa: B008
     settings: Settings = Depends(get_settings),  # noqa: B008
     now: datetime = Depends(utc_now),  # noqa: B008 - injectable clock for tests
 ) -> EventsResponse:
     if matchday is not None:
-        # The calendar provider labels rounds "Jornada N" (football_data normalizer).
+        # football-data labels LaLiga rounds "Jornada N" (football_data normalizer).
         where = [Event.round == f"Jornada {matchday}"]
+    elif day is not None:
+        start, end = local_day_bounds(day, settings.local_utc_offset_hours)
+        where = [Event.starts_at >= start, Event.starts_at < end]
     else:
-        start = date_from or now.date()
-        end = date_to or start + timedelta(days=14)
-        if end < start or (end - start).days > MAX_RANGE_DAYS:
+        start_d = date_from or now.date()
+        end_d = date_to or start_d + timedelta(days=14)
+        if end_d < start_d or (end_d - start_d).days > MAX_RANGE_DAYS:
             raise HTTPException(422, f"date range must be 0..{MAX_RANGE_DAYS} days")
         where = [
-            Event.starts_at >= datetime.combine(start, time.min, UTC),
-            Event.starts_at < datetime.combine(end + timedelta(days=1), time.min, UTC),
+            Event.starts_at >= datetime.combine(start_d, time.min, UTC),
+            Event.starts_at < datetime.combine(end_d + timedelta(days=1), time.min, UTC),
         ]
+    if country is not None:
+        where.append(Competition.country_name == country)
 
-    events = (
-        db.scalars(
-            select(Event)
-            .options(
-                joinedload(Event.home),
-                joinedload(Event.away),
-                joinedload(Event.competition),
-                joinedload(Event.result),
-            )
-            .where(*where)
-            .order_by(Event.starts_at, Event.id)
-        )
-        .unique()
-        .all()
-    )
-
-    odds_source = Provider(settings.odds_provider)
-    quotes: dict[int, list[Quote]] = {}
-    if events:
-        rows = db.execute(
-            select(
-                OddSnapshot.event_id,
-                OddSnapshot.bookmaker,
-                OddSnapshot.selection,
-                OddSnapshot.price,
-                OddSnapshot.captured_at,
-            ).where(
-                OddSnapshot.event_id.in_([e.id for e in events]),
-                OddSnapshot.market == Market.H2H,
-                OddSnapshot.source == odds_source,
-            )
-        )
-        kickoff = {e.id: e.starts_at for e in events}
-        for event_id, book, sel, price, captured_at in rows:
-            if captured_at >= kickoff[event_id]:
-                continue  # pre-match prices only (defence in depth; ingestion skips live)
-            quotes.setdefault(event_id, []).append(Quote(book, sel, price, captured_at))
-
+    events = _load_events(db, where)
+    quotes = _quotes(db, events, settings)
+    api_football_events = _api_football_event_ids(db, events)
     stale_after = timedelta(hours=settings.odds_stale_after_hours)
     return EventsResponse(
-        data_as_of=DataAsOf(
-            fixtures=last_success_at(db, Provider(settings.fixtures_provider), JOB_FIXTURES),
-            odds=db.scalar(
-                select(func.max(OddSnapshot.captured_at)).where(OddSnapshot.source == odds_source)
-            ),
-        ),
-        events=[_event_out(e, quotes.get(e.id, []), stale_after, now, odds_source) for e in events],
+        data_as_of=_data_as_of(db, settings),
+        events=[
+            _event_out(e, quotes.get(e.id), stale_after, now, e.id in api_football_events)
+            for e in events
+        ],
+    )
+
+
+@router.get("/countries", response_model=CountriesResponse)
+def list_countries(
+    day: date | None = Query(None, description="LOCAL day (Colombia); default today"),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+    settings: Settings = Depends(get_settings),  # noqa: B008
+    now: datetime = Depends(utc_now),  # noqa: B008
+) -> CountriesResponse:
+    day = day or local_today(now, settings.local_utc_offset_hours)
+    start, end = local_day_bounds(day, settings.local_utc_offset_hours)
+    events = _load_events(db, [Event.starts_at >= start, Event.starts_at < end])
+    quotes = _quotes(db, events, settings)
+    stats: dict[str, dict] = {}
+    for e in events:
+        name = e.competition.country_name or INTERNATIONAL
+        c = stats.setdefault(
+            name, {"code": e.competition.country_code, "n": 0, "odds": 0, "leagues": set()}
+        )
+        c["n"] += 1
+        c["odds"] += e.id in quotes
+        c["leagues"].add(e.competition.name)
+    countries = [
+        CountryOut(name=n, code=c["code"], n_events=c["n"], n_with_odds=c["odds"],
+                   leagues=sorted(c["leagues"]))
+        for n, c in stats.items()
+    ]  # fmt: skip
+    countries.sort(key=lambda c: (c.name == INTERNATIONAL, c.name))
+    return CountriesResponse(
+        day=day,
+        timezone=tz_label(settings.local_utc_offset_hours),
+        data_as_of=_data_as_of(db, settings),
+        countries=countries,
+    )
+
+
+class FetchOddsOut(BaseModel):
+    status: str
+    snapshots_inserted: int
+    message: str
+
+
+@router.post("/events/{event_id}/fetch-odds", response_model=FetchOddsOut)
+def fetch_event_odds(
+    event_id: int,
+    db: Session = Depends(get_db),  # noqa: B008
+    settings: Settings = Depends(get_settings),  # noqa: B008
+    now: datetime = Depends(utc_now),  # noqa: B008
+) -> FetchOddsOut:
+    """Explicit user action: ONE budgeted request for this match's real pre-match odds."""
+    event = db.get(Event, event_id)
+    if event is None:
+        raise HTTPException(404, "event not found")
+    if event.starts_at <= now or event.status is not EventStatus.SCHEDULED:
+        raise HTTPException(
+            409, "el partido ya empezó o no está programado: sólo hay cuotas prepartido"
+        )
+    try:
+        provider = api_football(settings)
+    except ProviderNotConfiguredError as exc:
+        raise HTTPException(503, str(exc)) from exc
+    try:
+        # Same database as this request, in the short transactions the job expects.
+        session_factory = sessionmaker(bind=db.get_bind(), expire_on_commit=False)
+        outcome = run_event_odds(
+            session_factory, provider, event_id,
+            policy=QuotaPolicy(QuotaPeriod.DAY, settings.api_football_daily_budget),
+        )  # fmt: skip
+    finally:
+        provider.close()
+    if outcome is None:
+        raise HTTPException(422, "este partido no viene de la fuente multi-país")
+    if outcome.status is IngestionStatus.SKIPPED_NO_BUDGET:
+        return FetchOddsOut(
+            status="no_budget",
+            snapshots_inserted=0,
+            message="Se agotaron las consultas de cuotas de hoy (plan gratuito).",
+        )
+    if outcome.status is not IngestionStatus.SUCCESS:
+        return FetchOddsOut(
+            status="error",
+            snapshots_inserted=0,
+            message=f"El proveedor no respondió bien: {outcome.error}",
+        )
+    return FetchOddsOut(
+        status="ok",
+        snapshots_inserted=outcome.records_written,
+        message="Cuotas actualizadas." if outcome.records_written else
+        "El proveedor no tiene cuotas para este partido.",
+    )  # fmt: skip
+
+
+def _api_football_event_ids(db: Session, events: list[Event]) -> set[int]:
+    if not events:
+        return set()
+    return set(
+        db.scalars(
+            select(ExternalRef.entity_id).where(
+                ExternalRef.source == Provider.API_FOOTBALL,
+                ExternalRef.entity_type == EntityType.EVENT,
+                ExternalRef.entity_id.in_([e.id for e in events]),
+            )
+        )
     )
 
 
 def _event_out(
-    e: Event, quotes: list[Quote], stale_after: timedelta, now: datetime, source: Provider
+    e: Event,
+    picked: tuple[Provider, list[Quote]] | None,
+    stale_after: timedelta,
+    now: datetime,
+    from_api_football: bool,
 ) -> EventOut:
-    summary = summarize(quotes, stale_after)
+    summary = summarize(picked[1], stale_after) if picked else None
     odds = implied = None
     if summary is not None:
         prices = {s.value: p for s, p in summary.median_price.items()}
         odds = OddsOut(
             method=ODDS_METHOD.format(hours=stale_after.total_seconds() / 3600),
-            source=source.value,
+            source=picked[0].value,
             median_price=Prices(**prices),
             n_bookmakers=summary.n_bookmakers,
             as_of=summary.as_of,
@@ -201,7 +395,10 @@ def _event_out(
         )
     return EventOut(
         id=e.id,
+        competition_id=e.competition_id,
         competition=e.competition.name,
+        country=e.competition.country_name,
+        country_code=e.competition.country_code,
         round=e.round,
         starts_at=e.starts_at,
         kickoff_confirmed=e.kickoff_confirmed,
@@ -211,4 +408,7 @@ def _event_out(
         result=ResultOut(home=e.result.home_score, away=e.result.away_score) if e.result else None,
         odds=odds,
         implied_probability=implied,
+        can_fetch_odds=from_api_football
+        and e.status is EventStatus.SCHEDULED
+        and e.starts_at > now,
     )

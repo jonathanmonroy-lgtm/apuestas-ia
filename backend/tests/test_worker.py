@@ -10,6 +10,7 @@ from app.models import IngestionRun
 from app.models.enums import IngestionStatus, Provider
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
 from app.worker import (
+    DAY_JOB_ID,
     FIXTURES_JOB_ID,
     NEWS_JOB_ID,
     ODDS_JOB_ID,
@@ -43,7 +44,7 @@ def test_daily_cron_at_configured_utc_time(sf):
     scheduler = build_scheduler(SETTINGS, sf)
 
     assert {j.id for j in scheduler.get_jobs()} == {
-        FIXTURES_JOB_ID, ODDS_JOB_ID, NEWS_JOB_ID, RETENTION_JOB_ID,
+        FIXTURES_JOB_ID, ODDS_JOB_ID, NEWS_JOB_ID, RETENTION_JOB_ID, DAY_JOB_ID,
     }  # fmt: skip
     assert scheduler.get_job(NEWS_JOB_ID).trigger.interval == timedelta(hours=1)
     job = scheduler.get_job(FIXTURES_JOB_ID)
@@ -58,6 +59,7 @@ def test_stale_data_schedules_catch_up_run(sf):
     jobs = {j.id for j in build_scheduler(SETTINGS, sf).get_jobs()}
     assert jobs == {
         FIXTURES_JOB_ID, f"{FIXTURES_JOB_ID}_catchup", ODDS_JOB_ID, NEWS_JOB_ID, RETENTION_JOB_ID,
+        DAY_JOB_ID,
     }  # fmt: skip
 
 
