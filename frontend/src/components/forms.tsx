@@ -66,13 +66,12 @@ export function BetForm({
         Importe
         <input name="stake" inputMode="decimal" placeholder="10,00" required pattern="[0-9]+([.,][0-9]{1,2})?" />
       </label>
+      {/* Single currency (EUR) in INTERNAL MODE: limits, metrics and bankroll are in EUR,
+          so allowing another currency here would sidestep the spending limits (QA F6 #1). */}
+      <input type="hidden" name="currency" value="EUR" />
       <label>
         Moneda
-        <select name="currency" defaultValue="EUR">
-          <option>EUR</option>
-          <option>USD</option>
-          <option>GBP</option>
-        </select>
+        <input value="EUR" disabled aria-describedby="currency-note" />
       </label>
       <label className="span-2">
         Notas
