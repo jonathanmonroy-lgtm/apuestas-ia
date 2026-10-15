@@ -56,7 +56,7 @@ def sync_day(
     except ProviderNotConfiguredError as exc:
         log.error("api_football_not_configured", error=str(exc))
         return EXIT_NOT_CONFIGURED
-    policy = QuotaPolicy(QuotaPeriod.DAY, settings.api_football_scheduled_budget)
+    policy = QuotaPolicy(QuotaPeriod.DAY, settings.api_football_daily_budget)
     skip = frozenset(settings.api_football_skip_leagues)
     today = local_today(settings)
     ok = True

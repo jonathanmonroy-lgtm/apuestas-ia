@@ -58,16 +58,17 @@ STATUS_MAP: dict[str, tuple[EventStatus, bool]] = {
     "P": (EventStatus.LIVE, True),
     "LIVE": (EventStatus.LIVE, True),
     "SUSP": (EventStatus.POSTPONED, False),
-    "INT": (EventStatus.POSTPONED, False),
+    "INT": (EventStatus.LIVE, True),  # interrupted mid-match: still in play, not postponed
     "PST": (EventStatus.POSTPONED, False),
     "FT": (EventStatus.FINISHED, True),
     "AET": (EventStatus.FINISHED, True),
     "PEN": (EventStatus.FINISHED, True),
     "CANC": (EventStatus.CANCELLED, False),
     "ABD": (EventStatus.CANCELLED, False),
-    # Administrative results (walkover, awarded): finished, but no played score.
-    "AWD": (EventStatus.FINISHED, False),
-    "WO": (EventStatus.FINISHED, False),
+    # Administrative results (walkover, awarded): finished, no played score; the kick-off
+    # time itself is known (it is not "to be confirmed").
+    "AWD": (EventStatus.FINISHED, True),
+    "WO": (EventStatus.FINISHED, True),
 }
 PLAYED_STATUSES = {"FT", "AET", "PEN"}
 OUTCOMES = {"Home": Selection.HOME, "Draw": Selection.DRAW, "Away": Selection.AWAY}

@@ -41,8 +41,14 @@ class Settings(BaseSettings):
     # Self-imposed daily budgets (below the providers' real limits).
     football_data_daily_budget: int = 100  # provider limit is 10/min, no daily cap
     api_football_daily_budget: int = 90  # provider limit: 100/day (on-demand odds use this)
-    # Scheduled day syncs stop at this many calls/day, leaving the rest for on-demand odds.
-    api_football_scheduled_budget: int = 45
+    # On-demand "real odds" requests get their OWN daily cap, counted apart, so users
+    # clicking can never starve the scheduled sync (4 passes x 9 calls = 36/day):
+    # 36 + 40 <= 90. The scheduled sync is only bound by api_football_daily_budget.
+    api_football_on_demand_daily_cap: int = 40
+    # The same match is not asked again within this window (an empty answer included).
+    on_demand_odds_cooldown_minutes: int = 60
+    # Stay under the free plan's 10 requests/minute across worker + on-demand.
+    api_football_per_minute_cap: int = 8
     day_sync_interval_hours: float = Field(default=6.0, gt=0)
     # Leagues whose calendar comes from another source (LaLiga = football-data): skipped
     # in the multi-country sync so a match never exists twice.

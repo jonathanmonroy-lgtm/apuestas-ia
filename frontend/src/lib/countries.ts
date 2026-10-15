@@ -25,8 +25,9 @@ export function countryName(name: string, code: string | null): string {
   return NO_ISO_NAMES[name] ?? name.replaceAll("-", " ");
 }
 
-// Flag images from the fixtures provider's CDN (Windows has no flag emoji glyphs: a flag
-// emoji renders as two letters there). UK nations use the provider's subdivision codes.
+// Flag images (Windows has no flag emoji glyphs: a flag emoji renders as two letters
+// there), proxied and cached by our own /flags route so the browser never calls the
+// provider's CDN. UK nations use the provider's subdivision codes.
 const FLAG_SLUGS: Record<string, string> = {
   England: "gb-eng",
   Scotland: "gb-sct",
@@ -37,5 +38,5 @@ const FLAG_SLUGS: Record<string, string> = {
 /** Flag image URL, or null when there is none (international competitions). */
 export function countryFlagUrl(name: string, code: string | null): string | null {
   const slug = code ? code.toLowerCase() : FLAG_SLUGS[name];
-  return slug ? `https://media.api-sports.io/flags/${slug}.svg` : null;
+  return slug ? `/flags/${slug}.svg` : null;
 }

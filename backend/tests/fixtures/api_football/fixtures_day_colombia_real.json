@@ -1,0 +1,1970 @@
+{
+ "_source": "Real API-Football /fixtures responses requested exactly as production does (date=<Colombia day>, timezone=America/Bogota): 23 items from 2026-10-14 (recorded 2026-10-15T03:34Z) + 5 from 2026-10-15 (ingestion run of 2026-10-15T03:13Z), merged.",
+ "parameters": {
+  "timezone": "America/Bogota"
+ },
+ "errors": [],
+ "results": 28,
+ "response": [
+  {
+   "fixture": {
+    "id": 1640440,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T00:00:00-05:00",
+    "timestamp": 1791954000,
+    "periods": {
+     "first": 1791954000,
+     "second": 1791957600
+    },
+    "venue": {
+     "id": 0,
+     "name": null,
+     "city": null
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": 3
+    }
+   },
+   "league": {
+    "id": 764,
+    "name": "Premier League",
+    "country": "Mongolia",
+    "logo": "https://media.api-sports.io/football/leagues/764.png",
+    "flag": "https://media.api-sports.io/flags/mn.svg",
+    "season": 2027,
+    "round": "Regular Season - 8",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 16185,
+     "name": "Deren",
+     "logo": "https://media.api-sports.io/football/teams/16185.png",
+     "winner": true
+    },
+    "away": {
+     "id": 8027,
+     "name": "Erchim",
+     "logo": "https://media.api-sports.io/football/teams/8027.png",
+     "winner": false
+    }
+   },
+   "goals": {
+    "home": 5,
+    "away": 0
+   },
+   "score": {
+    "halftime": {
+     "home": 2,
+     "away": 0
+    },
+    "fulltime": {
+     "home": 5,
+     "away": 0
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1611777,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T05:00:00-05:00",
+    "timestamp": 1791972000,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": null,
+     "name": null,
+     "city": null
+    },
+    "status": {
+     "long": "Match Postponed",
+     "short": "PST",
+     "elapsed": null,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 1065,
+    "name": "U19 League",
+    "country": "Ukraine",
+    "logo": "https://media.api-sports.io/football/leagues/1065.png",
+    "flag": "https://media.api-sports.io/flags/ua.svg",
+    "season": 2026,
+    "round": "Regular Season - 10",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 7929,
+     "name": "Shakhtar Donetsk U19",
+     "logo": "https://media.api-sports.io/football/teams/7929.png",
+     "winner": null
+    },
+    "away": {
+     "id": 20240,
+     "name": "Rukh Vynnyky U19",
+     "logo": "https://media.api-sports.io/football/teams/20240.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": null,
+    "away": null
+   },
+   "score": {
+    "halftime": {
+     "home": null,
+     "away": null
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1643269,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T05:00:00-05:00",
+    "timestamp": 1791972000,
+    "periods": {
+     "first": 1791972000,
+     "second": 1791975600
+    },
+    "venue": {
+     "id": 957,
+     "name": "Toyota Stadium",
+     "city": "Toyota City"
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "PEN",
+     "elapsed": 120,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 101,
+    "name": "J-League Cup",
+    "country": "Japan",
+    "logo": "https://media.api-sports.io/football/leagues/101.png",
+    "flag": "https://media.api-sports.io/flags/jp.svg",
+    "season": 2026,
+    "round": "Round of 32",
+    "standings": false
+   },
+   "teams": {
+    "home": {
+     "id": 288,
+     "name": "Nagoya Grampus",
+     "logo": "https://media.api-sports.io/football/teams/288.png",
+     "winner": true
+    },
+    "away": {
+     "id": 310,
+     "name": "Fagiano Okayama",
+     "logo": "https://media.api-sports.io/football/teams/310.png",
+     "winner": false
+    }
+   },
+   "goals": {
+    "home": 3,
+    "away": 3
+   },
+   "score": {
+    "halftime": {
+     "home": 1,
+     "away": 1
+    },
+    "fulltime": {
+     "home": 3,
+     "away": 3
+    },
+    "extratime": {
+     "home": 0,
+     "away": 0
+    },
+    "penalty": {
+     "home": 4,
+     "away": 3
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1624362,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T08:00:00-05:00",
+    "timestamp": 1791982800,
+    "periods": {
+     "first": 1791982800,
+     "second": null
+    },
+    "venue": {
+     "id": null,
+     "name": "Stadio Felice Chinetti",
+     "city": "Solbiate Arno"
+    },
+    "status": {
+     "long": "Match Abandoned",
+     "short": "ABD",
+     "elapsed": null,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 427,
+    "name": "Serie D - Girone B",
+    "country": "Italy",
+    "logo": "https://media.api-sports.io/football/leagues/427.png",
+    "flag": "https://media.api-sports.io/flags/it.svg",
+    "season": 2026,
+    "round": "Group B - 5",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 24205,
+     "name": "Milan II",
+     "logo": "https://media.api-sports.io/football/teams/24205.png",
+     "winner": null
+    },
+    "away": {
+     "id": 872,
+     "name": "Piacenza",
+     "logo": "https://media.api-sports.io/football/teams/872.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": 0,
+    "away": 0
+   },
+   "score": {
+    "halftime": {
+     "home": null,
+     "away": null
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1585788,
+    "referee": "Berkay Erdemir",
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T09:00:00-05:00",
+    "timestamp": 1791986400,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": 2379,
+     "name": "Ümraniye Belediyesi Sehir Stadi",
+     "city": "Istanbul"
+    },
+    "status": {
+     "long": "Match Interrupted",
+     "short": "INT",
+     "elapsed": null,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 204,
+    "name": "1. Lig",
+    "country": "Turkey",
+    "logo": "https://media.api-sports.io/football/leagues/204.png",
+    "flag": "https://media.api-sports.io/flags/tr.svg",
+    "season": 2026,
+    "round": "Regular Season - 10",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 3577,
+     "name": "Ümraniyespor",
+     "logo": "https://media.api-sports.io/football/teams/3577.png",
+     "winner": false
+    },
+    "away": {
+     "id": 3569,
+     "name": "Boluspor",
+     "logo": "https://media.api-sports.io/football/teams/3569.png",
+     "winner": true
+    }
+   },
+   "goals": {
+    "home": 0,
+    "away": 1
+   },
+   "score": {
+    "halftime": {
+     "home": 0,
+     "away": 1
+    },
+    "fulltime": {
+     "home": 0,
+     "away": 1
+    },
+    "extratime": {
+     "home": 0,
+     "away": 0
+    },
+    "penalty": {
+     "home": 0,
+     "away": 0
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1645792,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T12:00:00-05:00",
+    "timestamp": 1791997200,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": null,
+     "name": null,
+     "city": null
+    },
+    "status": {
+     "long": "Not Started",
+     "short": "NS",
+     "elapsed": null,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 412,
+    "name": "Premier League",
+    "country": "Botswana",
+    "logo": "https://media.api-sports.io/football/leagues/412.png",
+    "flag": "https://media.api-sports.io/flags/bw.svg",
+    "season": 2026,
+    "round": "Regular Season - 2",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 28287,
+     "name": "Enesia",
+     "logo": "https://media.api-sports.io/football/teams/28287.png",
+     "winner": null
+    },
+    "away": {
+     "id": 5422,
+     "name": "Galaxy",
+     "logo": "https://media.api-sports.io/football/teams/5422.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": null,
+    "away": null
+   },
+   "score": {
+    "halftime": {
+     "home": null,
+     "away": null
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1630326,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T13:00:00-05:00",
+    "timestamp": 1792000800,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": null,
+     "name": null,
+     "city": null
+    },
+    "status": {
+     "long": "Technical loss",
+     "short": "AWD",
+     "elapsed": null,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 1150,
+    "name": "Gaúcho - 3",
+    "country": "Brazil",
+    "logo": "https://media.api-sports.io/football/leagues/1150.png",
+    "flag": "https://media.api-sports.io/flags/br.svg",
+    "season": 2026,
+    "round": "Regular Season - 6",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 25078,
+     "name": "Farroupilha",
+     "logo": "https://media.api-sports.io/football/teams/25078.png",
+     "winner": null
+    },
+    "away": {
+     "id": 26747,
+     "name": "EC Novo Horizonte",
+     "logo": "https://media.api-sports.io/football/teams/26747.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": 0,
+    "away": 0
+   },
+   "score": {
+    "halftime": {
+     "home": null,
+     "away": null
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1641824,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T13:00:00-05:00",
+    "timestamp": 1792000800,
+    "periods": {
+     "first": 1792000800,
+     "second": 1792004400
+    },
+    "venue": {
+     "id": 10892,
+     "name": "Campo Cha das Padeiras",
+     "city": "Santarem"
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "AET",
+     "elapsed": 120,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 96,
+    "name": "Taça de Portugal",
+    "country": "Portugal",
+    "logo": "https://media.api-sports.io/football/leagues/96.png",
+    "flag": "https://media.api-sports.io/flags/pt.svg",
+    "season": 2026,
+    "round": "Round of 64",
+    "standings": false
+   },
+   "teams": {
+    "home": {
+     "id": 6369,
+     "name": "União Santarém",
+     "logo": "https://media.api-sports.io/football/teams/6369.png",
+     "winner": false
+    },
+    "away": {
+     "id": 762,
+     "name": "GIL Vicente",
+     "logo": "https://media.api-sports.io/football/teams/762.png",
+     "winner": true
+    }
+   },
+   "goals": {
+    "home": 2,
+    "away": 3
+   },
+   "score": {
+    "halftime": {
+     "home": 0,
+     "away": 0
+    },
+    "fulltime": {
+     "home": 2,
+     "away": 2
+    },
+    "extratime": {
+     "home": 0,
+     "away": 1
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1490536,
+    "referee": "Victor Rivas",
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T20:30:00-05:00",
+    "timestamp": 1792027800,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": 1610,
+     "name": "Dick's Sporting Goods Park",
+     "city": "Trade City"
+    },
+    "status": {
+     "long": "Second Half",
+     "short": "2H",
+     "elapsed": 90,
+     "extra": 4
+    }
+   },
+   "league": {
+    "id": 253,
+    "name": "Major League Soccer",
+    "country": "USA",
+    "logo": "https://media.api-sports.io/football/leagues/253.png",
+    "flag": "https://media.api-sports.io/flags/us.svg",
+    "season": 2026,
+    "round": "Regular Season - 29",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 1610,
+     "name": "Colorado Rapids",
+     "logo": "https://media.api-sports.io/football/teams/1610.png",
+     "winner": null
+    },
+    "away": {
+     "id": 1612,
+     "name": "Minnesota United FC",
+     "logo": "https://media.api-sports.io/football/teams/1612.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": 2,
+    "away": 2
+   },
+   "score": {
+    "halftime": {
+     "home": 1,
+     "away": 0
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1490538,
+    "referee": "Jair Marrufo",
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T21:30:00-05:00",
+    "timestamp": 1792031400,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": null,
+     "name": "Banc of California Stadium",
+     "city": "Los Angeles"
+    },
+    "status": {
+     "long": "Halftime",
+     "short": "HT",
+     "elapsed": 45,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 253,
+    "name": "Major League Soccer",
+    "country": "USA",
+    "logo": "https://media.api-sports.io/football/leagues/253.png",
+    "flag": "https://media.api-sports.io/flags/us.svg",
+    "season": 2026,
+    "round": "Regular Season - 29",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 1616,
+     "name": "Los Angeles FC",
+     "logo": "https://media.api-sports.io/football/teams/1616.png",
+     "winner": null
+    },
+    "away": {
+     "id": 16489,
+     "name": "Austin",
+     "logo": "https://media.api-sports.io/football/teams/16489.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": 0,
+    "away": 0
+   },
+   "score": {
+    "halftime": {
+     "home": 0,
+     "away": 0
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1490540,
+    "referee": "Serhiy Boiko",
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T21:30:00-05:00",
+    "timestamp": 1792031400,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": null,
+     "name": "Snapdragon Stadium",
+     "city": "San Diego"
+    },
+    "status": {
+     "long": "First Half",
+     "short": "1H",
+     "elapsed": 45,
+     "extra": 9
+    }
+   },
+   "league": {
+    "id": 253,
+    "name": "Major League Soccer",
+    "country": "USA",
+    "logo": "https://media.api-sports.io/football/leagues/253.png",
+    "flag": "https://media.api-sports.io/flags/us.svg",
+    "season": 2026,
+    "round": "Regular Season - 29",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 25484,
+     "name": "San Diego",
+     "logo": "https://media.api-sports.io/football/teams/25484.png",
+     "winner": false
+    },
+    "away": {
+     "id": 1600,
+     "name": "Houston Dynamo",
+     "logo": "https://media.api-sports.io/football/teams/1600.png",
+     "winner": true
+    }
+   },
+   "goals": {
+    "home": 2,
+    "away": 3
+   },
+   "score": {
+    "halftime": {
+     "home": 2,
+     "away": 3
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1549721,
+    "referee": "Carlos Andres Marquez Ortega",
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T16:30:00-05:00",
+    "timestamp": 1792013400,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": null,
+     "name": "Estadio Romelio Martinez",
+     "city": "Barranquilla"
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 239,
+    "name": "Primera A",
+    "country": "Colombia",
+    "logo": "https://media.api-sports.io/football/leagues/239.png",
+    "flag": "https://media.api-sports.io/flags/co.svg",
+    "season": 2026,
+    "round": "Clausura - 4",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 1135,
+     "name": "Junior",
+     "logo": "https://media.api-sports.io/football/teams/1135.png",
+     "winner": null
+    },
+    "away": {
+     "id": 1462,
+     "name": "Deportivo Pereira",
+     "logo": "https://media.api-sports.io/football/teams/1462.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": 1,
+    "away": 1
+   },
+   "score": {
+    "halftime": {
+     "home": 1,
+     "away": 0
+    },
+    "fulltime": {
+     "home": 1,
+     "away": 1
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1549665,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T17:00:00-05:00",
+    "timestamp": 1792015200,
+    "periods": {
+     "first": 1792015200,
+     "second": 1792018800
+    },
+    "venue": {
+     "id": null,
+     "name": "Estadio Municipal de Mosquera",
+     "city": "Mosquera"
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": 4
+    }
+   },
+   "league": {
+    "id": 240,
+    "name": "Primera B",
+    "country": "Colombia",
+    "logo": "https://media.api-sports.io/football/leagues/240.png",
+    "flag": "https://media.api-sports.io/flags/co.svg",
+    "season": 2026,
+    "round": "Clausura - 13",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 22099,
+     "name": "Real Cundinamarca",
+     "logo": "https://media.api-sports.io/football/teams/22099.png",
+     "winner": null
+    },
+    "away": {
+     "id": 1458,
+     "name": "Bogota FC",
+     "logo": "https://media.api-sports.io/football/teams/1458.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": 0,
+    "away": 0
+   },
+   "score": {
+    "halftime": {
+     "home": 0,
+     "away": 0
+    },
+    "fulltime": {
+     "home": 0,
+     "away": 0
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1563200,
+    "referee": "Steve Martin",
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T13:45:00-05:00",
+    "timestamp": 1792003500,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": 565,
+     "name": "Carrow Road",
+     "city": "Norwich"
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 40,
+    "name": "Championship",
+    "country": "England",
+    "logo": "https://media.api-sports.io/football/leagues/40.png",
+    "flag": "https://media.api-sports.io/flags/gb-eng.svg",
+    "season": 2026,
+    "round": "Regular Season - 10",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 71,
+     "name": "Norwich",
+     "logo": "https://media.api-sports.io/football/teams/71.png",
+     "winner": false
+    },
+    "away": {
+     "id": 41,
+     "name": "Southampton",
+     "logo": "https://media.api-sports.io/football/teams/41.png",
+     "winner": true
+    }
+   },
+   "goals": {
+    "home": 0,
+    "away": 1
+   },
+   "score": {
+    "halftime": {
+     "home": 0,
+     "away": 0
+    },
+    "fulltime": {
+     "home": 0,
+     "away": 1
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1563201,
+    "referee": "Oliver Langford",
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T13:45:00-05:00",
+    "timestamp": 1792003500,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": 573,
+     "name": "Fratton Park",
+     "city": "Portsmouth"
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 40,
+    "name": "Championship",
+    "country": "England",
+    "logo": "https://media.api-sports.io/football/leagues/40.png",
+    "flag": "https://media.api-sports.io/flags/gb-eng.svg",
+    "season": 2026,
+    "round": "Regular Season - 10",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 1355,
+     "name": "Portsmouth",
+     "logo": "https://media.api-sports.io/football/teams/1355.png",
+     "winner": true
+    },
+    "away": {
+     "id": 62,
+     "name": "Sheffield Utd",
+     "logo": "https://media.api-sports.io/football/teams/62.png",
+     "winner": false
+    }
+   },
+   "goals": {
+    "home": 3,
+    "away": 2
+   },
+   "score": {
+    "halftime": {
+     "home": 1,
+     "away": 0
+    },
+    "fulltime": {
+     "home": 3,
+     "away": 2
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1630362,
+    "referee": "Clifford Postanes Daypuyat",
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T02:45:00-05:00",
+    "timestamp": 1791963900,
+    "periods": {
+     "first": 1791963900,
+     "second": 1791967500
+    },
+    "venue": {
+     "id": 20807,
+     "name": "AAMI Park",
+     "city": "Melbourne"
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 18,
+    "name": "AFC Champions League Two",
+    "country": "World",
+    "logo": "https://media.api-sports.io/football/leagues/18.png",
+    "flag": null,
+    "season": 2026,
+    "round": "Group Stage - 2",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 944,
+     "name": "Melbourne Victory",
+     "logo": "https://media.api-sports.io/football/teams/944.png",
+     "winner": true
+    },
+    "away": {
+     "id": 2766,
+     "name": "FC Seoul",
+     "logo": "https://media.api-sports.io/football/teams/2766.png",
+     "winner": false
+    }
+   },
+   "goals": {
+    "home": 3,
+    "away": 0
+   },
+   "score": {
+    "halftime": {
+     "home": 0,
+     "away": 0
+    },
+    "fulltime": {
+     "home": 3,
+     "away": 0
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1637337,
+    "referee": "O. Reitala",
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T04:00:00-05:00",
+    "timestamp": 1791968400,
+    "periods": {
+     "first": 1791968400,
+     "second": 1791972000
+    },
+    "venue": {
+     "id": null,
+     "name": "Aspmyra Stadion",
+     "city": null
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": 2
+    }
+   },
+   "league": {
+    "id": 14,
+    "name": "UEFA Youth League",
+    "country": "World",
+    "logo": "https://media.api-sports.io/football/leagues/14.png",
+    "flag": null,
+    "season": 2026,
+    "round": "League Phase - 2",
+    "standings": false
+   },
+   "teams": {
+    "home": {
+     "id": 16553,
+     "name": "Bodø / Glimt U19",
+     "logo": "https://media.api-sports.io/football/teams/16553.png",
+     "winner": false
+    },
+    "away": {
+     "id": 7890,
+     "name": "Borussia Dortmund U19",
+     "logo": "https://media.api-sports.io/football/teams/7890.png",
+     "winner": true
+    }
+   },
+   "goals": {
+    "home": 0,
+    "away": 5
+   },
+   "score": {
+    "halftime": {
+     "home": 0,
+     "away": 2
+    },
+    "fulltime": {
+     "home": 0,
+     "away": 5
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1630328,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T13:00:00-05:00",
+    "timestamp": 1792000800,
+    "periods": {
+     "first": 1792000800,
+     "second": 1792004400
+    },
+    "venue": {
+     "id": null,
+     "name": null,
+     "city": null
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 1150,
+    "name": "Gaúcho - 3",
+    "country": "Brazil",
+    "logo": "https://media.api-sports.io/football/leagues/1150.png",
+    "flag": "https://media.api-sports.io/flags/br.svg",
+    "season": 2026,
+    "round": "Regular Season - 6",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 25080,
+     "name": "SC Rio Grande",
+     "logo": "https://media.api-sports.io/football/teams/25080.png",
+     "winner": false
+    },
+    "away": {
+     "id": 10149,
+     "name": "Real",
+     "logo": "https://media.api-sports.io/football/teams/10149.png",
+     "winner": true
+    }
+   },
+   "goals": {
+    "home": 1,
+    "away": 2
+   },
+   "score": {
+    "halftime": {
+     "home": null,
+     "away": null
+    },
+    "fulltime": {
+     "home": 1,
+     "away": 2
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1643433,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T13:00:00-05:00",
+    "timestamp": 1792000800,
+    "periods": {
+     "first": 1792000800,
+     "second": 1792004400
+    },
+    "venue": {
+     "id": null,
+     "name": null,
+     "city": null
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": 16
+    }
+   },
+   "league": {
+    "id": 1088,
+    "name": "Pernambucano - U20",
+    "country": "Brazil",
+    "logo": "https://media.api-sports.io/football/leagues/1088.png",
+    "flag": "https://media.api-sports.io/flags/br.svg",
+    "season": 2026,
+    "round": "Quarter-finals",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 12971,
+     "name": "Sport Recife U20",
+     "logo": "https://media.api-sports.io/football/teams/12971.png",
+     "winner": true
+    },
+    "away": {
+     "id": 23491,
+     "name": "CA Porto U20",
+     "logo": "https://media.api-sports.io/football/teams/23491.png",
+     "winner": false
+    }
+   },
+   "goals": {
+    "home": 6,
+    "away": 2
+   },
+   "score": {
+    "halftime": {
+     "home": 3,
+     "away": 0
+    },
+    "fulltime": {
+     "home": 6,
+     "away": 2
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1612096,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T13:00:00-05:00",
+    "timestamp": 1792000800,
+    "periods": {
+     "first": 1792000800,
+     "second": 1792004400
+    },
+    "venue": {
+     "id": null,
+     "name": null,
+     "city": null
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": 8
+    }
+   },
+   "league": {
+    "id": 906,
+    "name": "Reserve League",
+    "country": "Argentina",
+    "logo": "https://media.api-sports.io/football/leagues/906.png",
+    "flag": "https://media.api-sports.io/flags/ar.svg",
+    "season": 2026,
+    "round": "Clausura - 13",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 18683,
+     "name": "Colón Res.",
+     "logo": "https://media.api-sports.io/football/teams/18683.png",
+     "winner": false
+    },
+    "away": {
+     "id": 22938,
+     "name": "Independiente Riva. Res.",
+     "logo": "https://media.api-sports.io/football/teams/22938.png",
+     "winner": true
+    }
+   },
+   "goals": {
+    "home": 1,
+    "away": 4
+   },
+   "score": {
+    "halftime": {
+     "home": 0,
+     "away": 1
+    },
+    "fulltime": {
+     "home": 1,
+     "away": 4
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1612097,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T13:00:00-05:00",
+    "timestamp": 1792000800,
+    "periods": {
+     "first": 1792000800,
+     "second": 1792004400
+    },
+    "venue": {
+     "id": null,
+     "name": null,
+     "city": null
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": 6
+    }
+   },
+   "league": {
+    "id": 906,
+    "name": "Reserve League",
+    "country": "Argentina",
+    "logo": "https://media.api-sports.io/football/leagues/906.png",
+    "flag": "https://media.api-sports.io/flags/ar.svg",
+    "season": 2026,
+    "round": "Clausura - 13",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 18685,
+     "name": "Estudiantes La Plata Res",
+     "logo": "https://media.api-sports.io/football/teams/18685.png",
+     "winner": null
+    },
+    "away": {
+     "id": 18690,
+     "name": "Lanús Res.",
+     "logo": "https://media.api-sports.io/football/teams/18690.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": 4,
+    "away": 4
+   },
+   "score": {
+    "halftime": {
+     "home": 1,
+     "away": 2
+    },
+    "fulltime": {
+     "home": 4,
+     "away": 4
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1643462,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T12:30:00-05:00",
+    "timestamp": 1791999000,
+    "periods": {
+     "first": 1791999000,
+     "second": 1792002600
+    },
+    "venue": {
+     "id": null,
+     "name": null,
+     "city": null
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": 6
+    }
+   },
+   "league": {
+    "id": 735,
+    "name": "Copa Federacion",
+    "country": "Spain",
+    "logo": "https://media.api-sports.io/football/leagues/735.png",
+    "flag": "https://media.api-sports.io/flags/es.svg",
+    "season": 2026,
+    "round": "Semi-finals",
+    "standings": false
+   },
+   "teams": {
+    "home": {
+     "id": 9413,
+     "name": "Sestao River",
+     "logo": "https://media.api-sports.io/football/teams/9413.png",
+     "winner": true
+    },
+    "away": {
+     "id": 9588,
+     "name": "Salamanca UDS",
+     "logo": "https://media.api-sports.io/football/teams/9588.png",
+     "winner": false
+    }
+   },
+   "goals": {
+    "home": 3,
+    "away": 1
+   },
+   "score": {
+    "halftime": {
+     "home": 1,
+     "away": 0
+    },
+    "fulltime": {
+     "home": 3,
+     "away": 1
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1613966,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-14T13:00:00-05:00",
+    "timestamp": 1792000800,
+    "periods": {
+     "first": 1792000800,
+     "second": 1792004400
+    },
+    "venue": {
+     "id": null,
+     "name": "Nou Municipal de Cornella",
+     "city": "Cornella de Llobregat"
+    },
+    "status": {
+     "long": "Match Finished",
+     "short": "FT",
+     "elapsed": 90,
+     "extra": 9
+    }
+   },
+   "league": {
+    "id": 443,
+    "name": "Tercera División RFEF - Group 5",
+    "country": "Spain",
+    "logo": "https://media.api-sports.io/football/leagues/443.png",
+    "flag": "https://media.api-sports.io/flags/es.svg",
+    "season": 2026,
+    "round": "Group 5 - 5",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 5258,
+     "name": "Cornellà",
+     "logo": "https://media.api-sports.io/football/teams/5258.png",
+     "winner": null
+    },
+    "away": {
+     "id": 9676,
+     "name": "Peralada",
+     "logo": "https://media.api-sports.io/football/teams/9676.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": 1,
+    "away": 1
+   },
+   "score": {
+    "halftime": {
+     "home": 0,
+     "away": 1
+    },
+    "fulltime": {
+     "home": 1,
+     "away": 1
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1549661,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-15T14:00:00-05:00",
+    "timestamp": 1792090800,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": 379,
+     "name": "Estadio Polideportivo Sur",
+     "city": "Envigado"
+    },
+    "status": {
+     "long": "Not Started",
+     "short": "NS",
+     "elapsed": null,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 240,
+    "name": "Primera B",
+    "country": "Colombia",
+    "logo": "https://media.api-sports.io/football/leagues/240.png",
+    "flag": "https://media.api-sports.io/flags/co.svg",
+    "season": 2026,
+    "round": "Clausura - 13",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 1129,
+     "name": "Envigado",
+     "logo": "https://media.api-sports.io/football/teams/1129.png",
+     "winner": null
+    },
+    "away": {
+     "id": 1463,
+     "name": "Real Santander",
+     "logo": "https://media.api-sports.io/football/teams/1463.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": null,
+    "away": null
+   },
+   "score": {
+    "halftime": {
+     "home": null,
+     "away": null
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1549659,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-15T16:00:00-05:00",
+    "timestamp": 1792098000,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": null,
+     "name": "Estadio Romelio Martinez",
+     "city": "Barranquilla"
+    },
+    "status": {
+     "long": "Not Started",
+     "short": "NS",
+     "elapsed": null,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 240,
+    "name": "Primera B",
+    "country": "Colombia",
+    "logo": "https://media.api-sports.io/football/leagues/240.png",
+    "flag": "https://media.api-sports.io/flags/co.svg",
+    "season": 2026,
+    "round": "Clausura - 13",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 1466,
+     "name": "Barranquilla",
+     "logo": "https://media.api-sports.io/football/teams/1466.png",
+     "winner": null
+    },
+    "away": {
+     "id": 1145,
+     "name": "Tigres FC",
+     "logo": "https://media.api-sports.io/football/teams/1145.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": null,
+    "away": null
+   },
+   "score": {
+    "halftime": {
+     "home": null,
+     "away": null
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1549666,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-15T17:00:00-05:00",
+    "timestamp": 1792101600,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": 387,
+     "name": "Estadio Sierra Nevada",
+     "city": "Santa Marta"
+    },
+    "status": {
+     "long": "Not Started",
+     "short": "NS",
+     "elapsed": null,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 240,
+    "name": "Primera B",
+    "country": "Colombia",
+    "logo": "https://media.api-sports.io/football/leagues/240.png",
+    "flag": "https://media.api-sports.io/flags/co.svg",
+    "season": 2026,
+    "round": "Clausura - 13",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 1465,
+     "name": "Union Magdalena",
+     "logo": "https://media.api-sports.io/football/teams/1465.png",
+     "winner": null
+    },
+    "away": {
+     "id": 27411,
+     "name": "Ind. Yumbo",
+     "logo": "https://media.api-sports.io/football/teams/27411.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": null,
+    "away": null
+   },
+   "score": {
+    "halftime": {
+     "home": null,
+     "away": null
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1549663,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-15T17:15:00-05:00",
+    "timestamp": 1792102500,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": null,
+     "name": "Estadio Metropolitano Ciudad de Itagui",
+     "city": "Itagui"
+    },
+    "status": {
+     "long": "Not Started",
+     "short": "NS",
+     "elapsed": null,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 240,
+    "name": "Primera B",
+    "country": "Colombia",
+    "logo": "https://media.api-sports.io/football/leagues/240.png",
+    "flag": "https://media.api-sports.io/flags/co.svg",
+    "season": 2026,
+    "round": "Clausura - 13",
+    "standings": true
+   },
+   "teams": {
+    "home": {
+     "id": 1143,
+     "name": "Leones FC",
+     "logo": "https://media.api-sports.io/football/teams/1143.png",
+     "winner": null
+    },
+    "away": {
+     "id": 1140,
+     "name": "Patriotas",
+     "logo": "https://media.api-sports.io/football/teams/1140.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": null,
+    "away": null
+   },
+   "score": {
+    "halftime": {
+     "home": null,
+     "away": null
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  },
+  {
+   "fixture": {
+    "id": 1559440,
+    "referee": null,
+    "timezone": "America/Bogota",
+    "date": "2026-10-15T05:00:00-05:00",
+    "timestamp": 1792058400,
+    "periods": {
+     "first": null,
+     "second": null
+    },
+    "venue": {
+     "id": null,
+     "name": null,
+     "city": null
+    },
+    "status": {
+     "long": "Not Started",
+     "short": "NS",
+     "elapsed": null,
+     "extra": null
+    }
+   },
+   "league": {
+    "id": 886,
+    "name": "UEFA U17 Championship - Qualification",
+    "country": "World",
+    "logo": "https://media.api-sports.io/football/leagues/886.png",
+    "flag": null,
+    "season": 2027,
+    "round": "Group Stage - 1",
+    "standings": false
+   },
+   "teams": {
+    "home": {
+     "id": 12520,
+     "name": "Spain U17",
+     "logo": "https://media.api-sports.io/football/teams/12520.png",
+     "winner": null
+    },
+    "away": {
+     "id": 18914,
+     "name": "Israel U17",
+     "logo": "https://media.api-sports.io/football/teams/18914.png",
+     "winner": null
+    }
+   },
+   "goals": {
+    "home": null,
+    "away": null
+   },
+   "score": {
+    "halftime": {
+     "home": null,
+     "away": null
+    },
+    "fulltime": {
+     "home": null,
+     "away": null
+    },
+    "extratime": {
+     "home": null,
+     "away": null
+    },
+    "penalty": {
+     "home": null,
+     "away": null
+    }
+   }
+  }
+ ]
+}

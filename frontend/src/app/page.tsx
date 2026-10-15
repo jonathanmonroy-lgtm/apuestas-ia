@@ -174,7 +174,7 @@ function MatchRow({ e }: { e: EventOut }) {
 function Flag({ name, code }: { name: string; code: string | null }) {
   const url = countryFlagUrl(name, code);
   return url ? (
-    // eslint-disable-next-line @next/next/no-img-element -- tiny external SVG, no optimisation needed
+    // eslint-disable-next-line @next/next/no-img-element -- tiny cached SVG from our /flags route
     <img className="flag" src={url} alt="" width={20} height={14} loading="lazy" />
   ) : (
     <span className="flag flag-world" aria-hidden>

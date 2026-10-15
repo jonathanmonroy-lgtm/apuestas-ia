@@ -19,13 +19,13 @@ from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
 from app.core.config import Settings, get_settings
 from app.db.session import get_db
 from app.jobs.sync_day import api_football
-from app.models import Competition, Event, ExternalRef, OddSnapshot
+from app.models import Competition, Event, ExternalRef, IngestionRun, OddSnapshot
 from app.models.enums import (
     EntityType,
     EventStatus,
@@ -35,7 +35,7 @@ from app.models.enums import (
     QuotaPeriod,
 )
 from app.services.fixtures_provider import ProviderNotConfiguredError
-from app.services.ingestion.day_job import JOB_DAY_FIXTURES, run_event_odds
+from app.services.ingestion.day_job import JOB_DAY_FIXTURES, JOB_EVENT_ODDS, run_event_odds
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
 from app.services.ingestion.runs import last_success_at
 from app.services.odds_summary import Quote, implied_probability, summarize
@@ -49,6 +49,13 @@ ODDS_METHOD = (
     "Mediana de la última cuota prepartido de cada casa (sin exchanges; se ignoran casas "
     "que llevan más de {hours:g} h sin actualizar). Agregado estadístico, no una cuota "
     "ofrecida por una casa concreta."
+)
+# API-Football gives ONE update time per match, not per bookmaker: say so, and don't
+# claim a per-bookmaker freshness filter that cannot act on these data.
+ODDS_METHOD_PER_MATCH_TIME = (
+    "Mediana de las cuotas prepartido de las casas que ofrece el proveedor para este "
+    "partido (sin exchanges). El proveedor da una sola hora de actualización por partido, "
+    "no por casa. Agregado estadístico, no una cuota ofrecida por una casa concreta."
 )
 IMPLIED_METHOD = (
     "Inversa de la cuota mediana de cada resultado, normalizada para quitar el margen "
@@ -140,6 +147,12 @@ def utc_now() -> datetime:
     return datetime.now(UTC)
 
 
+def prematch_cutoff(e: Event) -> datetime:
+    """Until when a quote counts as pre-match. A date-only match (time to be confirmed,
+    stored at 00:00 local) may be played any time that day: the whole day is pre-match."""
+    return e.starts_at if e.kickoff_confirmed else e.starts_at + timedelta(days=1)
+
+
 def local_day_bounds(day: date, offset_hours: int) -> tuple[datetime, datetime]:
     """Colombia's day (UTC-5) as a UTC interval: 2026-10-15 -> [10-15 05:00Z, 10-16 05:00Z)."""
     start = datetime.combine(day, time.min, UTC) - timedelta(hours=offset_hours)
@@ -206,7 +219,7 @@ def _quotes(
             OddSnapshot.source.in_([preferred, Provider.API_FOOTBALL]),
         )
     )
-    kickoff = {e.id: e.starts_at for e in events}
+    kickoff = {e.id: prematch_cutoff(e) for e in events}
     by_source: dict[int, dict[Provider, list[Quote]]] = {}
     for event_id, source, book, sel, price, captured_at in rows:
         if captured_at >= kickoff[event_id]:
@@ -249,7 +262,12 @@ def list_events(
             Event.starts_at >= datetime.combine(start_d, time.min, UTC),
             Event.starts_at < datetime.combine(end_d + timedelta(days=1), time.min, UTC),
         ]
-    if country is not None:
+    if country == INTERNATIONAL:
+        # The menu files competitions without a country under "World" too.
+        where.append(
+            or_(Competition.country_name == INTERNATIONAL, Competition.country_name.is_(None))
+        )
+    elif country is not None:
         where.append(Competition.country_name == country)
 
     events = _load_events(db, where)
@@ -276,6 +294,10 @@ def list_countries(
     start, end = local_day_bounds(day, settings.local_utc_offset_hours)
     events = _load_events(db, [Event.starts_at >= start, Event.starts_at < end])
     quotes = _quotes(db, events, settings)
+    stale_after = timedelta(hours=settings.odds_stale_after_hours)
+    # "with odds" = what the page will actually show (a summary), not "any snapshot":
+    # an exchange-only or incomplete 1X2 match shows no odds, so it must not count.
+    shown = {eid for eid, (_, q) in quotes.items() if summarize(q, stale_after) is not None}
     stats: dict[str, dict] = {}
     for e in events:
         name = e.competition.country_name or INTERNATIONAL
@@ -283,7 +305,7 @@ def list_countries(
             name, {"code": e.competition.country_code, "n": 0, "odds": 0, "leagues": set()}
         )
         c["n"] += 1
-        c["odds"] += e.id in quotes
+        c["odds"] += e.id in shown
         c["leagues"].add(e.competition.name)
     countries = [
         CountryOut(name=n, code=c["code"], n_events=c["n"], n_with_odds=c["odds"],
@@ -316,9 +338,39 @@ def fetch_event_odds(
     event = db.get(Event, event_id)
     if event is None:
         raise HTTPException(404, "event not found")
-    if event.starts_at <= now or event.status is not EventStatus.SCHEDULED:
+    if now >= prematch_cutoff(event) or event.status is not EventStatus.SCHEDULED:
         raise HTTPException(
             409, "el partido ya empezó o no está programado: sólo hay cuotas prepartido"
+        )
+    fixture_id = _fixture_external_id(db, event_id)
+    if fixture_id is None:
+        raise HTTPException(422, "este partido no viene de la fuente multi-país")
+    # Look in the database BEFORE spending a request (QA #1). Usage limits are measured
+    # on the wall clock: run records are stamped with it (`now` may be a test clock).
+    wall = datetime.now(UTC)
+    recent = _last_event_odds_run(db, fixture_id)
+    if recent and wall - recent < timedelta(minutes=settings.on_demand_odds_cooldown_minutes):
+        minutes = int((wall - recent).total_seconds() // 60)
+        return FetchOddsOut(
+            status="recent",
+            snapshots_inserted=0,
+            message=f"Ya se consultó hace {minutes} min; se mostrará lo que haya guardado.",
+        )
+    if _calls_since(db, wall - timedelta(minutes=1)) >= settings.api_football_per_minute_cap:
+        return FetchOddsOut(
+            status="rate_limited",
+            snapshots_inserted=0,
+            message=(
+                "Demasiadas consultas en este minuto (límite del plan gratuito); "
+                "prueba en un minuto."
+            ),
+        )
+    day_start = datetime.combine(wall.date(), time.min, UTC)
+    if _calls_since(db, day_start, JOB_EVENT_ODDS) >= settings.api_football_on_demand_daily_cap:
+        return FetchOddsOut(
+            status="no_budget",
+            snapshots_inserted=0,
+            message="Se agotaron las consultas de cuotas de hoy (plan gratuito).",
         )
     try:
         provider = api_football(settings)
@@ -333,7 +385,7 @@ def fetch_event_odds(
         )  # fmt: skip
     finally:
         provider.close()
-    if outcome is None:
+    if outcome is None:  # the ref vanished between the check and the call
         raise HTTPException(422, "este partido no viene de la fuente multi-país")
     if outcome.status is IngestionStatus.SKIPPED_NO_BUDGET:
         return FetchOddsOut(
@@ -353,6 +405,43 @@ def fetch_event_odds(
         message="Cuotas actualizadas." if outcome.records_written else
         "El proveedor no tiene cuotas para este partido.",
     )  # fmt: skip
+
+
+def _fixture_external_id(db: Session, event_id: int) -> str | None:
+    return db.scalar(
+        select(ExternalRef.external_id).where(
+            ExternalRef.source == Provider.API_FOOTBALL,
+            ExternalRef.entity_type == EntityType.EVENT,
+            ExternalRef.entity_id == event_id,
+        )
+    )
+
+
+def _last_event_odds_run(db: Session, fixture_id: str) -> datetime | None:
+    """When this match's odds were last asked for successfully (even if it had none)."""
+    return db.scalar(
+        select(func.max(IngestionRun.finished_at)).where(
+            IngestionRun.source == Provider.API_FOOTBALL,
+            IngestionRun.job == JOB_EVENT_ODDS,
+            IngestionRun.status == IngestionStatus.SUCCESS,
+            IngestionRun.request_url.like(f"%fixture={fixture_id}%"),
+        )
+    )
+
+
+def _calls_since(db: Session, since: datetime, job: str | None = None) -> int:
+    query = (
+        select(func.count())
+        .select_from(IngestionRun)
+        .where(
+            IngestionRun.source == Provider.API_FOOTBALL,
+            IngestionRun.started_at >= since,
+            IngestionRun.status != IngestionStatus.SKIPPED_NO_BUDGET,
+        )
+    )
+    if job is not None:
+        query = query.where(IngestionRun.job == job)
+    return db.scalar(query) or 0
 
 
 def _api_football_event_ids(db: Session, events: list[Event]) -> set[int]:
@@ -380,8 +469,13 @@ def _event_out(
     odds = implied = None
     if summary is not None:
         prices = {s.value: p for s, p in summary.median_price.items()}
+        method = (
+            ODDS_METHOD_PER_MATCH_TIME
+            if picked[0] is Provider.API_FOOTBALL
+            else ODDS_METHOD.format(hours=stale_after.total_seconds() / 3600)
+        )
         odds = OddsOut(
-            method=ODDS_METHOD.format(hours=stale_after.total_seconds() / 3600),
+            method=method,
             source=picked[0].value,
             median_price=Prices(**prices),
             n_bookmakers=summary.n_bookmakers,
@@ -410,5 +504,5 @@ def _event_out(
         implied_probability=implied,
         can_fetch_odds=from_api_football
         and e.status is EventStatus.SCHEDULED
-        and e.starts_at > now,
+        and now < prematch_cutoff(e),
     )
