@@ -347,7 +347,7 @@ def test_preferred_source_wins_and_sources_never_mix(client, sf, ingested):
               if e["id"] == eid)  # fmt: skip
     assert ev["odds"]["source"] == "the_odds_api"
     assert ev["odds"]["n_bookmakers"] == 1
-    assert ev["odds"]["median_price"]["home"] == "9.00"
+    assert ev["odds"]["median_price"]["home"] == "9"  # same string on SQLite and Postgres
 
 
 def test_betfair_only_match_shows_no_odds_and_is_not_counted(client, sf, ingested):

@@ -82,3 +82,20 @@ def test_bookmaker_that_stopped_updating_is_ignored():
 
 def test_no_quotes_no_summary():
     assert summarize([], STALE) is None
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("9.000", "9"),
+        ("9.00", "9"),
+        ("2.050", "2.05"),
+        ("2.085", "2.085"),
+        ("10", "10"),
+        ("100.0", "100"),
+    ],
+)
+def test_canonical_prices_are_database_independent(value, expected):
+    from app.services.odds_summary import canonical
+
+    assert str(canonical(Decimal(value))) == expected

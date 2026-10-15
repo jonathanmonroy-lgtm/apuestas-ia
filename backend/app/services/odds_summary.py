@@ -47,6 +47,15 @@ class ImpliedProbability:
     overround: Decimal  # sum of 1/price - 1: the bookmakers' margin on the median prices
 
 
+def canonical(value: Decimal) -> Decimal:
+    """Same digits on every database: "9.000" (Postgres NUMERIC scale) and "9.00" (SQLite
+    text) both become 9; never scientific notation (Decimal.normalize() would give 1E+1)."""
+    text = format(value, "f")
+    if "." in text:
+        text = text.rstrip("0").rstrip(".")
+    return Decimal(text)
+
+
 def median(values: list[Decimal]) -> Decimal:
     if not values:
         raise ValueError("median of empty list")
@@ -81,7 +90,9 @@ def summarize(quotes: Iterable[Quote], stale_after: timedelta) -> OddsSummary | 
     }
     used = [q for sels in fresh.values() for q in sels.values()]
     return OddsSummary(
-        median_price={s: median([sels[s].price for sels in fresh.values()]) for s in SELECTIONS},
+        median_price={
+            s: canonical(median([sels[s].price for sels in fresh.values()])) for s in SELECTIONS
+        },
         n_bookmakers=len(fresh),
         as_of=freshest,
         oldest_quote_at=min(q.captured_at for q in used),
