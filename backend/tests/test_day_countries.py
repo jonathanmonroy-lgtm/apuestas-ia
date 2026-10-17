@@ -252,7 +252,9 @@ def client(sf):
             yield session
 
     app.dependency_overrides[get_db] = override_db
-    app.dependency_overrides[get_settings] = lambda: Settings(api_football_key="k")
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        api_football_key="k", day_source="api_football"
+    )
     app.dependency_overrides[utc_now] = lambda: CLOCK
     try:
         yield TestClient(app)

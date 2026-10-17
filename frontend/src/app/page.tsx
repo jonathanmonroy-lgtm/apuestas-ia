@@ -3,17 +3,22 @@ import Link from "next/link";
 
 import { FetchOddsButton } from "@/components/FetchOddsButton";
 import { Badge, Freshness, PageHeader } from "@/components/ui";
-import { api, type EventOut } from "@/lib/api";
+import { api, type CountriesResponse, type EventOut } from "@/lib/api";
 import { countryFlagUrl, countryName } from "@/lib/countries";
 import { dayKey, formatTime, odds, percent } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Partidos del día" };
 
-const DAYS = [
-  { key: "ayer", label: "Ayer", offset: -1 },
-  { key: "hoy", label: "Hoy", offset: 0 },
-  { key: "manana", label: "Mañana", offset: 1 },
-] as const;
+// Old links (?dia=ayer) keep working; new ones carry the date (?dia=2026-10-18).
+const LEGACY_DAYS: Record<string, number> = { ayer: -1, hoy: 0, manana: 1 };
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+const SOURCE_NOTE: Record<CountriesResponse["source"], string> = {
+  espn: "Fuente: ESPN (no oficial). El worker la sincroniza cada 30 min (ayer–mañana) y cada 6 h el resto de días",
+  api_football: "Fuente: API-Football (plan gratuito: sólo ayer, hoy y mañana), cada 6 h",
+};
+
+const weekdayFmt = new Intl.DateTimeFormat("es-ES", { timeZone: "UTC", weekday: "short", day: "numeric" });
 
 const STATUS_ES: Record<EventOut["status"], string> = {
   scheduled: "",
@@ -31,17 +36,36 @@ function colombiaDay(offset: number): string {
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
+/** "Hoy", "Ayer", "Mañana" or "sáb 18" for a YYYY-MM-DD Colombian day. */
+function dayLabel(day: string, today: string): string {
+  const diff = Math.round((Date.parse(day) - Date.parse(today)) / 86_400_000);
+  if (diff === 0) return "Hoy";
+  if (diff === -1) return "Ayer";
+  if (diff === 1) return "Mañana";
+  return weekdayFmt.format(new Date(`${day}T12:00:00Z`));
+}
+
 export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/">) {
   const params = await searchParams;
-  const dayParam = DAYS.find((d) => d.key === one(params.dia)) ?? DAYS[1];
-  const day = colombiaDay(dayParam.offset);
+  const today = colombiaDay(0);
+  const dia = one(params.dia) ?? "";
+  // hasOwn: "?dia=constructor" must not reach Object.prototype.
+  const legacy = Object.hasOwn(LEGACY_DAYS, dia) ? LEGACY_DAYS[dia] : 0;
+  const day = ISO_DAY.test(dia) && !Number.isNaN(Date.parse(dia)) ? dia : colombiaDay(legacy);
   const menu = await api.countries(day);
+  // The API sorts by the provider's English name; the menu reads in Spanish.
+  const countries = [...menu.countries].sort(
+    (a, b) =>
+      Number(a.name === "World") - Number(b.name === "World") ||
+      countryName(a.name, a.code).localeCompare(countryName(b.name, b.code), "es"),
+  );
+  const days = menu.browse_days.includes(day) ? menu.browse_days : [...menu.browse_days, day].sort();
 
   const requested = one(params.pais);
   const selected =
-    menu.countries.find((c) => c.name === requested) ??
-    menu.countries.find((c) => c.name === "Colombia") ??
-    menu.countries[0];
+    countries.find((c) => c.name === requested) ??
+    countries.find((c) => c.name === "Colombia") ??
+    countries[0];
   const data = selected ? await api.events({ day, country: selected.name }) : null;
 
   const byLeague = new Map<string, EventOut[]>();
@@ -56,30 +80,31 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
         <Freshness label="Cuotas" iso={menu.data_as_of.odds} />
       </PageHeader>
 
-      <nav className="filters" aria-label="Día">
-        {DAYS.map((d) => (
-          <Link key={d.key} href={href(selected?.name, d.key)} className="chip"
-                aria-current={d.key === dayParam.key ? "true" : undefined}>
-            {d.label}
+      <nav className="day-strip" aria-label="Día">
+        {days.map((d) => (
+          <Link key={d} href={href(selected?.name, d)} className="chip"
+                aria-current={d === day ? "true" : undefined}>
+            {dayLabel(d, today)}
           </Link>
         ))}
-        <span className="muted small">
-          {day} · hora de Colombia ({menu.timezone})
-        </span>
       </nav>
+      <p className="muted small">
+        {day} · hora de Colombia ({menu.timezone}) · {SOURCE_NOTE[menu.source]}.
+      </p>
 
-      {menu.countries.length === 0 ? (
+      {countries.length === 0 ? (
         <p className="muted">
-          No hay partidos guardados para este día. El plan gratuito sólo da ayer, hoy y mañana;
-          el worker los sincroniza cada 6 h (o a mano: <code>uv run python -m app.jobs.sync_day</code>).
+          No hay partidos guardados para este día. Arranca el worker (
+          <code>uv run python -m app.worker</code>) o sincroniza a mano:{" "}
+          <code>{menu.source === "espn" ? "uv run python -m app.jobs.sync_espn --wide" : "uv run python -m app.jobs.sync_day"}</code>.
         </p>
       ) : (
         <div className="day-layout">
           <aside className="country-list" aria-label="Países">
             <ul>
-              {menu.countries.map((c) => (
+              {countries.map((c) => (
                 <li key={c.name}>
-                  <Link href={href(c.name, dayParam.key)}
+                  <Link href={href(c.name, day)}
                         aria-current={c.name === selected?.name ? "true" : undefined}>
                     <Flag name={c.name} code={c.code} />
                     <span className="country-name">{countryName(c.name, c.code)}</span>
@@ -104,8 +129,9 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
             )}
             <p className="explainer">
               <Badge kind="dato" /> hora, estado y resultado ·{" "}
-              <Badge kind="analisis" /> cuota = mediana de las casas (sin exchanges, sólo
-              prepartido) y su probabilidad implícita, no un pronóstico.
+              <Badge kind="analisis" /> cuota prepartido y su probabilidad implícita, no un
+              pronóstico. Con varias casas es la mediana (sin exchanges); con «1 casa» es la
+              cuota de esa única casa, no una cifra de mercado.
             </p>
             {[...byLeague.entries()].map(([league, events]) => (
               <div key={league} className="league-block">
@@ -158,7 +184,8 @@ function MatchRow({ e }: { e: EventOut }) {
               </span>
             ))}
             <small className="muted odds-meta">
-              {e.odds.n_bookmakers} casas{e.odds.is_stale ? " · desactualizadas" : ""}
+              {e.odds.n_bookmakers === 1 ? "1 casa" : `${e.odds.n_bookmakers} casas`}
+              {e.odds.is_stale ? " · desactualizadas" : ""}
             </small>
           </div>
         ) : e.can_fetch_odds ? (

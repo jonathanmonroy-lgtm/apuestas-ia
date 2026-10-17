@@ -10,6 +10,7 @@ The API never calls providers; if this job fails, the API keeps serving the last
 
 from datetime import UTC, date, datetime
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.logging import get_logger
@@ -77,6 +78,21 @@ def upsert_batch(s: Session, batch: FixturesBatch) -> int:
 
     comp_id = find_ref(s, src, EntityType.COMPETITION, comp_dto.external_id)
     if comp_id is None:
+        # Another source may already know this league under the same unique key (ESPN and
+        # API-Football both list "USL Championship", USA): one competition, two refs.
+        comp_id = s.scalar(
+            select(Competition.id).where(
+                Competition.sport == comp_dto.sport,
+                # England & co. have no ISO code: NULL must match NULL here.
+                Competition.country_code.is_(None)
+                if comp_dto.country_code is None
+                else Competition.country_code == comp_dto.country_code,
+                Competition.name == comp_dto.name,
+            )
+        )
+        if comp_id is not None:
+            add_ref(s, src, EntityType.COMPETITION, comp_dto.external_id, comp_id, comp_dto.name)
+    if comp_id is None:
         comp = Competition(
             name=comp_dto.name,
             sport=comp_dto.sport,
@@ -90,6 +106,14 @@ def upsert_batch(s: Session, batch: FixturesBatch) -> int:
 
     season_dto = batch.season
     season_id = find_ref(s, src, EntityType.SEASON, season_dto.external_id)
+    if season_id is None:
+        season_id = s.scalar(
+            select(Season.id).where(
+                Season.competition_id == comp_id, Season.name == season_dto.name
+            )
+        )
+        if season_id is not None:
+            add_ref(s, src, EntityType.SEASON, season_dto.external_id, season_id, season_dto.name)
     if season_id is None:
         season = Season(
             competition_id=comp_id,

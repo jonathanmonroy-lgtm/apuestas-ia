@@ -100,6 +100,9 @@ export type Country = {
 export type CountriesResponse = {
   day: string;
   timezone: string;
+  source: "espn" | "api_football";
+  browse_days: string[]; // local (Colombia) days the source can have data for
+
   data_as_of: { fixtures: string | null; odds: string | null };
   countries: Country[];
 };

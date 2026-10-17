@@ -46,9 +46,10 @@ Backend (desde `backend/`, requiere `uv`):
 - `uv run python -m app.jobs.sync_fixtures [--competition PD] [--season 2026]` — sincronizar partidos/resultados (requiere `FOOTBALL_DATA_KEY`; exit != 0 si algo falla)
 - `uv run python -m app.jobs.sync_odds` — sincronizar cuotas 1X2 de The Odds API (1 crédito por llamada de 500/mes; requiere `ODDS_API_KEY` y fixtures ya sincronizados)
 - `uv run python -m app.jobs.sync_news` — sincronizar noticias de NewsAPI (1 petición de 100/día; requiere `NEWSAPI_KEY` y fixtures ya sincronizados)
-- `uv run python -m app.jobs.sync_day` — partidos del día de todos los países + cuotas (API-Football gratis: ayer/hoy/mañana, 3 páginas de cuotas; requiere `API_FOOTBALL_KEY`)
-- `uv run python -m app.worker` — worker (proceso aparte de la API): partidos del día cada 6 h, fixtures LaLiga diario 06:15 UTC, odds LaLiga cada 3 h, noticias cada hora; recupera al arrancar si hay datos viejos. Reiniciarlo tras cambiar `.env`
+- `uv run python -m app.jobs.sync_espn [--wide]` — partidos del día por país desde ESPN (sin key; API NO oficial, sólo uso interno): ayer–mañana, o con `--wide` de −3 a +7 días; cuotas 1X2 de una sola casa cuando ESPN las publica. Es la fuente por defecto (`DAY_SOURCE=espn`)
+- `uv run python -m app.jobs.sync_day` — alternativa con `DAY_SOURCE=api_football`: partidos de todos los países + cuotas (API-Football gratis: ayer/hoy/mañana, 3 páginas de cuotas; requiere `API_FOOTBALL_KEY`)
+- `uv run python -m app.worker` — worker (proceso aparte de la API): partidos del día (ESPN: ayer–mañana cada 30 min y la ventana completa cada 6 h; o API-Football cada 6 h), fixtures LaLiga diario 06:15 UTC, odds LaLiga cada 3 h, noticias cada hora; recupera al arrancar si hay datos viejos. Reiniciarlo tras cambiar `.env`
 
 Infra: `docker compose up -d db` — Postgres 16 local. Usar `127.0.0.1`, no `localhost` (en Windows `localhost` resuelve a IPv6 y la conexión se cuelga).
 
-Frontend (desde `frontend/`): `npm run dev` (http://127.0.0.1:3000), `npm run lint`, `npm run build`. Lee la API desde el servidor (`API_BASE_URL`, por defecto http://127.0.0.1:8000): arranca antes el backend. Vistas: `/` Resumen, `/programacion`, `/historial`. Diseño: `docs/diseno-frontend.md`.
+Frontend (desde `frontend/`): `npm run dev` (http://127.0.0.1:3000), `npm run lint`, `npm run build`. Lee la API desde el servidor (`API_BASE_URL`, por defecto http://127.0.0.1:8000): arranca antes el backend. Vistas: `/` Partidos del día por país, `/resumen`, `/programacion`, `/historial`. Diseño: `docs/diseno-frontend.md`.

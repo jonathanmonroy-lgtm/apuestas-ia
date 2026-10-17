@@ -36,6 +36,7 @@ from app.models.enums import (
 )
 from app.services.fixtures_provider import ProviderNotConfiguredError
 from app.services.ingestion.day_job import JOB_DAY_FIXTURES, JOB_EVENT_ODDS, run_event_odds
+from app.services.ingestion.espn_job import JOB_ESPN_DAY
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
 from app.services.ingestion.runs import last_success_at
 from app.services.odds_summary import Quote, implied_probability, summarize
@@ -44,7 +45,7 @@ from app.services.quota import QuotaPolicy
 router = APIRouter(prefix="/api", tags=["events"])
 
 MAX_RANGE_DAYS = 120
-INTERNATIONAL = "World"  # API-Football's "country" for international competitions
+INTERNATIONAL = "World"  # "country" of international competitions (both day sources)
 ODDS_METHOD = (
     "Mediana de la última cuota prepartido de cada casa (sin exchanges; se ignoran casas "
     "que llevan más de {hours:g} h sin actualizar). Agregado estadístico, no una cuota "
@@ -56,6 +57,11 @@ ODDS_METHOD_PER_MATCH_TIME = (
     "Mediana de las cuotas prepartido de las casas que ofrece el proveedor para este "
     "partido (sin exchanges). El proveedor da una sola hora de actualización por partido, "
     "no por casa. Agregado estadístico, no una cuota ofrecida por una casa concreta."
+)
+# ESPN shows ONE bookmaker's line: there is no median to speak of, and no quote time.
+ODDS_METHOD_SINGLE_BOOK = (
+    "Cuota prepartido de una sola casa (la que publica ESPN), pasada de formato americano "
+    "a decimal (3 decimales). No es una mediana de mercado; la hora es cuando la leímos."
 )
 IMPLIED_METHOD = (
     "Inversa de la cuota mediana de cada resultado, normalizada para quitar el margen "
@@ -139,6 +145,8 @@ class CountryOut(BaseModel):
 class CountriesResponse(BaseModel):
     day: date
     timezone: str
+    source: str  # which multi-country source fills these views
+    browse_days: list[date]  # the local days that source can have data for
     data_as_of: DataAsOf
     countries: list[CountryOut]
 
@@ -167,10 +175,40 @@ def tz_label(offset_hours: int) -> str:
     return f"UTC{offset_hours:+d}"
 
 
+DAY_SOURCE_JOBS = {Provider.ESPN: JOB_ESPN_DAY, Provider.API_FOOTBALL: JOB_DAY_FIXTURES}
+
+
+def day_source(settings: Settings) -> Provider:
+    return Provider(settings.day_source)
+
+
+def browse_days(settings: Settings, today: date) -> list[date]:
+    if day_source(settings) is Provider.ESPN:
+        first, n = (
+            today - timedelta(days=settings.espn_days_back),
+            (settings.espn_days_back + settings.espn_days_ahead + 1),
+        )
+    else:  # API-Football free plan: yesterday..tomorrow
+        first, n = today - timedelta(days=1), 3
+    return [first + timedelta(days=i) for i in range(n)]
+
+
+def _hide_other_day_sources(settings: Settings):
+    """Both multi-country sources list the same matches under different ids: only the
+    active one's events are shown (the other's stay stored, e.g. after switching)."""
+    hidden = [p for p in DAY_SOURCE_JOBS if p is not day_source(settings)]
+    return Event.id.not_in(
+        select(ExternalRef.entity_id).where(
+            ExternalRef.source.in_(hidden), ExternalRef.entity_type == EntityType.EVENT
+        )
+    )
+
+
 def _data_as_of(db: Session, settings: Settings) -> DataAsOf:
+    source = day_source(settings)
     runs = [
         last_success_at(db, Provider(settings.fixtures_provider), JOB_FIXTURES),
-        last_success_at(db, Provider.API_FOOTBALL, JOB_DAY_FIXTURES),
+        last_success_at(db, source, DAY_SOURCE_JOBS[source]),
     ]
     return DataAsOf(
         fixtures=max((r for r in runs if r), default=None),
@@ -216,7 +254,7 @@ def _quotes(
         ).where(
             OddSnapshot.event_id.in_([e.id for e in events]),
             OddSnapshot.market == Market.H2H,
-            OddSnapshot.source.in_([preferred, Provider.API_FOOTBALL]),
+            OddSnapshot.source.in_([preferred, Provider.API_FOOTBALL, Provider.ESPN]),
         )
     )
     kickoff = {e.id: prematch_cutoff(e) for e in events}
@@ -269,6 +307,7 @@ def list_events(
         )
     elif country is not None:
         where.append(Competition.country_name == country)
+    where.append(_hide_other_day_sources(settings))
 
     events = _load_events(db, where)
     quotes = _quotes(db, events, settings)
@@ -292,7 +331,9 @@ def list_countries(
 ) -> CountriesResponse:
     day = day or local_today(now, settings.local_utc_offset_hours)
     start, end = local_day_bounds(day, settings.local_utc_offset_hours)
-    events = _load_events(db, [Event.starts_at >= start, Event.starts_at < end])
+    events = _load_events(
+        db, [Event.starts_at >= start, Event.starts_at < end, _hide_other_day_sources(settings)]
+    )
     quotes = _quotes(db, events, settings)
     stale_after = timedelta(hours=settings.odds_stale_after_hours)
     # "with odds" = what the page will actually show (a summary), not "any snapshot":
@@ -316,6 +357,8 @@ def list_countries(
     return CountriesResponse(
         day=day,
         timezone=tz_label(settings.local_utc_offset_hours),
+        source=day_source(settings).value,
+        browse_days=browse_days(settings, local_today(now, settings.local_utc_offset_hours)),
         data_as_of=_data_as_of(db, settings),
         countries=countries,
     )
@@ -469,11 +512,12 @@ def _event_out(
     odds = implied = None
     if summary is not None:
         prices = {s.value: p for s, p in summary.median_price.items()}
-        method = (
-            ODDS_METHOD_PER_MATCH_TIME
-            if picked[0] is Provider.API_FOOTBALL
-            else ODDS_METHOD.format(hours=stale_after.total_seconds() / 3600)
-        )
+        if picked[0] is Provider.ESPN:
+            method = ODDS_METHOD_SINGLE_BOOK
+        elif picked[0] is Provider.API_FOOTBALL:
+            method = ODDS_METHOD_PER_MATCH_TIME
+        else:
+            method = ODDS_METHOD.format(hours=stale_after.total_seconds() / 3600)
         odds = OddsOut(
             method=method,
             source=picked[0].value,

@@ -53,6 +53,23 @@ class Settings(BaseSettings):
     # Leagues whose calendar comes from another source (LaLiga = football-data): skipped
     # in the multi-country sync so a match never exists twice.
     api_football_skip_leagues: list[str] = ["140"]
+    # Which source fills "matches of the day by country". ONE at a time: both list the same
+    # matches under different ids, so the other one's events are hidden from those views.
+    # espn: any date, no key, one bookmaker's odds on some matches (unofficial endpoint).
+    # api_football: yesterday..tomorrow only, odds on demand from ~9 bookmakers.
+    day_source: Literal["espn", "api_football"] = "espn"
+    # ESPN publishes no limits: a self-imposed cap (a near pass = 5 calls every 30 min,
+    # a wide pass = 13 calls every 6 h -> ~290/day).
+    espn_daily_budget: int = 400
+    espn_near_interval_minutes: float = Field(default=30.0, gt=0)
+    espn_wide_interval_hours: float = Field(default=6.0, gt=0)
+    # The browsable window of days (Colombia's), relative to today.
+    espn_days_back: int = Field(default=3, ge=1, le=14)
+    espn_days_ahead: int = Field(default=7, ge=1, le=14)
+    # ESPN gives no quote time: an unchanged price is stored again only this often.
+    espn_odds_refresh_hours: float = Field(default=2.0, gt=0)
+    # LaLiga's calendar comes from football-data (by ESPN league slug).
+    espn_skip_leagues: list[str] = ["esp.1"]
     # The product's "day" is Colombia's (UTC-5, no daylight saving since 1993).
     local_utc_offset_hours: int = -5
 

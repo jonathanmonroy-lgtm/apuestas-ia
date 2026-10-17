@@ -138,6 +138,12 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color:
   padding: 5px 12px; text-decoration: none; font-size: 13px;
 }
 .chip[aria-current="true"] { color: var(--text); border-color: var(--gold); }
+/* Days scroll sideways inside their own row: the page itself never scrolls horizontally. */
+.day-strip {
+  display: flex; gap: 8px; overflow-x: auto; margin: 16px 0 6px; padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.day-strip .chip { flex: none; white-space: nowrap; }
 
 /* --- responsible gambling --- */
 .rg { border-color: #4d4020; }

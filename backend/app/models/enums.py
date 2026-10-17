@@ -68,6 +68,7 @@ class Provider(StrEnum):
     FOOTBALL_DATA = "football_data"
     THE_ODDS_API = "the_odds_api"
     NEWSAPI = "newsapi"
+    ESPN = "espn"
 
 
 class IngestionStatus(StrEnum):
