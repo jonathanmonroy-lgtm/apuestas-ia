@@ -36,7 +36,7 @@ from app.models.enums import (
 )
 from app.services.fixtures_provider import ProviderNotConfiguredError
 from app.services.ingestion.day_job import JOB_DAY_FIXTURES, JOB_EVENT_ODDS, run_event_odds
-from app.services.ingestion.espn_job import JOB_ESPN_DAY
+from app.services.ingestion.espn_job import JOBS_ESPN_DAYS
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
 from app.services.ingestion.runs import last_success_at
 from app.services.odds_summary import Quote, implied_probability, summarize
@@ -66,6 +66,13 @@ ODDS_METHOD_SINGLE_BOOK = (
 IMPLIED_METHOD = (
     "Inversa de la cuota mediana de cada resultado, normalizada para quitar el margen "
     "de las casas. Es lo que el mercado descuenta, no un pronóstico propio."
+)
+SINGLE_BOOK_NOTE = (
+    " Ahora mismo hay UNA sola casa: la cifra es su cuota, no una mediana de mercado."
+)
+IMPLIED_METHOD_SINGLE_BOOK = (
+    "Inversa de la cuota de esa única casa para cada resultado, normalizada para quitar SU "
+    "margen. Es lo que esa casa descuenta, no el mercado ni un pronóstico propio."
 )
 
 
@@ -175,7 +182,7 @@ def tz_label(offset_hours: int) -> str:
     return f"UTC{offset_hours:+d}"
 
 
-DAY_SOURCE_JOBS = {Provider.ESPN: JOB_ESPN_DAY, Provider.API_FOOTBALL: JOB_DAY_FIXTURES}
+DAY_SOURCE_JOBS = {Provider.ESPN: JOBS_ESPN_DAYS, Provider.API_FOOTBALL: (JOB_DAY_FIXTURES,)}
 
 
 def day_source(settings: Settings) -> Provider:
@@ -208,7 +215,7 @@ def _data_as_of(db: Session, settings: Settings) -> DataAsOf:
     source = day_source(settings)
     runs = [
         last_success_at(db, Provider(settings.fixtures_provider), JOB_FIXTURES),
-        last_success_at(db, source, DAY_SOURCE_JOBS[source]),
+        *(last_success_at(db, source, job) for job in DAY_SOURCE_JOBS[source]),
     ]
     return DataAsOf(
         fixtures=max((r for r in runs if r), default=None),
@@ -512,12 +519,16 @@ def _event_out(
     odds = implied = None
     if summary is not None:
         prices = {s.value: p for s, p in summary.median_price.items()}
+        # By what the numbers are (one book), not only by where they come from.
+        single_book = summary.n_bookmakers == 1
         if picked[0] is Provider.ESPN:
             method = ODDS_METHOD_SINGLE_BOOK
         elif picked[0] is Provider.API_FOOTBALL:
             method = ODDS_METHOD_PER_MATCH_TIME
         else:
             method = ODDS_METHOD.format(hours=stale_after.total_seconds() / 3600)
+        if single_book and picked[0] is not Provider.ESPN:
+            method += SINGLE_BOOK_NOTE
         odds = OddsOut(
             method=method,
             source=picked[0].value,
@@ -529,7 +540,9 @@ def _event_out(
         )
         ip = implied_probability(summary.median_price)
         implied = ImpliedProbabilityOut(
-            **{s.value: p for s, p in ip.probability.items()}, overround=ip.overround
+            **{s.value: p for s, p in ip.probability.items()},
+            overround=ip.overround,
+            method=IMPLIED_METHOD_SINGLE_BOOK if single_book else IMPLIED_METHOD,
         )
     return EventOut(
         id=e.id,

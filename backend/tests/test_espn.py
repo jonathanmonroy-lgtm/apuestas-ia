@@ -47,6 +47,11 @@ REFRESH = timedelta(hours=2)
 DAY = date(2026, 10, 17)
 
 
+def cfg(**overrides) -> Settings:
+    """Settings without the developer's .env (QA: results must not depend on the machine)."""
+    return Settings(_env_file=None, **overrides)
+
+
 def load(name: str) -> dict:
     return json.loads((FIXTURES / name).read_text(encoding="utf-8"))
 
@@ -141,7 +146,7 @@ def test_american_to_decimal(american, decimal):
     assert american_to_decimal(american) == Decimal(decimal)
 
 
-@pytest.mark.parametrize("bad", [None, "", "OFF", "+50", "-99", "0"])
+@pytest.mark.parametrize("bad", [None, "", "OFF", "+50", "-99", "0", "NaN", "Infinity", "-inf"])
 def test_american_to_decimal_refuses_what_is_not_a_price(bad):
     assert american_to_decimal(bad) is None
 
@@ -236,11 +241,62 @@ def test_unexpected_payload_fails_closed(payload):
         EspnProvider().normalize_scoreboard(raw(payload), leagues())
 
 
-def test_event_without_league_in_uid_fails_closed():
+def test_one_unreadable_event_is_skipped_not_the_whole_day():
     payload = copy.deepcopy(SCOREBOARD)
-    payload["events"][0]["uid"] = "s:600~e:401878771"
+    payload["events"][0]["uid"] = "s:600~e:401878771"  # no league id
+    del payload["events"][1]["season"]  # missing field
+    # A cup tie still "to be decided": one competitor only.
+    payload["events"][2]["competitions"][0]["competitors"].pop()
+    batches, _ = EspnProvider().normalize_scoreboard(raw(payload), leagues())
+    ids = {f.external_id for b in batches for f in b.fixtures}
+    assert len(ids) == 22 - 3
+    assert not ids & {e["id"] for e in payload["events"][:3]}
+
+
+def test_a_mostly_unreadable_day_fails_closed():
+    payload = copy.deepcopy(SCOREBOARD)
+    for e in payload["events"][:12]:  # 12 of 22 > half
+        del e["season"]
     with pytest.raises(FormatError):
         EspnProvider().normalize_scoreboard(raw(payload), leagues())
+
+
+@pytest.mark.parametrize("time_valid", ["missing", False])
+def test_kickoff_time_is_not_confirmed_unless_espn_says_so(time_valid):
+    """QA (phase 2 pattern): a missing flag must not become a confirmed kick-off time."""
+    payload = copy.deepcopy(SCOREBOARD)
+    comp = next(e for e in payload["events"] if e["id"] == "761880")["competitions"][0]
+    if time_valid == "missing":
+        del comp["timeValid"]
+    else:
+        comp["timeValid"] = False
+    batches, _ = EspnProvider().normalize_scoreboard(raw(payload), leagues())
+    f = next(f for b in batches for f in b.fixtures if f.external_id == "761880")
+    assert f.kickoff_confirmed is False
+
+
+def test_only_known_bookmakers_are_prices():
+    payload = copy.deepcopy(SCOREBOARD)
+    comp = next(e for e in payload["events"] if e["id"] == "761880")["competitions"][0]
+    line = comp["odds"][0]
+    projection = {**copy.deepcopy(line), "provider": {"id": "1004", "name": "consensus"}}
+    comp["odds"] = [projection, line]
+    _, odds = EspnProvider().normalize_scoreboard(raw(payload), leagues())
+    atlanta = next(o for o in odds if o.fixture_external_id == "761880")
+    assert {p.bookmaker for p in atlanta.prices} == {"draftkings"}
+    assert len(atlanta.prices) == 3  # the projection is not a second "bookmaker"
+    comp["odds"] = [projection]
+    _, odds = EspnProvider().normalize_scoreboard(raw(payload), leagues())
+    assert "761880" not in {o.fixture_external_id for o in odds}
+
+
+def test_suspended_is_not_presented_as_postponed():
+    payload = copy.deepcopy(SCOREBOARD)
+    e = next(e for e in payload["events"] if e["id"] == "401896749")
+    e["status"]["type"]["name"] = "STATUS_SUSPENDED"
+    batches, _ = EspnProvider().normalize_scoreboard(raw(payload), leagues())
+    f = next(f for b in batches for f in b.fixtures if f.external_id == "401896749")
+    assert f.status is EventStatus.UNKNOWN
 
 
 # --- ingestion ---
@@ -283,6 +339,75 @@ def test_a_league_another_source_already_created_is_reused(sf):
         ).all()
     assert {"col.1", "eng.1"} <= set(refs)
     assert event_id(sf, "401877851") is not None  # its matches went in, not rolled back
+
+
+def test_a_failing_league_makes_the_run_fail_but_keeps_the_others(sf, monkeypatch):
+    import app.services.ingestion.espn_job as job
+
+    real = job.upsert_batch
+
+    def flaky(s, batch):
+        if batch.competition.external_id == "col.1":
+            raise RuntimeError("boom")
+        return real(s, batch)
+
+    monkeypatch.setattr(job, "upsert_batch", flaky)
+    outcome = run_espn_day(
+        sf, FakeEspn(), DAY, leagues(), policy=POLICY, odds_refresh=REFRESH,
+        skip_league_slugs=frozenset({"esp.1"}),
+    )  # fmt: skip
+    assert outcome.status is IngestionStatus.FAILED
+    assert outcome.records_written == 17  # 20 minus Colombia's 3
+    assert "1 of" in outcome.error
+    assert event_id(sf, "401878771") is not None
+
+
+def test_a_database_error_closes_the_run(sf, monkeypatch):
+    import app.services.ingestion.espn_job as job
+
+    def broken(*args, **kwargs):
+        raise RuntimeError("database is locked")
+
+    monkeypatch.setattr(job, "store_espn_odds", broken)
+    outcome = run_espn_day(sf, FakeEspn(), DAY, leagues(), policy=POLICY, odds_refresh=REFRESH)
+    assert outcome.status is IngestionStatus.FAILED
+    with sf() as s:
+        run = s.get(IngestionRun, outcome.run_id)
+        assert run.finished_at is not None and run.status is IngestionStatus.FAILED
+
+
+def test_reuse_needs_the_same_country_name(sf):
+    """Premiership exists in Scotland and Northern Ireland, both without ISO code."""
+    from app.services.fixtures_provider.base import CompetitionDTO, FixturesBatch, SeasonDTO
+    from app.services.ingestion.fixtures_job import upsert_batch
+
+    with sf() as s:
+        for country in ("Scotland", "Northern-Ireland"):
+            s.add(Competition(name="Premiership", sport="football", country_code=None,
+                              country_name=country))  # fmt: skip
+        s.commit()
+        scotland = s.scalar(select(Competition.id).where(Competition.country_name == "Scotland"))
+    batch = FixturesBatch(
+        source=Provider.ESPN,
+        competition=CompetitionDTO(
+            external_id="sco.1",
+            name="Premiership",
+            sport="football",
+            country_code=None,
+            country_name="Scotland",
+        ),
+        season=SeasonDTO(external_id="sco.1-2026", name="2026"),
+        fixtures=[],
+    )
+    with sf() as s, s.begin():
+        upsert_batch(s, batch)
+    with sf() as s:
+        ref = s.scalar(
+            select(ExternalRef.entity_id).where(
+                ExternalRef.source == Provider.ESPN, ExternalRef.external_id == "sco.1"
+            )
+        )
+    assert ref == scotland
 
 
 def test_unchanged_prices_are_not_stored_again_until_refresh(sf):
@@ -333,25 +458,45 @@ def test_espn_days_cover_the_last_colombian_hour():
 
 def test_sync_near_and_wide_windows(sf):
     near = FakeEspn()
-    assert sync_espn(Settings(), sf, provider=near, pause=0, today=DAY) == EXIT_OK
+    assert sync_espn(cfg(), sf, wide=False, provider=near, pause=0, today=DAY) == EXIT_OK
     assert near.requested == ["leagues", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19"]
     wide = FakeEspn()
-    assert sync_espn(Settings(), sf, wide=True, provider=wide, pause=0, today=DAY) == EXIT_OK
+    assert sync_espn(cfg(), sf, wide=True, provider=wide, pause=0, today=DAY) == EXIT_OK
     assert wide.requested[1] == "2026-10-14" and wide.requested[-1] == "2026-10-25"
     assert len(wide.requested) == 1 + 12  # catalogue + (3 back + today + 7 ahead + 1)
 
 
+def test_wide_pass_when_the_window_is_stale(sf):
+    first = FakeEspn()
+    assert sync_espn(cfg(), sf, provider=first, pause=0, today=DAY) == EXIT_OK
+    assert len(first.requested) == 13  # never had a wide pass: wide
+    second = FakeEspn()
+    assert sync_espn(cfg(), sf, provider=second, pause=0, today=DAY) == EXIT_OK
+    assert len(second.requested) == 5  # wide is fresh: near pass (yesterday..tomorrow)
+    with sf() as s:
+        jobs = set(s.scalars(select(IngestionRun.job).where(IngestionRun.source == Provider.ESPN)))
+    assert jobs == {"espn_leagues", "espn_day", "espn_day_wide"}
+
+
+def test_settings_refuse_hiding_laliga():
+    with pytest.raises(ValueError, match="incompatible"):
+        cfg(day_source="espn", fixtures_provider="api_football")
+    assert cfg(day_source="api_football", fixtures_provider="api_football")
+
+
 def test_sync_stops_when_the_catalogue_fails(sf):
     fake = FakeEspn(fail_leagues=True)
-    assert sync_espn(Settings(), sf, provider=fake, pause=0, today=DAY) == EXIT_FAILED
+    assert sync_espn(cfg(), sf, provider=fake, pause=0, today=DAY) == EXIT_FAILED
     assert fake.requested == ["leagues"]  # no scoreboard without countries
     assert run_espn_leagues(sf, fake, policy=POLICY).status is IngestionStatus.FAILED
 
 
 def test_sync_respects_its_daily_budget(sf):
     fake = FakeEspn()
-    settings = Settings(espn_daily_budget=3)
-    assert sync_espn(settings, sf, provider=fake, pause=0, today=DAY) == EXIT_FAILED
+    assert (
+        sync_espn(cfg(espn_daily_budget=3), sf, wide=False, provider=fake, pause=0, today=DAY)
+        == EXIT_FAILED
+    )
     assert fake.requested == ["leagues", "2026-10-16", "2026-10-17"]  # 4th refused
 
 
@@ -367,7 +512,7 @@ def client(sf):
             yield s
 
     app.dependency_overrides[get_db] = override_db
-    app.dependency_overrides[get_settings] = lambda: Settings()  # day_source=espn
+    app.dependency_overrides[get_settings] = lambda: cfg()  # day_source=espn
     app.dependency_overrides[utc_now] = lambda: CLOCK
     try:
         yield TestClient(app)
@@ -398,6 +543,8 @@ def test_single_bookmaker_odds_are_labelled_as_such(client, sf):
     assert medellin["odds"]["source"] == "espn"
     assert medellin["odds"]["n_bookmakers"] == 1
     assert "una sola casa" in medellin["odds"]["method"]
+    assert "esa única casa" in medellin["implied_probability"]["method"]
+    assert "mercado descuenta" not in medellin["implied_probability"]["method"]
     assert medellin["odds"]["median_price"] == {"home": "1.952", "draw": "3.35", "away": "3.65"}
     assert medellin["can_fetch_odds"] is False  # on-demand odds are API-Football's
     assert "draftkings" not in json.dumps(events).lower()  # INTERNAL MODE: no names
@@ -436,7 +583,7 @@ def test_only_the_active_day_source_is_shown(client, sf):
         return {e["id"] for e in r.json()["events"]}
 
     assert copy_id not in ids()
-    app.dependency_overrides[get_settings] = lambda: Settings(day_source="api_football")
+    app.dependency_overrides[get_settings] = lambda: cfg(day_source="api_football")
     assert ids() == {copy_id}
     menu = client.get("/api/countries", params={"day": "2026-10-17"}).json()
     assert [c["name"] for c in menu["countries"]] == ["Colombia"]

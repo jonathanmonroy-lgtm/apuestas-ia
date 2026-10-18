@@ -64,7 +64,8 @@ STATUS_MAP: dict[str, tuple[EventStatus, bool]] = {
     "STATUS_FINAL_AET": (EventStatus.FINISHED, False),
     "STATUS_FINAL_PEN": (EventStatus.FINISHED, False),
     "STATUS_POSTPONED": (EventStatus.POSTPONED, False),
-    "STATUS_SUSPENDED": (EventStatus.POSTPONED, False),
+    # Suspended may be mid-match or for days: we don't know which, so we don't say.
+    "STATUS_SUSPENDED": (EventStatus.UNKNOWN, False),
     "STATUS_CANCELED": (EventStatus.CANCELLED, False),
     "STATUS_ABANDONED": (EventStatus.CANCELLED, False),
     "STATUS_FORFEIT": (EventStatus.FINISHED, False),
@@ -104,6 +105,11 @@ INTERNATIONAL_PREFIXES = {
 }  # fmt: skip
 
 _LEAGUE_ID = re.compile(r"~l:(\d+)~")
+# Only real bookmakers' lines are prices. ESPN also publishes consensus/projection
+# "providers" in other sports; anything not listed here is ignored (and logged).
+BOOKMAKER_PROVIDER_IDS = {"100": "draftkings"}
+# A day fails as a whole only when this share of its events cannot be read.
+MAX_SKIPPED_SHARE = 0.5
 _HUNDRED = Decimal(100)
 _PRICE_STEP = Decimal("0.001")  # the odd_snapshot.price column keeps 3 decimals
 
@@ -130,6 +136,8 @@ def american_to_decimal(value: str | int | None) -> Decimal | None:
         american = Decimal(text)
     except InvalidOperation:
         return None
+    if not american.is_finite():
+        return None  # "NaN", "Infinity"
     if american >= _HUNDRED:
         price = 1 + american / _HUNDRED
     elif american <= -_HUNDRED:
@@ -166,7 +174,8 @@ class _Venue(BaseModel):
 
 
 class _Competition(BaseModel):
-    timeValid: bool = True
+    # Missing = not confirmed: never invent a confirmed kick-off time (QA, as in phase 2).
+    timeValid: bool = False
     venue: _Venue | None = None
     altGameNote: str | None = None
     competitors: list[_Competitor]
@@ -285,49 +294,52 @@ class EspnProvider:
             raise FormatError("ESPN: expected an object with an 'events' list")
         if len(payload["events"]) >= SCOREBOARD_LIMIT:
             log.warning("espn_scoreboard_limit_reached", limit=SCOREBOARD_LIMIT)
-        try:
-            events = [_Event.model_validate(e) for e in payload["events"]]
-        except ValidationError as exc:
-            raise FormatError(f"unexpected ESPN payload: {exc.error_count()} errors") from exc
-
-        by_league: dict[tuple[str, int], list[_Event]] = defaultdict(list)
+        # Event by event: one odd match (a cup tie with "TBD" teams, a missing field) is
+        # skipped and logged, it does not sink the other ~400 of the day.
+        by_league: dict[tuple[str, int], list[FixtureDTO]] = defaultdict(list)
+        odds: list[FixtureOdds] = []
         unknown_leagues: set[str] = set()
-        for e in events:
-            m = _LEAGUE_ID.search(e.uid)
-            if m is None:
-                raise FormatError(f"ESPN event {e.id} has no league id in its uid")
-            if m.group(1) not in leagues:
-                unknown_leagues.add(m.group(1))
-                continue  # no slug -> no country: skipped (logged) instead of misfiled
-            by_league[(m.group(1), e.season.year)].append(e)
+        skipped = 0
+        for item in payload["events"]:
+            try:
+                e = _Event.model_validate(item)
+                m = _LEAGUE_ID.search(e.uid)
+                if m is None:
+                    raise ValueError("no league id in the uid")
+                if m.group(1) not in leagues:
+                    unknown_leagues.add(m.group(1))
+                    continue  # no slug -> no country: skipped (logged) instead of misfiled
+                fixture = self._fixture(e)
+            except (ValidationError, ValueError) as exc:
+                skipped += 1
+                event_id = item.get("id") if isinstance(item, dict) else None
+                log.warning("espn_event_skipped", event_id=event_id, reason=str(exc)[:300])
+                continue
+            by_league[(m.group(1), e.season.year)].append(fixture)
+            if e.status.type.state == "pre" and (fo := self._odds(e, raw)) is not None:
+                odds.append(fo)
         if unknown_leagues:
             log.warning("espn_leagues_not_in_catalogue", league_ids=sorted(unknown_leagues))
+        total = len(payload["events"])
+        if total and skipped / total > MAX_SKIPPED_SHARE:
+            raise FormatError(f"ESPN: {skipped} of {total} events could not be read")
 
-        batches: list[FixturesBatch] = []
-        odds: list[FixtureOdds] = []
-        for (league_id, season), group in by_league.items():
+        batches = []
+        for (league_id, season), fixtures in by_league.items():
             lg = leagues[league_id]
             country, code = country_of(lg.slug)
-            try:
-                batches.append(
-                    FixturesBatch(
-                        source=self.source,
-                        # The slug is the external id: stable, readable, used by skip lists.
-                        competition=CompetitionDTO(
-                            external_id=lg.slug, name=lg.name, sport=Sport.FOOTBALL,
-                            country_code=code, country_name=country,
-                        ),
-                        season=SeasonDTO(external_id=f"{lg.slug}-{season}", name=str(season)),
-                        fixtures=[self._fixture(e) for e in group],
-                    )
-                )  # fmt: skip
-            except (ValidationError, ValueError) as exc:
-                raise FormatError(f"unexpected fixture data in league {lg.slug}: {exc}") from exc
-            odds.extend(
-                fo
-                for e in group
-                if e.status.type.state == "pre" and (fo := self._odds(e, raw)) is not None
-            )
+            batches.append(
+                FixturesBatch(
+                    source=self.source,
+                    # The slug is the external id: stable, readable, used by skip lists.
+                    competition=CompetitionDTO(
+                        external_id=lg.slug, name=lg.name, sport=Sport.FOOTBALL,
+                        country_code=code, country_name=country,
+                    ),
+                    season=SeasonDTO(external_id=f"{lg.slug}-{season}", name=str(season)),
+                    fixtures=fixtures,
+                )
+            )  # fmt: skip
         return batches, odds
 
     @staticmethod
@@ -380,18 +392,22 @@ class EspnProvider:
             return None
         prices: list[PriceDTO] = []
         for entry in entries:
-            book = ((entry.get("provider") or {}).get("name") or "").strip()
+            provider_id = str((entry.get("provider") or {}).get("id") or "")
+            book = BOOKMAKER_PROVIDER_IDS.get(provider_id)
+            if book is None:
+                log.info("espn_odds_provider_ignored", provider_id=provider_id, event_id=e.id)
+                continue
             line = entry.get("moneyline") or {}
             values = {
                 sel: american_to_decimal(((line.get(side) or {}).get("close") or {}).get("odds"))
                 for side, sel in (("home", Selection.HOME), ("draw", Selection.DRAW),
                                   ("away", Selection.AWAY))
             }  # fmt: skip
-            if not book or any(v is None or v <= 1 for v in values.values()):
+            if any(v is None or v <= 1 for v in values.values()):
                 continue  # not a clean 1X2 from this bookmaker: skip it, never guess
             # ESPN gives no quote time: the moment we saw it is the honest timestamp.
             prices.extend(
-                PriceDTO(bookmaker=book.lower(), market=Market.H2H, selection=sel, price=v,
+                PriceDTO(bookmaker=book, market=Market.H2H, selection=sel, price=v,
                          captured_at=raw.fetched_at)
                 for sel, v in values.items()
             )  # fmt: skip

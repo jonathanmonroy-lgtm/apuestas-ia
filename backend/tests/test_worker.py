@@ -11,8 +11,7 @@ from app.models.enums import IngestionStatus, Provider
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
 from app.worker import (
     DAY_JOB_ID,
-    ESPN_NEAR_JOB_ID,
-    ESPN_WIDE_JOB_ID,
+    ESPN_JOB_ID,
     FIXTURES_JOB_ID,
     NEWS_JOB_ID,
     ODDS_JOB_ID,
@@ -46,8 +45,7 @@ def test_daily_cron_at_configured_utc_time(sf):
     scheduler = build_scheduler(SETTINGS, sf)
 
     assert {j.id for j in scheduler.get_jobs()} == {
-        FIXTURES_JOB_ID, ODDS_JOB_ID, NEWS_JOB_ID, RETENTION_JOB_ID, ESPN_NEAR_JOB_ID,
-        ESPN_WIDE_JOB_ID,
+        FIXTURES_JOB_ID, ODDS_JOB_ID, NEWS_JOB_ID, RETENTION_JOB_ID, ESPN_JOB_ID,
     }  # fmt: skip
     assert scheduler.get_job(NEWS_JOB_ID).trigger.interval == timedelta(hours=1)
     job = scheduler.get_job(FIXTURES_JOB_ID)
@@ -62,7 +60,7 @@ def test_stale_data_schedules_catch_up_run(sf):
     jobs = {j.id for j in build_scheduler(SETTINGS, sf).get_jobs()}
     assert jobs == {
         FIXTURES_JOB_ID, f"{FIXTURES_JOB_ID}_catchup", ODDS_JOB_ID, NEWS_JOB_ID, RETENTION_JOB_ID,
-        ESPN_NEAR_JOB_ID, ESPN_WIDE_JOB_ID,
+        ESPN_JOB_ID,
     }  # fmt: skip
 
 
@@ -70,14 +68,13 @@ def test_day_source_picks_the_multi_country_jobs(sf):
     """ONE multi-country source at a time: both list the same matches."""
     api_football = Settings(fixtures_provider="football_data", day_source="api_football")
     jobs = {j.id for j in build_scheduler(api_football, sf).get_jobs()}
-    assert DAY_JOB_ID in jobs and not jobs & {ESPN_NEAR_JOB_ID, ESPN_WIDE_JOB_ID}
+    assert DAY_JOB_ID in jobs and ESPN_JOB_ID not in jobs
 
-    scheduler = build_scheduler(SETTINGS, sf)  # espn, never synced: wide pass right away
-    near, wide = scheduler.get_job(ESPN_NEAR_JOB_ID), scheduler.get_job(ESPN_WIDE_JOB_ID)
-    assert near.trigger.interval == timedelta(minutes=30)
-    assert wide.trigger.interval == timedelta(hours=6)
-    assert (near.args, wide.args) == ((False,), (True,))
-    assert wide.next_run_time - datetime.now(UTC) < timedelta(minutes=2)
+    # ESPN: ONE job (near and wide passes can never overlap), first run right after start.
+    job = build_scheduler(SETTINGS, sf).get_job(ESPN_JOB_ID)
+    assert job.trigger.interval == timedelta(minutes=30)
+    assert job.max_instances == 1
+    assert job.next_run_time - datetime.now(UTC) < timedelta(minutes=2)
 
 
 def test_staleness_only_counts_successful_runs(sf):

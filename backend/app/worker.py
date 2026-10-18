@@ -25,7 +25,6 @@ from app.jobs.sync_news import sync_news
 from app.jobs.sync_odds import sync_odds
 from app.models.enums import Provider
 from app.services.ingestion.day_job import JOB_DAY_FIXTURES
-from app.services.ingestion.espn_job import JOB_ESPN_DAY
 from app.services.ingestion.fixtures_job import JOB_FIXTURES
 from app.services.ingestion.news_job import JOB_NEWS
 from app.services.ingestion.odds_job import JOB_ODDS
@@ -39,8 +38,7 @@ ODDS_JOB_ID = "sync_odds"
 NEWS_JOB_ID = "sync_news"
 RETENTION_JOB_ID = "purge_raw_payloads"
 DAY_JOB_ID = "sync_day"
-ESPN_NEAR_JOB_ID = "sync_espn_near"
-ESPN_WIDE_JOB_ID = "sync_espn_wide"
+ESPN_JOB_ID = "sync_espn"
 # On a cold start, give the fixtures catch-up time to finish before odds look for events.
 ODDS_STARTUP_DELAY = timedelta(minutes=10)
 
@@ -172,35 +170,22 @@ def build_scheduler(
 def _add_espn_jobs(
     scheduler: BlockingScheduler, settings: Settings, session_factory: sessionmaker[Session]
 ) -> None:
-    """Near pass (yesterday..tomorrow: live scores) often; the whole window less often."""
+    """ONE job, so near and wide passes never run at the same time: each run is near
+    (yesterday..tomorrow: live scores) unless the wide window is due (sync_espn decides)."""
 
-    def run(wide: bool) -> None:
-        code = sync_espn(settings, session_factory, wide=wide)
-        log.info("scheduled_job_done", job=ESPN_WIDE_JOB_ID if wide else ESPN_NEAR_JOB_ID,
-                 exit_code=code)  # fmt: skip
+    def run() -> None:
+        code = sync_espn(settings, session_factory)
+        log.info("scheduled_job_done", job=ESPN_JOB_ID, exit_code=code)
 
-    stale = is_stale(
-        session_factory, Provider.ESPN, JOB_ESPN_DAY, settings.espn_wide_interval_hours
-    )
     scheduler.add_job(
         run,
         IntervalTrigger(minutes=settings.espn_near_interval_minutes, timezone=UTC),
-        args=[False],
-        id=ESPN_NEAR_JOB_ID,
+        id=ESPN_JOB_ID,
         max_instances=1,
         coalesce=True,
         misfire_grace_time=600,
-    )
-    scheduler.add_job(
-        run,
-        IntervalTrigger(hours=settings.espn_wide_interval_hours, timezone=UTC),
-        args=[True],
-        id=ESPN_WIDE_JOB_ID,
-        max_instances=1,
-        coalesce=True,
-        misfire_grace_time=1800,
-        # Stale (or first start): fill the whole window right away.
-        **({"next_run_time": datetime.now(UTC) + timedelta(minutes=1)} if stale else {}),
+        # Right after start: live scores are the point of this source.
+        next_run_time=datetime.now(UTC) + timedelta(minutes=1),
     )
 
 

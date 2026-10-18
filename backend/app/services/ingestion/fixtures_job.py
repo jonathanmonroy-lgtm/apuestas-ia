@@ -80,16 +80,25 @@ def upsert_batch(s: Session, batch: FixturesBatch) -> int:
     if comp_id is None:
         # Another source may already know this league under the same unique key (ESPN and
         # API-Football both list "USL Championship", USA): one competition, two refs.
-        comp_id = s.scalar(
+        same = s.scalars(
             select(Competition.id).where(
                 Competition.sport == comp_dto.sport,
+                Competition.country_name.is_(None)
+                if comp_dto.country_name is None
+                else Competition.country_name == comp_dto.country_name,
                 # England & co. have no ISO code: NULL must match NULL here.
                 Competition.country_code.is_(None)
                 if comp_dto.country_code is None
                 else Competition.country_code == comp_dto.country_code,
                 Competition.name == comp_dto.name,
             )
-        )
+        ).all()
+        # Exactly one match, same country NAME too ("Premiership" exists in Scotland and
+        # in Northern Ireland, both without ISO code): anything else -> a new competition.
+        comp_id = same[0] if len(same) == 1 else None
+        if len(same) > 1:
+            log.warning("competition_reuse_ambiguous", name=comp_dto.name,
+                        country=comp_dto.country_name, candidates=len(same))  # fmt: skip
         if comp_id is not None:
             add_ref(s, src, EntityType.COMPETITION, comp_dto.external_id, comp_id, comp_dto.name)
     if comp_id is None:

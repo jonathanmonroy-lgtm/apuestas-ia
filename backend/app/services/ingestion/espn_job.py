@@ -7,7 +7,8 @@
 - Odds come inside the scoreboard (one bookmaker, matches not started only). ESPN gives
   no quote time, so each pass would re-store the same price: a price is only stored again
   when it changed or the last stored one is older than `odds_refresh` (so "as of" stays
-  honest without one row per pass).
+  honest without one row per pass). For a future model: rows with the same price are
+  repeated OBSERVATIONS of one quote, not new quotes.
 Same rules as every job: budget checked before calling, raw JSON (slimmed) kept on the
 run, odds append-only, events never created from odds.
 """
@@ -39,7 +40,9 @@ from app.services.quota import QuotaPolicy
 log = get_logger(__name__)
 
 JOB_ESPN_LEAGUES = "espn_leagues"
-JOB_ESPN_DAY = "espn_day"
+JOB_ESPN_DAY = "espn_day"  # a day of the near pass (yesterday..tomorrow)
+JOB_ESPN_DAY_WIDE = "espn_day_wide"  # a day of the wide pass: tells when the window was filled
+JOBS_ESPN_DAYS = (JOB_ESPN_DAY, JOB_ESPN_DAY_WIDE)
 
 
 def run_espn_leagues(
@@ -72,8 +75,9 @@ def run_espn_day(
     policy: QuotaPolicy,
     odds_refresh: timedelta,
     skip_league_slugs: frozenset[str] = frozenset(),
+    job: str = JOB_ESPN_DAY,
 ) -> RunOutcome:
-    recorder = RunRecorder(session_factory, provider.source, JOB_ESPN_DAY)
+    recorder = RunRecorder(session_factory, provider.source, job)
     raw = fetch_with_budget(
         session_factory, recorder, provider.source, policy,
         lambda: provider.fetch_scoreboard(day), redact=slim_scoreboard,
@@ -88,21 +92,33 @@ def run_espn_day(
         return recorder.finish(IngestionStatus.FAILED, error=exc)
 
     written = failed = skipped = 0
-    with session_factory() as s, s.begin():
-        for batch in batches:
-            if batch.competition.external_id in skip_league_slugs:
-                skipped += 1
-                continue
-            try:
-                with s.begin_nested():
-                    written += upsert_batch(s, batch)
-            except Exception:
-                failed += 1
-                log.exception("espn_day_league_failed", league=batch.competition.external_id,
-                              run_id=recorder.run_id)  # fmt: skip
-        inserted = store_espn_odds(s, odds, recorder.run_id, odds_refresh)
+    try:
+        with session_factory() as s, s.begin():
+            for batch in batches:
+                if batch.competition.external_id in skip_league_slugs:
+                    skipped += 1
+                    continue
+                try:
+                    with s.begin_nested():
+                        written += upsert_batch(s, batch)
+                except Exception:
+                    failed += 1
+                    log.exception("espn_day_league_failed",
+                                  league=batch.competition.external_id,
+                                  run_id=recorder.run_id)  # fmt: skip
+            inserted = store_espn_odds(s, odds, recorder.run_id, odds_refresh)
+    except Exception as exc:  # DB down, lock, constraint on commit: never leave it RUNNING
+        log.exception("espn_day_store_failed", run_id=recorder.run_id)
+        return recorder.finish(IngestionStatus.FAILED, error=exc)
     log.info("espn_day_stored", day=day.isoformat(), leagues=len(batches), skipped=skipped,
              failed=failed, events=written, odds_inserted=inserted)  # fmt: skip
+    if failed:
+        # The other leagues are stored, but the run must not look healthy (exit code,
+        # staleness): FAILED, with what was written.
+        return recorder.finish(
+            IngestionStatus.FAILED, records=written,
+            error=RuntimeError(f"{failed} of {len(batches)} leagues failed"),
+        )  # fmt: skip
     return recorder.finish(IngestionStatus.SUCCESS, records=written)
 
 

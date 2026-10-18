@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -58,11 +58,13 @@ class Settings(BaseSettings):
     # espn: any date, no key, one bookmaker's odds on some matches (unofficial endpoint).
     # api_football: yesterday..tomorrow only, odds on demand from ~9 bookmakers.
     day_source: Literal["espn", "api_football"] = "espn"
-    # ESPN publishes no limits: a self-imposed cap (a near pass = 5 calls every 30 min,
-    # a wide pass = 13 calls every 6 h -> ~290/day).
-    espn_daily_budget: int = 400
+    # ESPN publishes no limits: a self-imposed cap. One job every 30 min: a near pass
+    # (5 calls) or, every 3 h, a wide one (13 calls) -> 40x5 + 8x13 = ~304/day.
+    espn_daily_budget: int = 450
     espn_near_interval_minutes: float = Field(default=30.0, gt=0)
-    espn_wide_interval_hours: float = Field(default=6.0, gt=0)
+    # Below odds_stale_after_hours (4 h), so far-off days' odds don't look stale between
+    # passes while unchanged.
+    espn_wide_interval_hours: float = Field(default=3.0, gt=0)
     # The browsable window of days (Colombia's), relative to today.
     espn_days_back: int = Field(default=3, ge=1, le=14)
     espn_days_ahead: int = Field(default=7, ge=1, le=14)
@@ -114,6 +116,17 @@ class Settings(BaseSettings):
 
     # Raw provider JSON kept on ingestion_run for audit/re-processing, then dropped.
     raw_payload_retention_days: int = Field(default=30, ge=1)
+
+    @model_validator(mode="after")
+    def _day_source_compatible(self) -> "Settings":
+        # Views hide the inactive multi-country source's events by provider: with LaLiga's
+        # calendar also from API-Football, DAY_SOURCE=espn would hide LaLiga too.
+        if self.day_source == "espn" and self.fixtures_provider == "api_football":
+            raise ValueError(
+                "DAY_SOURCE=espn is incompatible with FIXTURES_PROVIDER=api_football "
+                "(LaLiga would be hidden); use DAY_SOURCE=api_football"
+            )
+        return self
 
 
 @lru_cache

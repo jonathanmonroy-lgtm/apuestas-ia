@@ -36,6 +36,15 @@ function colombiaDay(offset: number): string {
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
+/** A real calendar date (2026-02-30 is not: Date rolls it to March) within a year of today:
+ * anything else falls back to today instead of a 422/500 from the API. */
+function isUsableDay(day: string, today: string): boolean {
+  if (!ISO_DAY.test(day)) return false;
+  const t = Date.parse(`${day}T00:00:00Z`);
+  if (Number.isNaN(t) || new Date(t).toISOString().slice(0, 10) !== day) return false;
+  return Math.abs(t - Date.parse(`${today}T00:00:00Z`)) <= 366 * 86_400_000;
+}
+
 /** "Hoy", "Ayer", "Mañana" or "sáb 18" for a YYYY-MM-DD Colombian day. */
 function dayLabel(day: string, today: string): string {
   const diff = Math.round((Date.parse(day) - Date.parse(today)) / 86_400_000);
@@ -51,7 +60,7 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
   const dia = one(params.dia) ?? "";
   // hasOwn: "?dia=constructor" must not reach Object.prototype.
   const legacy = Object.hasOwn(LEGACY_DAYS, dia) ? LEGACY_DAYS[dia] : 0;
-  const day = ISO_DAY.test(dia) && !Number.isNaN(Date.parse(dia)) ? dia : colombiaDay(legacy);
+  const day = isUsableDay(dia, today) ? dia : colombiaDay(legacy);
   const menu = await api.countries(day);
   // The API sorts by the provider's English name; the menu reads in Spanish.
   const countries = [...menu.countries].sort(
@@ -130,8 +139,9 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
             <p className="explainer">
               <Badge kind="dato" /> hora, estado y resultado ·{" "}
               <Badge kind="analisis" /> cuota prepartido y su probabilidad implícita, no un
-              pronóstico. Con varias casas es la mediana (sin exchanges); con «1 casa» es la
-              cuota de esa única casa, no una cifra de mercado.
+              pronóstico. Con varias casas, la cuota es la mediana (sin exchanges); con «1 casa»
+              es el dato de esa única casa pasado a decimal, y la probabilidad descuenta sólo su
+              margen: no es una cifra de mercado.
             </p>
             {[...byLeague.entries()].map(([league, events]) => (
               <div key={league} className="league-block">
