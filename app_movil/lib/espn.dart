@@ -287,7 +287,7 @@ class EspnClient {
       return cached.$2;
     }
     // The catalogue and both ESPN days are requested at the same time.
-    final leaguesF = leagues();
+    final leaguesF = this.leagues();
     progress.value = 'Descargando partidos…';
     final bodies = await Future.wait([
       for (final d in [day, day.add(const Duration(days: 1))])
