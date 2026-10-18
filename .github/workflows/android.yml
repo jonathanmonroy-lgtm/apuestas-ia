@@ -92,15 +92,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cat > notes.md <<'EOF'
-          **Apuestas IA — versión de prueba interna (Android).** Sólo mayores de 18 años.
+          **Apuestas IA** para Android: los partidos de fútbol del día por país, con marcadores en vivo y cuotas.
 
-          Cómo instalarla en el móvil:
-          1. Descarga `apuestas-ia.apk` (abajo, en *Assets*) desde el navegador del móvil.
-          2. Ábrelo. Android pedirá permitir "instalar apps de orígenes desconocidos" para el navegador: acéptalo.
-          3. Si Play Protect avisa de una app desconocida, pulsa "Más detalles → Instalar de todas formas".
+          Página de descarga: https://jonathanmonroy-lgtm.github.io/apuestas-ia/
 
-          Qué hace: partidos del día por país (de 3 días atrás a 7 adelante, hora de Colombia), marcadores y, cuando las hay, cuotas prepartido de una casa con su probabilidad implícita. Fuente: ESPN (API no oficial).
-          Información y estimaciones, **nunca garantías de ganancia**.
+          1. Descarga `apuestas-ia.apk` (abajo, en *Assets*) desde el móvil.
+          2. Ábrelo y, si lo pide, permite instalar apps desde el navegador.
+          3. Si Play Protect avisa, pulsa "Más detalles → Instalar de todas formas".
           EOF
           gh release create "$GITHUB_REF_NAME" apuestas-ia.apk \
             --title "Apuestas IA $GITHUB_REF_NAME" --notes-file notes.md

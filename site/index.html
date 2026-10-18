@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apuestas IA · Descargar</title>
+<meta name="description" content="Partidos de fútbol del día por país, con marcadores y cuotas. App para Android.">
+<style>
+  :root { --bg: #0a0f0b; --surface: #101713; --surface-2: #141f19; --border: #22312a;
+          --text: #e8efe9; --muted: #93a69a; --gold: #c9a227; --green: #3fa66e; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(1200px 600px at 50% -10%, #1b2a20, var(--bg));
+         color: var(--text); min-height: 100vh;
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 520px; margin: 0 auto; padding: 48px 20px 40px; text-align: center; }
+  .logo { width: 76px; height: 76px; border-radius: 20px; margin: 0 auto 18px;
+          background: var(--surface-2); border: 1px solid var(--border);
+          display: grid; place-items: center; }
+  h1 { font-size: 34px; margin: 0 0 6px; letter-spacing: -0.5px; }
+  h1 span { color: var(--gold); }
+  .tag { color: var(--muted); margin: 0 0 28px; }
+  .download { display: block; background: var(--gold); color: #0a0f0b; text-decoration: none;
+              font-weight: 700; font-size: 19px; padding: 18px; border-radius: 14px;
+              box-shadow: 0 10px 30px #c9a22733; }
+  .download:active { transform: translateY(1px); }
+  .meta { color: var(--muted); font-size: 13px; margin: 10px 0 30px; min-height: 20px; }
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 30px; }
+  .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+             padding: 14px 8px; font-size: 13px; color: var(--muted); }
+  .feature b { display: block; font-size: 22px; margin-bottom: 4px; }
+  ol { text-align: left; background: var(--surface); border: 1px solid var(--border);
+       border-radius: 14px; padding: 18px 18px 18px 38px; margin: 0; color: var(--muted); }
+  ol li { margin: 6px 0; }
+  ol b { color: var(--text); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 28px; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <div class="logo" aria-hidden="true">
+    <svg width="44" height="44" viewBox="0 0 108 108"><path fill="#c9a227" d="M34,66h9v8h-9zM49.5,52h9v22h-9zM65,38h9v36h-9z"/><path fill="none" stroke="#c9a227" stroke-width="4" stroke-linecap="round" d="M33,58L48,46L58,50L75,32"/></svg>
+  </div>
+  <h1>Apuestas <span>IA</span></h1>
+  <p class="tag">Los partidos de fútbol del día en todo el mundo, por país: marcadores en vivo y cuotas.</p>
+
+  <a class="download" id="download"
+     href="https://github.com/jonathanmonroy-lgtm/apuestas-ia/releases/latest/download/apuestas-ia.apk">
+    Descargar para Android
+  </a>
+  <p class="meta" id="meta">Versión más reciente · ~50 MB</p>
+
+  <div class="features">
+    <div class="feature"><b>🌎</b>+35 países</div>
+    <div class="feature"><b>⚡</b>En vivo</div>
+    <div class="feature"><b>📊</b>Cuotas</div>
+  </div>
+
+  <ol>
+    <li>Pulsa <b>Descargar para Android</b> desde el móvil.</li>
+    <li>Abre el archivo descargado. Si el móvil lo pide, <b>permite instalar apps</b> desde el navegador.</li>
+    <li>Si aparece un aviso de Play Protect, pulsa <b>Más detalles → Instalar de todas formas</b> (pasa con cualquier app que no viene de la Play Store).</li>
+  </ol>
+
+  <footer>Versión de prueba · <a href="https://github.com/jonathanmonroy-lgtm/apuestas-ia/releases">todas las versiones</a></footer>
+</main>
+<script>
+  // Version and size of the latest release (GitHub's public API; the page works without it).
+  fetch("https://api.github.com/repos/jonathanmonroy-lgtm/apuestas-ia/releases/latest")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((rel) => {
+      const apk = rel && (rel.assets || []).find((a) => a.name === "apuestas-ia.apk");
+      if (!apk) return;
+      const mb = Math.round(apk.size / 1048576);
+      const date = new Date(rel.published_at).toLocaleDateString("es-CO", { day: "numeric", month: "long" });
+      document.getElementById("meta").textContent = `Versión ${rel.tag_name.replace(/^v/, "")} · ${mb} MB · ${date}`;
+    })
+    .catch(() => {});
+</script>
+</body>
+</html>

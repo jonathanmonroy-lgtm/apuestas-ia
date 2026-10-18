@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'countries.dart';
 import 'espn.dart';
@@ -22,7 +20,6 @@ const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: 'dev');
 
 const daysBack = 3;
 const daysAhead = 7;
-const _ageKey = 'age_confirmed_v1';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +27,8 @@ void main() {
 }
 
 class ApuestasApp extends StatelessWidget {
-  const ApuestasApp({super.key});
+  final EspnClient? client; // injectable for tests
+  const ApuestasApp({super.key, this.client});
 
   @override
   Widget build(BuildContext context) {
@@ -57,141 +55,7 @@ class ApuestasApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const AgeGate(),
-    );
-  }
-}
-
-/// +18 self-declaration on first launch. Real age verification depends on the
-/// jurisdiction (still undecided): this is the minimum for an internal test build.
-class AgeGate extends StatefulWidget {
-  const AgeGate({super.key});
-
-  @override
-  State<AgeGate> createState() => _AgeGateState();
-}
-
-class _AgeGateState extends State<AgeGate> {
-  bool? _confirmed;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  /// Never wait forever on local storage: if it fails or hangs, ask again (safe side).
-  Future<void> _load() async {
-    var confirmed = false;
-    try {
-      final p = await SharedPreferences.getInstance().timeout(const Duration(seconds: 3));
-      confirmed = p.getBool(_ageKey) ?? false;
-    } catch (_) {
-      confirmed = false;
-    }
-    if (mounted) setState(() => _confirmed = confirmed);
-  }
-
-  Future<void> _confirm() async {
-    if (mounted) setState(() => _confirmed = true); // the answer counts even if not saved
-    try {
-      final p = await SharedPreferences.getInstance().timeout(const Duration(seconds: 3));
-      await p.setBool(_ageKey, true);
-    } catch (_) {
-      // not saved: the question comes back next launch
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_confirmed == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    if (_confirmed!) return const DaysScreen();
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text('+18',
-                  style: TextStyle(color: gold, fontSize: 48, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 12),
-              const Text(
-                'Esta app es sólo para mayores de 18 años.',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Ofrece información y estimaciones sobre partidos de fútbol, nunca '
-                'garantías de ganancia. Apostar conlleva riesgo de perder dinero. '
-                'Es una versión de prueba interna.',
-                style: TextStyle(color: muted, height: 1.4),
-              ),
-              const SizedBox(height: 32),
-              FilledButton(
-                onPressed: _confirm,
-                style: FilledButton.styleFrom(
-                  backgroundColor: gold,
-                  foregroundColor: bg,
-                  minimumSize: const Size.fromHeight(52),
-                ),
-                child: const Text('Tengo 18 años o más'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () => SystemNavigator.pop(),
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                child: const Text('Salir'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-const responsibleText =
-    'Esta app ofrece información y estimaciones, nunca garantías de ganancia. '
-    '"Dato" es lo que informa el proveedor; "Análisis" es un cálculo nuestro, no un '
-    'pronóstico. Fija límites de gasto y, si sientes que pierdes el control, busca ayuda '
-    'profesional.';
-
-/// Compact responsible gambling notice: a "+18" badge in every app bar that opens the
-/// full text (the user asked to drop the full-width banners; the notice stays present).
-class ResponsibleBadge extends StatelessWidget {
-  const ResponsibleBadge({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
-        onTap: () => showDialog<void>(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: surface2,
-            title: const Text('Juega con responsabilidad', style: TextStyle(color: gold)),
-            content: const Text(responsibleText, style: TextStyle(height: 1.4)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Entendido'),
-              ),
-            ],
-          ),
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(color: gold, borderRadius: BorderRadius.circular(999)),
-          child: const Text('+18',
-              style: TextStyle(color: bg, fontWeight: FontWeight.w800, fontSize: 12)),
-        ),
-      ),
+      home: DaysScreen(client: client),
     );
   }
 }
@@ -252,14 +116,15 @@ enum MatchFilter {
 }
 
 class DaysScreen extends StatefulWidget {
-  const DaysScreen({super.key});
+  final EspnClient? client;
+  const DaysScreen({super.key, this.client});
 
   @override
   State<DaysScreen> createState() => _DaysScreenState();
 }
 
 class _DaysScreenState extends State<DaysScreen> {
-  final _espn = EspnClient();
+  late final EspnClient _espn = widget.client ?? EspnClient();
   late final DateTime _today = colombianToday();
   late DateTime _day = _today;
   late Future<List<Match>> _future = _espn.colombianDay(_day);
@@ -294,7 +159,6 @@ class _DaysScreenState extends State<DaysScreen> {
           TextSpan(text: 'Apuestas '),
           TextSpan(text: 'IA', style: TextStyle(color: gold)),
         ])),
-        actions: const [ResponsibleBadge()],
       ),
       body: Column(
         children: [
@@ -557,7 +421,6 @@ class _CountryScreenState extends State<CountryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('${g.country.flag}  ${g.country.name} · ${widget.dayLabel}'),
-        actions: const [ResponsibleBadge()],
       ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
@@ -581,7 +444,6 @@ class _CountryScreenState extends State<CountryScreen> {
               ],
             ),
           ),
-          const _Explainer(),
           if (byLeague.isEmpty)
             const Padding(
               padding: EdgeInsets.all(24),
@@ -608,47 +470,6 @@ class _CountryScreenState extends State<CountryScreen> {
                 ],
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  final String text;
-  final Color color;
-  const _Badge(this.text, this.color);
-
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-        decoration: BoxDecoration(
-          border: Border.all(color: color),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(text,
-            style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600)),
-      );
-}
-
-/// Data vs analysis, labelled (CLAUDE.md: the user must tell them apart).
-class _Explainer extends StatelessWidget {
-  const _Explainer();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(16, 6, 16, 6),
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 6,
-        runSpacing: 6,
-        children: [
-          _Badge('Dato', textColor),
-          Text('hora, estado y marcador ·', style: TextStyle(color: muted, fontSize: 12)),
-          _Badge('Análisis', gold),
-          Text('cuota de 1 casa y su probabilidad sin margen: no es un pronóstico.',
-              style: TextStyle(color: muted, fontSize: 12)),
         ],
       ),
     );
