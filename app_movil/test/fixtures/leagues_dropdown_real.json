@@ -1,0 +1,88 @@
+{
+ "leagues": [
+  {
+   "id": "775",
+   "alternateId": "2",
+   "name": "UEFA Champions League",
+   "abbreviation": "UEFA Champions League",
+   "slug": "uefa.champions"
+  },
+  {
+   "id": "700",
+   "alternateId": "23",
+   "name": "English Premier League",
+   "abbreviation": "Premier League",
+   "slug": "eng.1"
+  },
+  {
+   "id": "740",
+   "alternateId": "15",
+   "name": "Spanish LALIGA",
+   "abbreviation": "LALIGA",
+   "slug": "esp.1"
+  },
+  {
+   "id": "770",
+   "alternateId": "19",
+   "name": "MLS",
+   "abbreviation": "MLS",
+   "slug": "usa.1"
+  },
+  {
+   "id": "8301",
+   "alternateId": "2323",
+   "name": "NWSL",
+   "abbreviation": "NWSL",
+   "slug": "usa.nwsl"
+  },
+  {
+   "id": null,
+   "alternateId": "2487",
+   "name": "FIFA Women's World Cup Qualifying - Playoff Tournament",
+   "abbreviation": "WWCQ - Playoff Tournament",
+   "slug": "fifa.wwcq.ply"
+  },
+  {
+   "id": "23390",
+   "alternateId": "2571",
+   "name": "English WSL Players Cup",
+   "abbreviation": "WSL Players Cup",
+   "slug": "eng.w.league_cup"
+  },
+  {
+   "id": "4002",
+   "alternateId": "2292",
+   "name": "USL Championship",
+   "abbreviation": "USL Championship",
+   "slug": "usa.usl.1"
+  },
+  {
+   "id": "19915",
+   "alternateId": "2452",
+   "name": "USL League One",
+   "abbreviation": "USL League One",
+   "slug": "usa.usl.l1"
+  },
+  {
+   "id": "3955",
+   "alternateId": "98",
+   "name": "Greek Super League",
+   "abbreviation": "Greek Super League",
+   "slug": "gre.1"
+  },
+  {
+   "id": "20865",
+   "alternateId": "2479",
+   "name": "FIFA Under-17 Women's World Cup",
+   "abbreviation": "FIFA U-17 Women's World Cup",
+   "slug": "fifa.wworld.u17"
+  },
+  {
+   "id": "650",
+   "alternateId": "1543",
+   "name": "Colombian Primera A",
+   "abbreviation": "Colombian Primera A",
+   "slug": "col.1"
+  }
+ ]
+}

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { FetchOddsButton } from "@/components/FetchOddsButton";
 import { Badge, Freshness, PageHeader } from "@/components/ui";
-import { api, type CountriesResponse, type EventOut } from "@/lib/api";
+import { api, type CountriesResponse, type EventOut, type Team } from "@/lib/api";
 import { countryFlagUrl, countryName } from "@/lib/countries";
 import { dayKey, formatTime, odds, percent } from "@/lib/format";
 
@@ -14,7 +14,7 @@ const LEGACY_DAYS: Record<string, number> = { ayer: -1, hoy: 0, manana: 1 };
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 const SOURCE_NOTE: Record<CountriesResponse["source"], string> = {
-  espn: "Fuente: ESPN (no oficial). El worker la sincroniza cada 30 min (ayer–mañana) y cada 6 h el resto de días",
+  espn: "Fuente: ESPN (no oficial), actualizada cada 30 min (ayer–mañana) y cada 3 h el resto",
   api_football: "Fuente: API-Football (plan gratuito: sólo ayer, hoy y mañana), cada 6 h",
 };
 
@@ -22,12 +22,21 @@ const weekdayFmt = new Intl.DateTimeFormat("es-ES", { timeZone: "UTC", weekday: 
 
 const STATUS_ES: Record<EventOut["status"], string> = {
   scheduled: "",
-  live: "En juego",
+  live: "En vivo",
   finished: "Final",
   postponed: "Aplazado",
   cancelled: "Cancelado",
   unknown: "Estado desconocido",
 };
+
+// ?ver= filters over the selected country's matches.
+const FILTERS = {
+  todos: { label: "Todos", keep: () => true },
+  vivo: { label: "En vivo", keep: (e: EventOut) => e.status === "live" },
+  porjugar: { label: "Por jugar", keep: (e: EventOut) => e.status === "scheduled" },
+  cuotas: { label: "Con cuotas", keep: (e: EventOut) => e.odds !== null },
+} as const;
+type FilterKey = keyof typeof FILTERS;
 
 /** Colombia's calendar day `offset` days from today, as YYYY-MM-DD. */
 function colombiaDay(offset: number): string {
@@ -61,6 +70,9 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
   // hasOwn: "?dia=constructor" must not reach Object.prototype.
   const legacy = Object.hasOwn(LEGACY_DAYS, dia) ? LEGACY_DAYS[dia] : 0;
   const day = isUsableDay(dia, today) ? dia : colombiaDay(legacy);
+  const verParam = one(params.ver) ?? "";
+  const ver: FilterKey = Object.hasOwn(FILTERS, verParam) ? (verParam as FilterKey) : "todos";
+
   const menu = await api.countries(day);
   // The API sorts by the provider's English name; the menu reads in Spanish.
   const countries = [...menu.countries].sort(
@@ -69,6 +81,10 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
       countryName(a.name, a.code).localeCompare(countryName(b.name, b.code), "es"),
   );
   const days = menu.browse_days.includes(day) ? menu.browse_days : [...menu.browse_days, day].sort();
+  const totals = countries.reduce(
+    (t, c) => ({ n: t.n + c.n_events, live: t.live + c.n_live, odds: t.odds + c.n_with_odds }),
+    { n: 0, live: 0, odds: 0 },
+  );
 
   const requested = one(params.pais);
   const selected =
@@ -76,11 +92,18 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
     countries.find((c) => c.name === "Colombia") ??
     countries[0];
   const data = selected ? await api.events({ day, country: selected.name }) : null;
+  const shown = (data?.events ?? []).filter(FILTERS[ver].keep);
 
   const byLeague = new Map<string, EventOut[]>();
-  for (const e of data?.events ?? []) byLeague.set(e.competition, [...(byLeague.get(e.competition) ?? []), e]);
-  const href = (pais: string | undefined, dia: string) =>
-    `/?${new URLSearchParams({ dia, ...(pais ? { pais } : {}) })}`;
+  for (const e of shown) byLeague.set(e.competition, [...(byLeague.get(e.competition) ?? []), e]);
+  const href = (p: { pais?: string; dia?: string; ver?: FilterKey }) => {
+    const q = new URLSearchParams({ dia: p.dia ?? day });
+    const pais = p.pais ?? selected?.name;
+    if (pais) q.set("pais", pais);
+    const v = p.ver ?? ver;
+    if (v !== "todos") q.set("ver", v);
+    return `/?${q}`;
+  };
 
   return (
     <main className="page">
@@ -91,15 +114,19 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
 
       <nav className="day-strip" aria-label="Día">
         {days.map((d) => (
-          <Link key={d} href={href(selected?.name, d)} className="chip"
+          <Link key={d} href={href({ dia: d })} className="chip"
                 aria-current={d === day ? "true" : undefined}>
             {dayLabel(d, today)}
           </Link>
         ))}
       </nav>
-      <p className="muted small">
-        {day} · hora de Colombia ({menu.timezone}) · {SOURCE_NOTE[menu.source]}.
-      </p>
+
+      <div className="stat-cards" aria-label="Resumen del día">
+        <StatCard value={totals.n} label="partidos" />
+        <StatCard value={countries.length} label="países" />
+        <StatCard value={totals.live} label="en vivo" live={totals.live > 0} />
+        <StatCard value={totals.odds} label="con cuotas" />
+      </div>
 
       {countries.length === 0 ? (
         <p className="muted">
@@ -113,10 +140,11 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
             <ul>
               {countries.map((c) => (
                 <li key={c.name}>
-                  <Link href={href(c.name, day)}
+                  <Link href={href({ pais: c.name })}
                         aria-current={c.name === selected?.name ? "true" : undefined}>
                     <Flag name={c.name} code={c.code} />
                     <span className="country-name">{countryName(c.name, c.code)}</span>
+                    {c.n_live > 0 && <span className="live-dot" title={`${c.n_live} en vivo`} />}
                     <span className="country-count" title={`${c.n_with_odds} con cuotas`}>
                       {c.n_events}
                     </span>
@@ -136,13 +164,22 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
                 </span>
               </h2>
             )}
+            <nav className="filter-chips" aria-label="Filtrar partidos">
+              {(Object.keys(FILTERS) as FilterKey[]).map((k) => (
+                <Link key={k} href={href({ ver: k })} className="chip"
+                      aria-current={k === ver ? "true" : undefined}>
+                  {FILTERS[k].label}
+                </Link>
+              ))}
+            </nav>
             <p className="explainer">
-              <Badge kind="dato" /> hora, estado y resultado ·{" "}
-              <Badge kind="analisis" /> cuota prepartido y su probabilidad implícita, no un
-              pronóstico. Con varias casas, la cuota es la mediana (sin exchanges); con «1 casa»
-              es el dato de esa única casa pasado a decimal, y la probabilidad descuenta sólo su
-              margen: no es una cifra de mercado.
+              <Badge kind="dato" /> hora, estado y resultado · <Badge kind="analisis" /> cuota
+              prepartido y probabilidad implícita (con «1 casa», la de esa casa sin su margen):
+              no es un pronóstico.
             </p>
+            {shown.length === 0 && (
+              <p className="muted">Ningún partido con este filtro.</p>
+            )}
             {[...byLeague.entries()].map(([league, events]) => (
               <div key={league} className="league-block">
                 <h3>{league}</h3>
@@ -153,6 +190,9 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
                 </ul>
               </div>
             ))}
+            <p className="muted small source-note">
+              {day} · hora de Colombia ({menu.timezone}) · {SOURCE_NOTE[menu.source]}.
+            </p>
           </section>
         </div>
       )}
@@ -160,39 +200,76 @@ export default async function PartidosDelDiaPage({ searchParams }: PageProps<"/"
   );
 }
 
+function StatCard({ value, label, live = false }: { value: number; label: string; live?: boolean }) {
+  return (
+    <div className="stat-card">
+      <strong>
+        {live && <span className="live-dot" aria-hidden />}
+        {value}
+      </strong>
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function Crest({ team }: { team: Team }) {
+  return team.crest_id ? (
+    // eslint-disable-next-line @next/next/no-img-element -- tiny cached PNG from our /logos route
+    <img className="crest" src={`/logos/${team.crest_id}.png`} alt="" width={28} height={28}
+         loading="lazy" />
+  ) : (
+    <span className="crest crest-initial" aria-hidden>{team.name.slice(0, 1)}</span>
+  );
+}
+
 function MatchRow({ e }: { e: EventOut }) {
   const status = STATUS_ES[e.status];
+  const p = e.implied_probability;
   return (
-    <li className="match-row">
+    <li className={`match-row${e.status === "live" ? " is-live" : ""}`}>
       <div className="match-time">
         {e.kickoff_confirmed ? (
           <time dateTime={e.starts_at}>{formatTime(e.starts_at)}</time>
         ) : (
           <em title="El proveedor no ha confirmado la hora">por confirmar</em>
         )}
-        {status && <span className={`match-status status-${e.status}`}>{status}</span>}
+        {status && (
+          <span className={`match-status status-${e.status}`}>
+            {e.status === "live" && <span className="live-dot" aria-hidden />}
+            {status}
+          </span>
+        )}
       </div>
       <div className="match-teams">
-        <span>{e.home.name}</span>
+        <span className="team team-home">
+          <span className="team-name">{e.home.name}</span>
+          <Crest team={e.home} />
+        </span>
         {e.result ? (
           <strong className="score">
             {e.result.home} – {e.result.away}
           </strong>
         ) : (
-          <span className="muted">vs</span>
+          <span className="muted vs">vs</span>
         )}
-        <span>{e.away.name}</span>
+        <span className="team team-away">
+          <Crest team={e.away} />
+          <span className="team-name">{e.away.name}</span>
+        </span>
       </div>
       <div className="match-odds">
-        {e.odds && e.implied_probability ? (
-          <div className="odds-inline" title={e.odds.method}>
-            {(["home", "draw", "away"] as const).map((k, i) => (
-              <span key={k} className="odd-cell">
-                <small className="muted">{["1", "X", "2"][i]}</small>
-                <strong>{odds(e.odds!.median_price[k])}</strong>
-                <small className="muted">{percent(e.implied_probability![k])}</small>
-              </span>
-            ))}
+        {e.odds && p ? (
+          <div className="odds-block" title={`${e.odds.method}\n\n${p.method}`}>
+            <div className="odds-inline">
+              {(["home", "draw", "away"] as const).map((k, i) => (
+                <span key={k} className="odd-cell">
+                  <small className="muted">{["1", "X", "2"][i]}</small>
+                  <strong>{odds(e.odds!.median_price[k])}</strong>
+                  <small className="muted">{percent(p[k])}</small>
+                </span>
+              ))}
+            </div>
+            <ProbabilityBar home={p.home} draw={p.draw} away={p.away} />
             <small className="muted odds-meta">
               {e.odds.n_bookmakers === 1 ? "1 casa" : `${e.odds.n_bookmakers} casas`}
               {e.odds.is_stale ? " · desactualizadas" : ""}
@@ -205,6 +282,19 @@ function MatchRow({ e }: { e: EventOut }) {
         )}
       </div>
     </li>
+  );
+}
+
+/** Implied probabilities as one bar (1 · X · 2). Widths only: the numbers are above. */
+function ProbabilityBar({ home, draw, away }: { home: string; draw: string; away: string }) {
+  // Exact decimals from the API; a CSS width is display only (the figures are printed).
+  const pct = (v: string) => `${(Number(v) * 100).toFixed(1)}%`;
+  return (
+    <div className="prob-bar" aria-hidden>
+      <span className="prob-home" style={{ width: pct(home) }} />
+      <span className="prob-draw" style={{ width: pct(draw) }} />
+      <span className="prob-away" style={{ width: pct(away) }} />
+    </div>
   );
 }
 

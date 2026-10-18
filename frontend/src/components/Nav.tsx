@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { ResponsibleGamblingBadge } from "@/components/ResponsibleGamblingBanner";
+
 const LINKS = [
   { href: "/", label: "Partidos del día" },
   { href: "/resumen", label: "Resumen" },
@@ -29,9 +31,12 @@ export function Nav() {
           );
         })}
       </ul>
-      <span className="nav-mode" title="Jurisdicción y monetización sin decidir">
-        Modo interno
-      </span>
+      <div className="nav-end">
+        <span className="nav-mode" title="Jurisdicción y monetización sin decidir">
+          Modo interno
+        </span>
+        <ResponsibleGamblingBadge />
+      </div>
     </nav>
   );
 }

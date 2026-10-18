@@ -530,6 +530,8 @@ def test_countries_menu_from_espn(client, sf):
     assert countries["Colombia"]["n_events"] == 3
     assert countries["Colombia"]["n_with_odds"] == 1
     assert countries["USA"]["n_events"] == 10
+    assert countries["USA"]["n_live"] == 4  # NWSL x2, USL, USL League One
+    assert countries["Colombia"]["n_live"] == 1  # Millonarios
     assert "Spain" not in countries  # LaLiga skipped (football-data owns it)
     assert body["countries"][-1]["name"] == "World"
 
@@ -547,6 +549,7 @@ def test_single_bookmaker_odds_are_labelled_as_such(client, sf):
     assert "mercado descuenta" not in medellin["implied_probability"]["method"]
     assert medellin["odds"]["median_price"] == {"home": "1.952", "draw": "3.35", "away": "3.65"}
     assert medellin["can_fetch_odds"] is False  # on-demand odds are API-Football's
+    assert medellin["home"]["crest_id"] and medellin["home"]["crest_id"].isdigit()
     assert "draftkings" not in json.dumps(events).lower()  # INTERNAL MODE: no names
     millonarios = next(e for e in events if e["id"] == event_id(sf, "401878048"))
     assert millonarios["status"] == "live" and millonarios["odds"] is None

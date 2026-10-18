@@ -66,10 +66,24 @@ a { color: var(--gold); }
   font-family: var(--font-serif), Georgia, serif; font-size: 18px; color: var(--text); padding: 0;
 }
 .nav .brand span { color: var(--gold); }
+.nav-end { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 .nav-mode {
-  margin-left: auto; font-size: 12px; color: var(--text-muted);
+  font-size: 12px; color: var(--text-muted);
   border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px;
 }
+/* --- compact responsible gambling badge (opens on click/tap) --- */
+.rg-badge { position: relative; }
+.rg-badge summary {
+  list-style: none; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--bg);
+  background: var(--gold); border-radius: 999px; padding: 3px 9px;
+}
+.rg-badge summary::-webkit-details-marker { display: none; }
+.rg-popover {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 20; width: min(340px, 86vw);
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; font-size: 13px; line-height: 1.5; box-shadow: 0 12px 32px #0008;
+}
+.rg-popover strong { color: var(--gold); }
 
 .page-header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
 .page-header h1 { margin: 0; }
@@ -219,10 +233,6 @@ table.bets { width: 100%; border-collapse: collapse; font-size: 14px; }
 .chart-table table { border-collapse: collapse; margin-top: 8px; }
 .chart-table th, .chart-table td { padding: 4px 12px; border-bottom: 1px solid var(--border); }
 
-.footer {
-  max-width: 1200px; margin: 0 auto; padding: 24px var(--gutter) 48px; font-size: 13px;
-  border-top: 1px solid var(--border);
-}
 
 .filters-inline { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
 .filters-inline label { flex-direction: column; }
@@ -275,6 +285,59 @@ table.bets { width: 100%; border-collapse: collapse; font-size: 14px; }
 .odds-meta { flex-basis: 100%; text-align: right; }
 .fetch-odds { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 
+/* --- day summary cards --- */
+.stat-cards {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 6px 0 18px;
+}
+.stat-card {
+  background: linear-gradient(160deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.stat-card strong {
+  font-family: var(--font-serif), Georgia, serif; font-size: 26px; line-height: 1.1;
+  font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 8px;
+}
+.stat-card span { color: var(--text-muted); font-size: 13px; }
+
+/* --- live --- */
+.live-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none;
+  background: var(--positive); box-shadow: 0 0 0 0 var(--positive);
+  animation: live-pulse 1.6s ease-out infinite;
+}
+.match-status .live-dot { width: 6px; height: 6px; margin-right: 5px; vertical-align: 1px; }
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--positive) 70%, transparent); }
+  100% { box-shadow: 0 0 0 7px transparent; }
+}
+@media (prefers-reduced-motion: reduce) { .live-dot { animation: none; } }
+.match-row.is-live { background: color-mix(in srgb, var(--positive) 6%, transparent); }
+
+/* --- filters, crests, probability bar --- */
+.filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 10px; }
+.filter-chips .chip { flex: none; }
+.team { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.team-home { justify-content: flex-end; text-align: right; }
+.team-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crest { width: 28px; height: 28px; object-fit: contain; flex: none; }
+.crest-initial {
+  display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--text-muted);
+  font-size: 13px; font-weight: 600;
+}
+.vs { font-size: 13px; }
+.odds-block { display: flex; flex-direction: column; gap: 6px; min-width: 210px; }
+.prob-bar {
+  display: flex; height: 6px; border-radius: 999px; overflow: hidden; gap: 2px;
+  background: var(--surface-2);
+}
+.prob-bar span { display: block; height: 100%; }
+.prob-home { background: var(--gold); }
+.prob-draw { background: var(--text-muted); }
+.prob-away { background: #4aa3c8; }
+.source-note { margin-top: 18px; }
+
 @media (max-width: 760px) {
   .day-layout { grid-template-columns: 1fr; }
   .country-list { position: static; max-height: 220px; }
@@ -283,4 +346,7 @@ table.bets { width: 100%; border-collapse: collapse; font-size: 14px; }
   .odds-inline { justify-content: flex-start; }
   .odds-meta { text-align: left; }
   .fetch-odds { align-items: flex-start; }
+  .stat-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .odds-block { min-width: 0; }
+  .nav { gap: 12px; }
 }

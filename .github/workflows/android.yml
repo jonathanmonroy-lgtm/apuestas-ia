@@ -1,0 +1,105 @@
+# Builds the Flutter Android app (app_movil/) and, on a version tag (v0.1.0...), publishes
+# the APK as a GitHub Release asset that anyone can download from a phone.
+# The android/ folder is generated here by `flutter create` (not committed), then the
+# INTERNET permission and the app name are set. Signing: with the KEYSTORE_B64 and
+# KEYSTORE_PASSWORD secrets the APK is re-signed with OUR key, so each new version installs
+# over the previous one; without them it keeps Flutter's debug signature (and a warning).
+name: APK Android
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+    paths: ["app_movil/**", ".github/workflows/android.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write # create the release
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app_movil
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Versión de Flutter
+        run: flutter --version
+
+      - name: Generar el proyecto Android
+        run: |
+          flutter create --platforms=android --org com.apuestasia --project-name apuestas_ia .
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET" />\n    <application|' "$M"
+          sed -i 's|android:label="apuestas_ia"|android:label="Apuestas IA"|' "$M"
+          grep -q 'android.permission.INTERNET' "$M"
+          grep -q 'android:label="Apuestas IA"' "$M"
+
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
+
+      - name: Compilar APK
+        run: |
+          NAME="${GITHUB_REF_NAME#v}"
+          [[ "$GITHUB_REF_TYPE" == "tag" ]] || NAME="0.0.0-dev"
+          flutter build apk --release --build-name="$NAME" --build-number="${{ github.run_number }}"
+
+      - name: Firmar
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          SRC=build/app/outputs/flutter-apk/app-release.apk
+          if [[ -n "$KEYSTORE_B64" ]]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+            "$BT/apksigner" sign --ks "$RUNNER_TEMP/release.jks" --ks-key-alias apuestas \
+              --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEYSTORE_PASSWORD \
+              --out apuestas-ia.apk "$SRC"
+            "$BT/apksigner" verify apuestas-ia.apk
+            rm -f "$RUNNER_TEMP/release.jks"
+          else
+            echo "::warning::Sin KEYSTORE_B64: APK con firma de depuración (no se actualiza sobre versiones firmadas con otra clave)"
+            cp "$SRC" apuestas-ia.apk
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apuestas-ia-apk
+          path: app_movil/apuestas-ia.apk
+
+      - name: Publicar release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<'EOF'
+          **Apuestas IA — versión de prueba interna (Android).** Sólo mayores de 18 años.
+
+          Cómo instalarla en el móvil:
+          1. Descarga `apuestas-ia.apk` (abajo, en *Assets*) desde el navegador del móvil.
+          2. Ábrelo. Android pedirá permitir "instalar apps de orígenes desconocidos" para el navegador: acéptalo.
+          3. Si Play Protect avisa de una app desconocida, pulsa "Más detalles → Instalar de todas formas".
+
+          Qué hace: partidos del día por país (de 3 días atrás a 7 adelante, hora de Colombia), marcadores y, cuando las hay, cuotas prepartido de una casa con su probabilidad implícita. Fuente: ESPN (API no oficial).
+          Información y estimaciones, **nunca garantías de ganancia**.
+          EOF
+          gh release create "$GITHUB_REF_NAME" apuestas-ia.apk \
+            --title "Apuestas IA $GITHUB_REF_NAME" --notes-file notes.md

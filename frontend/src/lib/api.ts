@@ -47,7 +47,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 // --- types (mirror the FastAPI response models; money/odds are decimal strings) ---
 
-export type Team = { id: number; name: string };
+export type Team = { id: number; name: string; crest_id: string | null };
 
 export type EventOut = {
   id: number;
@@ -94,6 +94,7 @@ export type Country = {
   code: string | null;
   n_events: number;
   n_with_odds: number;
+  n_live: number;
   leagues: string[];
 };
 

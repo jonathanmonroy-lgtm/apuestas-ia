@@ -79,6 +79,9 @@ IMPLIED_METHOD_SINGLE_BOOK = (
 class TeamOut(BaseModel):
     id: int
     name: str
+    # ESPN's team id when the team comes from ESPN: the frontend shows its crest through
+    # its own cached /logos route (never the provider's CDN from the browser).
+    crest_id: str | None = None
 
 
 class ResultOut(BaseModel):
@@ -146,6 +149,7 @@ class CountryOut(BaseModel):
     code: str | None  # ISO alpha-2 when there is one (England has none)
     n_events: int
     n_with_odds: int
+    n_live: int = 0
     leagues: list[str]
 
 
@@ -319,11 +323,12 @@ def list_events(
     events = _load_events(db, where)
     quotes = _quotes(db, events, settings)
     api_football_events = _api_football_event_ids(db, events)
+    crests = _espn_team_ids(db, events)
     stale_after = timedelta(hours=settings.odds_stale_after_hours)
     return EventsResponse(
         data_as_of=_data_as_of(db, settings),
         events=[
-            _event_out(e, quotes.get(e.id), stale_after, now, e.id in api_football_events)
+            _event_out(e, quotes.get(e.id), stale_after, now, e.id in api_football_events, crests)
             for e in events
         ],
     )
@@ -350,14 +355,16 @@ def list_countries(
     for e in events:
         name = e.competition.country_name or INTERNATIONAL
         c = stats.setdefault(
-            name, {"code": e.competition.country_code, "n": 0, "odds": 0, "leagues": set()}
+            name,
+            {"code": e.competition.country_code, "n": 0, "odds": 0, "live": 0, "leagues": set()},
         )
         c["n"] += 1
+        c["live"] += e.status is EventStatus.LIVE
         c["odds"] += e.id in shown
         c["leagues"].add(e.competition.name)
     countries = [
         CountryOut(name=n, code=c["code"], n_events=c["n"], n_with_odds=c["odds"],
-                   leagues=sorted(c["leagues"]))
+                   n_live=c["live"], leagues=sorted(c["leagues"]))
         for n, c in stats.items()
     ]  # fmt: skip
     countries.sort(key=lambda c: (c.name == INTERNATIONAL, c.name))
@@ -508,13 +515,30 @@ def _api_football_event_ids(db: Session, events: list[Event]) -> set[int]:
     )
 
 
+def _espn_team_ids(db: Session, events: list[Event]) -> dict[int, str]:
+    """participant id -> ESPN team id, for the teams ESPN knows (their crests)."""
+    ids = {e.home_participant_id for e in events} | {e.away_participant_id for e in events}
+    if not ids:
+        return {}
+    rows = db.execute(
+        select(ExternalRef.entity_id, ExternalRef.external_id).where(
+            ExternalRef.source == Provider.ESPN,
+            ExternalRef.entity_type == EntityType.PARTICIPANT,
+            ExternalRef.entity_id.in_(ids),
+        )
+    )
+    return {pid: ext for pid, ext in rows if ext.isdigit()}
+
+
 def _event_out(
     e: Event,
     picked: tuple[Provider, list[Quote]] | None,
     stale_after: timedelta,
     now: datetime,
     from_api_football: bool,
+    crests: dict[int, str] | None = None,
 ) -> EventOut:
+    crests = crests or {}
     summary = summarize(picked[1], stale_after) if picked else None
     odds = implied = None
     if summary is not None:
@@ -554,8 +578,8 @@ def _event_out(
         starts_at=e.starts_at,
         kickoff_confirmed=e.kickoff_confirmed,
         status=e.status,
-        home=TeamOut(id=e.home.id, name=e.home.name),
-        away=TeamOut(id=e.away.id, name=e.away.name),
+        home=TeamOut(id=e.home.id, name=e.home.name, crest_id=crests.get(e.home.id)),
+        away=TeamOut(id=e.away.id, name=e.away.name, crest_id=crests.get(e.away.id)),
         result=ResultOut(home=e.result.home_score, away=e.result.away_score) if e.result else None,
         odds=odds,
         implied_probability=implied,
