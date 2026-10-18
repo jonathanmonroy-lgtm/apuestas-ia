@@ -1,5 +1,15 @@
 # Apuestas IA — Plataforma de información para la comunidad de apostadores
 
+## 📱 Descargar la app (Android)
+
+**[⬇️ Descargar apuestas-ia.apk](https://github.com/jonathanmonroy-lgtm/apuestas-ia/releases/latest/download/apuestas-ia.apk)** · [todas las versiones](https://github.com/jonathanmonroy-lgtm/apuestas-ia/releases)
+
+1. Abre el enlace desde el navegador del móvil y descarga el APK.
+2. Ábrelo y acepta *instalar apps de orígenes desconocidos* para el navegador.
+3. Si Play Protect avisa, pulsa *Más detalles → Instalar de todas formas*.
+
+Versión de prueba interna, **sólo mayores de 18 años**. Información y estimaciones, nunca garantías de ganancia. La app (Flutter, carpeta `app_movil/`) se compila en GitHub Actions y cada tag `v*` publica un APK nuevo.
+
 ## 🎯 Qué es esto
 Plataforma que centraliza **noticias, reportes estadísticos, probabilidades (odds)** de distintas casas/fuentes, y un módulo de **IA** que aprende de todo ese histórico para generar **informes y pronósticos razonados** (no garantizados) para la comunidad.
 
