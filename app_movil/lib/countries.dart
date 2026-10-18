@@ -9,7 +9,7 @@ class Country {
 
   const Country(this.name, this.iso2, this.flag);
 
-  bool get isInternational => this == international;
+  bool get isInternational => iso2 == null && name == international.name;
 
   static const international = Country('Internacional', null, '🌍');
 }

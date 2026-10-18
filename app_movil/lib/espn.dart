@@ -8,6 +8,9 @@
 library;
 
 import 'dart:convert';
+import 'dart:isolate';
+
+import 'package:flutter/foundation.dart' show ValueNotifier;
 
 import 'package:http/http.dart' as http;
 
@@ -247,26 +250,30 @@ class EspnClient {
   final Map<String, (DateTime, List<Match>)> _days = {};
   static const _dayTtl = Duration(minutes: 3);
 
+  /// What is being done right now, for the loading screen.
+  final progress = ValueNotifier<String>('');
+
   EspnClient([http.Client? client]) : _http = client ?? http.Client();
 
-  Future<Object?> _get(String path, Map<String, String> query) async {
+  /// Raw body: a day of play is ~3.5 MB of JSON, decoded OFF the UI thread (below).
+  Future<List<int>> _get(String path, Map<String, String> query) async {
     final uri = Uri.parse('$_base$path').replace(queryParameters: query);
     final r = await _http
         .get(uri, headers: {'Accept': 'application/json'})
-        .timeout(const Duration(seconds: 20));
+        .timeout(const Duration(seconds: 25));
     if (r.statusCode != 200) {
       throw http.ClientException('ESPN respondió ${r.statusCode}', uri);
     }
-    return jsonDecode(utf8.decode(r.bodyBytes));
+    return r.bodyBytes;
   }
 
   Future<Map<String, League>> leagues() async {
     final fresh = _leaguesAt != null &&
         DateTime.now().difference(_leaguesAt!) < const Duration(hours: 12);
     if (_leagues != null && fresh) return _leagues!;
-    _leagues = parseLeagues(
-      await _get('/leagues/dropdown', {'sport': 'soccer', 'limit': '$_limit'}),
-    );
+    progress.value = 'Cargando ligas…';
+    final body = await _get('/leagues/dropdown', {'sport': 'soccer', 'limit': '$_limit'});
+    _leagues = await Isolate.run(() => parseLeagues(jsonDecode(utf8.decode(body))));
     _leaguesAt = DateTime.now();
     return _leagues!;
   }
@@ -279,13 +286,22 @@ class EspnClient {
     if (!refresh && cached != null && DateTime.now().difference(cached.$1) < _dayTtl) {
       return cached.$2;
     }
-    final leagues = await this.leagues();
+    // The catalogue and both ESPN days are requested at the same time.
+    final leaguesF = leagues();
+    progress.value = 'Descargando partidos…';
+    final bodies = await Future.wait([
+      for (final d in [day, day.add(const Duration(days: 1))])
+        _get('/sports/soccer/all/scoreboard', {'dates': _espnDate(d), 'limit': '$_limit'}),
+    ]);
+    final leagues = await leaguesF;
+    progress.value = 'Ordenando partidos…';
     final (start, end) = colombianDayBounds(day);
     final byId = <String, Match>{};
-    for (final d in [day, day.add(const Duration(days: 1))]) {
-      final payload =
-          await _get('/sports/soccer/all/scoreboard', {'dates': _espnDate(d), 'limit': '$_limit'});
-      for (final m in parseScoreboard(payload, leagues)) {
+    for (final body in bodies) {
+      final parsed = await Isolate.run(
+        () => parseScoreboard(jsonDecode(utf8.decode(body)), leagues),
+      );
+      for (final m in parsed) {
         byId[m.id] = m;
       }
     }
@@ -297,8 +313,12 @@ class EspnClient {
         return t != 0 ? t : a.id.compareTo(b.id);
       });
     _days[key] = (DateTime.now(), matches);
+    progress.value = '';
     return matches;
   }
 
-  void close() => _http.close();
+  void close() {
+    progress.dispose();
+    _http.close();
+  }
 }

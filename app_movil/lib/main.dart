@@ -17,6 +17,9 @@ const gold = Color(0xFFC9A227);
 const live = Color(0xFF3FA66E);
 const awayBlue = Color(0xFF4AA3C8);
 
+// Set by CI (--dart-define=APP_VERSION=...): shown on screen to tell builds apart.
+const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: 'dev');
+
 const daysBack = 3;
 const daysAhead = 7;
 const _ageKey = 'age_confirmed_v1';
@@ -74,15 +77,29 @@ class _AgeGateState extends State<AgeGate> {
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((p) {
-      if (mounted) setState(() => _confirmed = p.getBool(_ageKey) ?? false);
-    });
+    _load();
+  }
+
+  /// Never wait forever on local storage: if it fails or hangs, ask again (safe side).
+  Future<void> _load() async {
+    var confirmed = false;
+    try {
+      final p = await SharedPreferences.getInstance().timeout(const Duration(seconds: 3));
+      confirmed = p.getBool(_ageKey) ?? false;
+    } catch (_) {
+      confirmed = false;
+    }
+    if (mounted) setState(() => _confirmed = confirmed);
   }
 
   Future<void> _confirm() async {
-    final p = await SharedPreferences.getInstance();
-    await p.setBool(_ageKey, true);
-    if (mounted) setState(() => _confirmed = true);
+    if (mounted) setState(() => _confirmed = true); // the answer counts even if not saved
+    try {
+      final p = await SharedPreferences.getInstance().timeout(const Duration(seconds: 3));
+      await p.setBool(_ageKey, true);
+    } catch (_) {
+      // not saved: the question comes back next launch
+    }
   }
 
   @override
@@ -305,7 +322,20 @@ class _DaysScreenState extends State<DaysScreen> {
               future: _future,
               builder: (context, snap) {
                 if (snap.connectionState != ConnectionState.done) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 16),
+                        ValueListenableBuilder<String>(
+                          valueListenable: _espn.progress,
+                          builder: (context, text, _) =>
+                              Text(text, style: const TextStyle(color: muted)),
+                        ),
+                      ],
+                    ),
+                  );
                 }
                 if (snap.hasError) {
                   return _ErrorView(error: snap.error!, onRetry: _refresh);
@@ -498,7 +528,7 @@ class _SourceNote extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Text(
         'Fuente: ESPN (no oficial). Horas de Colombia (UTC-5). Desliza hacia abajo para '
-        'actualizar.',
+        'actualizar. Versión $appVersion.',
         style: TextStyle(color: muted, fontSize: 12),
       ),
     );
